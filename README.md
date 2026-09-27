@@ -1,5 +1,7 @@
 # AI Act readiness: a Spanish health insurer
 
+**Live site: [ma731.github.io/ai-act-readiness](https://ma731.github.io/ai-act-readiness/)**
+
 This project does what a Responsible AI team does for a client: it takes an insurer's AI
 systems, works out what the EU AI Act requires of each one, tests the riskiest one for harm
 to people, and says what to fix and by when.

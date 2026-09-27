@@ -20,6 +20,8 @@ jobs:
         run: pytest -q
       - name: Docs match the rules and committed results
         run: python -m scripts.run_assessment --check
+      - name: Site builds
+        run: python -m scripts.build_site
 
   reproduce:
     # Refit everything from the public data and fail if any published figure moves.
