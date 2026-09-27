@@ -1,0 +1,144 @@
+# AI inventory of Cierzo Seguros, a FICTIONAL mid-size Spanish life and health insurer
+# (Zaragoza, about 400k policyholders). Any resemblance to a real company is unintended.
+#
+# Each system is described by facts, not by its risk tier: the tier is what src/rules.py
+# concludes from these facts. `controls` is the insurer's current state, used for the gap
+# assessment: met | partial | missing.
+
+company:
+  name: Cierzo Seguros (fictional)
+  country: ES
+  lines: [health, life, home]
+  as_of: 2026-09-27
+
+systems:
+  - id: S1
+    name: Tarifa Salud
+    summary: >
+      In-house model that prices individual health insurance from the application
+      questionnaire (age, province, smoking, diagnosed conditions, self-rated health) and
+      routes each application to accept, refer to an underwriter, or decline.
+    status: live
+    placed_on_market: 2024-03-01
+    role: [provider, deployer]
+    insurance_line: health
+    function: [pricing, risk_assessment]
+    affects_natural_persons: true
+    profiling: true
+    art6_3_conditions: [preparatory]   # claimed by the business owner; the rules reject it
+    uses_health_data: true
+    automated_decision: true           # standard-risk applications are accepted with no human
+    rerated_annually: true             # factors and relativities reviewed every January
+    evidence: results/pricing_evidence.json
+    controls:
+      Art 9: {status: partial, note: "Model risk policy exists; no AI-specific risk register."}
+      Art 10: {status: missing, note: "No bias examination of training data on record."}
+      Art 11: {status: partial, note: "Actuarial pricing memo; not Annex IV structured."}
+      Art 12: {status: partial, note: "Quotes logged 90 days; override reasons not logged."}
+      Art 13: {status: missing, note: "No instructions for use for underwriters."}
+      Art 14: {status: partial, note: "Underwriters see refers only; no override guidance."}
+      Art 15: {status: partial, note: "Accuracy tracked (Gini); no robustness tests."}
+      Art 17: {status: missing, note: "No quality management system covering AI."}
+      Art 43: {status: missing, note: "No conformity assessment planned."}
+      Art 47-48: {status: missing, note: "No declaration of conformity."}
+      Art 49(1): {status: missing, note: "Not registered."}
+      Art 72-73: {status: partial, note: "Monthly loss ratio review; no incident procedure."}
+      Art 26(1): {status: partial, note: "Pricing manual exists; underwriters not trained on it."}
+      Art 26(2): {status: partial, note: "Underwriters review refers; no authority to override price."}
+      Art 26(4): {status: met, note: "Cierzo designs and validates the questionnaire."}
+      Art 26(5): {status: missing, note: "No route to report a model incident."}
+      Art 26(6): {status: missing, note: "90-day log retention is below six months."}
+      Art 26(11): {status: missing, note: "Applicants are not told a model prices them."}
+      Art 27: {status: missing, note: "No fundamental rights impact assessment."}
+      Art 86: {status: missing, note: "No process to explain a price or decline."}
+      Art 4: {status: partial, note: "Actuaries trained; underwriters and sales are not."}
+
+  - id: S2
+    name: Asistente Cierzo
+    summary: >
+      Customer chatbot on the website and app, built by Cierzo on a third-party
+      general-purpose model through an API. Answers policy questions, opens claims and
+      collects the health questionnaire for new quotes, which it passes to Tarifa Salud.
+    status: live
+    placed_on_market: 2025-10-15
+    role: [provider, deployer]
+    function: [customer_service]
+    interacts_with_people: true
+    generates_synthetic_content: true
+    uses_health_data: true
+    feeds: [S1]
+    controls:
+      Art 50(1): {status: missing, note: "Persona 'Luz' is not labelled as AI anywhere."}
+      Art 50(2): {status: missing, note: "Generated replies carry no machine-readable mark."}
+      Art 4: {status: partial, note: "Product team trained; contact centre is not."}
+
+  - id: S3
+    name: Detector Fraude Siniestros
+    summary: >
+      Gradient-boosted model that scores health claims for fraud and queues the top 3% for
+      the special investigations unit. Investigators decide; the score never denies a claim.
+    status: live
+    placed_on_market: 2023-06-01
+    role: [provider, deployer]
+    insurance_line: health
+    function: [claims_fraud]
+    profiling: true
+    uses_health_data: true
+    automated_decision: false
+    controls:
+      Art 4: {status: met, note: "Investigators trained on score limits annually."}
+
+  - id: S4
+    name: Voz Calidad
+    summary: >
+      PROPOSED vendor tool for the contact centre that scores the emotional state of both
+      the agent and the customer from call audio, to coach agents and flag angry customers.
+    status: proposed
+    role: [deployer]
+    function: [quality_monitoring]
+    emotion_recognition:
+      subjects: [employees, customers]
+      input: voice_acoustics
+      medical_or_safety: false
+    interacts_with_people: false
+    controls: {}
+
+  - id: S5
+    name: Suscripcion Vida
+    summary: >
+      Vendor underwriting engine for term life: reads the application and medical
+      disclosures and returns a mortality rating class. Cierzo deploys it; the vendor
+      provides it.
+    status: live
+    placed_on_market: 2025-01-20
+    role: [deployer]
+    insurance_line: life
+    function: [risk_assessment]
+    affects_natural_persons: true
+    profiling: true
+    uses_health_data: true
+    automated_decision: false
+    controls:
+      Art 26(1): {status: partial, note: "Vendor manual exists; not built into procedure."}
+      Art 26(2): {status: met, note: "Underwriters sign off every rating."}
+      Art 26(4): {status: partial, note: "Disclosures sent as typed; no completeness check."}
+      Art 26(5): {status: missing, note: "No channel to report vendor incidents."}
+      Art 26(6): {status: partial, note: "Vendor holds logs; Cierzo has no access."}
+      Art 26(11): {status: missing, note: "Applicants not informed."}
+      Art 27: {status: missing, note: "No fundamental rights impact assessment."}
+      Art 86: {status: missing, note: "No explanation process."}
+      Art 4: {status: met, note: "Underwriters trained by vendor."}
+
+  - id: S6
+    name: Tarifa Hogar
+    summary: >
+      GLM that prices home insurance from property, location and claims history.
+    status: live
+    placed_on_market: 2022-09-01
+    role: [provider, deployer]
+    insurance_line: home
+    function: [pricing]
+    affects_natural_persons: true
+    profiling: false
+    controls:
+      Art 4: {status: met, note: "Pricing team trained."}

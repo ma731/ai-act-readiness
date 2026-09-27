@@ -1,0 +1,231 @@
+{
+  "data": {
+    "source": "MEPS HC-243, 2022 Full Year Consolidated (AHRQ)",
+    "cohort": "adults 18-64 with any private cover, questionnaire answered",
+    "people": 8166,
+    "represents_millions": 144.7066
+  },
+  "model": {
+    "primary": "Tweedie GLM (power 1.6, log link), survey-weighted",
+    "validation": "5-fold cross-fitting, households kept within a fold",
+    "gini_glm": 0.3872,
+    "gini_gbm_challenger": 0.3389,
+    "book_price_to_cost": 1.0138,
+    "decline_share_target": 0.02,
+    "refer_share_target": 0.08,
+    "base_levels": {
+      "age_band": "35-44",
+      "region": "South",
+      "self_rated_health": "good",
+      "smoker": "no"
+    },
+    "relativities": {
+      "high_blood_pressure": 0.9713,
+      "coronary_heart_disease": 1.704,
+      "stroke": 1.3158,
+      "emphysema": 1.0549,
+      "high_cholesterol": 0.9641,
+      "cancer": 1.6946,
+      "diabetes": 1.2908,
+      "arthritis": 1.9002,
+      "asthma": 1.4485,
+      "age_band_18-24": 0.7173,
+      "age_band_25-34": 0.9482,
+      "age_band_35-44": 1.0,
+      "age_band_45-54": 1.0045,
+      "age_band_55-64": 1.0788,
+      "region_Midwest": 1.0978,
+      "region_Northeast": 0.9296,
+      "region_South": 1.0,
+      "region_West": 1.0416,
+      "self_rated_health_excellent": 0.5674,
+      "self_rated_health_fair": 1.2432,
+      "self_rated_health_good": 1.0,
+      "self_rated_health_poor": 2.0095,
+      "self_rated_health_very_good": 0.7325,
+      "smoker_no": 1.0,
+      "smoker_yes": 0.6211
+    }
+  },
+  "tolerance_price_to_cost": [
+    0.8,
+    1.25
+  ],
+  "groups": {
+    "ethnicity": [
+      {
+        "group": "Asian",
+        "n": 669,
+        "population_share": 0.0769,
+        "premium_index": 0.8526,
+        "cost_index": 0.7989,
+        "price_to_cost": 1.0673,
+        "price_to_cost_ci": [
+          0.8767,
+          1.3061
+        ],
+        "verdict": "inconclusive",
+        "decline_rate": 0.0145,
+        "decline_rate_ci": [
+          0.0076,
+          0.0227
+        ],
+        "refer_rate": 0.0241,
+        "refer_rate_ci": [
+          0.0132,
+          0.0359
+        ]
+      },
+      {
+        "group": "Black",
+        "n": 1032,
+        "population_share": 0.1174,
+        "premium_index": 0.9965,
+        "cost_index": 0.8508,
+        "price_to_cost": 1.1712,
+        "price_to_cost_ci": [
+          1.0462,
+          1.3205
+        ],
+        "verdict": "inconclusive",
+        "decline_rate": 0.0192,
+        "decline_rate_ci": [
+          0.012,
+          0.0268
+        ],
+        "refer_rate": 0.088,
+        "refer_rate_ci": [
+          0.0712,
+          0.1038
+        ]
+      },
+      {
+        "group": "Hispanic",
+        "n": 1360,
+        "population_share": 0.1515,
+        "premium_index": 0.8991,
+        "cost_index": 0.619,
+        "price_to_cost": 1.4525,
+        "price_to_cost_ci": [
+          1.2652,
+          1.6567
+        ],
+        "verdict": "overcharged",
+        "decline_rate": 0.0114,
+        "decline_rate_ci": [
+          0.0068,
+          0.016
+        ],
+        "refer_rate": 0.0608,
+        "refer_rate_ci": [
+          0.0502,
+          0.071
+        ]
+      },
+      {
+        "group": "Other or multiple",
+        "n": 249,
+        "population_share": 0.0316,
+        "premium_index": 1.1276,
+        "cost_index": 0.9087,
+        "price_to_cost": 1.2409,
+        "price_to_cost_ci": [
+          0.9679,
+          1.5984
+        ],
+        "verdict": "inconclusive",
+        "decline_rate": 0.0456,
+        "decline_rate_ci": [
+          0.0283,
+          0.0667
+        ],
+        "refer_rate": 0.0583,
+        "refer_rate_ci": [
+          0.0319,
+          0.0873
+        ]
+      },
+      {
+        "group": "White",
+        "n": 4856,
+        "population_share": 0.6226,
+        "premium_index": 1.0369,
+        "cost_index": 1.1503,
+        "price_to_cost": 0.9015,
+        "price_to_cost_ci": [
+          0.876,
+          0.9326
+        ],
+        "verdict": "within tolerance",
+        "decline_rate": 0.0227,
+        "decline_rate_ci": [
+          0.0184,
+          0.0265
+        ],
+        "refer_rate": 0.0929,
+        "refer_rate_ci": [
+          0.0847,
+          0.1016
+        ]
+      }
+    ],
+    "sex": [
+      {
+        "group": "Female",
+        "n": 4269,
+        "population_share": 0.5031,
+        "premium_index": 1.051,
+        "cost_index": 1.208,
+        "price_to_cost": 0.87,
+        "price_to_cost_ci": [
+          0.8248,
+          0.9103
+        ],
+        "verdict": "within tolerance",
+        "decline_rate": 0.0222,
+        "decline_rate_ci": [
+          0.018,
+          0.0262
+        ],
+        "refer_rate": 0.0921,
+        "refer_rate_ci": [
+          0.0841,
+          0.1009
+        ]
+      },
+      {
+        "group": "Male",
+        "n": 3897,
+        "population_share": 0.4969,
+        "premium_index": 0.9484,
+        "cost_index": 0.7895,
+        "price_to_cost": 1.2013,
+        "price_to_cost_ci": [
+          1.1239,
+          1.3064
+        ],
+        "verdict": "inconclusive",
+        "decline_rate": 0.0191,
+        "decline_rate_ci": [
+          0.0146,
+          0.0232
+        ],
+        "refer_rate": 0.0699,
+        "refer_rate_ci": [
+          0.0624,
+          0.0779
+        ]
+      }
+    ]
+  },
+  "sex_counterfactual": {
+    "female_to_male_premium_unisex": 1.1082,
+    "female_to_male_premium_if_sex_were_used": 1.6487,
+    "female_to_male_actual_cost": 1.5301,
+    "sex_recoverable_from_rating_factors_auc": 0.5916
+  },
+  "bootstrap": {
+    "replicates": 400,
+    "design": "PSUs resampled within strata"
+  }
+}

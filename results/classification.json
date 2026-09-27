@@ -1,0 +1,920 @@
+{
+  "legal_basis_date": "2026-09-27",
+  "systems": [
+    {
+      "system_id": "S1",
+      "tier": "high_risk",
+      "basis": [
+        "Risk assessment or pricing of natural persons in health insurance: Annex III 5(c).",
+        "Derogation claimed (Art 6(3)(d) preparatory task) but the system profiles natural persons, so Art 6(3) keeps it high-risk."
+      ],
+      "obligations": [
+        {
+          "article": "Art 9",
+          "duty": "Risk management system across the lifecycle",
+          "holder": "provider",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 10",
+          "duty": "Data governance: relevant, representative, bias examined",
+          "holder": "provider",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 11",
+          "duty": "Technical documentation (Annex IV)",
+          "holder": "provider",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 12",
+          "duty": "Automatic event logging",
+          "holder": "provider",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 13",
+          "duty": "Instructions for use for deployers",
+          "holder": "provider",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 14",
+          "duty": "Designed for effective human oversight",
+          "holder": "provider",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 15",
+          "duty": "Accuracy, robustness, cybersecurity declared and met",
+          "holder": "provider",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 17",
+          "duty": "Quality management system",
+          "holder": "provider",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 43",
+          "duty": "Conformity assessment before putting into service",
+          "holder": "provider",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 47-48",
+          "duty": "EU declaration of conformity and CE marking",
+          "holder": "provider",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 49(1)",
+          "duty": "Register in the EU database",
+          "holder": "provider",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 72-73",
+          "duty": "Post-market monitoring and serious incident reporting",
+          "holder": "provider",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 26(1)",
+          "duty": "Use according to the instructions for use",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 26(2)",
+          "duty": "Human oversight by competent, trained, empowered staff",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 26(4)",
+          "duty": "Input data relevant and representative, where controlled",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 26(5)",
+          "duty": "Monitor operation, report risks and serious incidents",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 26(6)",
+          "duty": "Keep logs at least six months",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 26(11)",
+          "duty": "Tell people a high-risk system is used in decisions about them",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 86",
+          "duty": "Explain the system's role in a decision on request",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 27",
+          "duty": "Fundamental rights impact assessment before first use, notified to the market surveillance authority",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 4",
+          "duty": "Support AI literacy of staff who operate or use it (as softened by the Omnibus)",
+          "holder": "provider",
+          "applies_from": "2025-02-02"
+        }
+      ],
+      "flags": [
+        "Already in service: under Art 111(2) the high-risk duties bite only once its design changes significantly. Confirm the post-Omnibus cut-off in Regulation (EU) 2026/1744 before relying on this; a scheduled re-rating that changes factors or model form is likely such a change."
+      ],
+      "other_law": [
+        "GDPR Art 9: health data is special category; needs an Art 9(2) basis. Art 35 DPIA (the FRIA may reuse it, AI Act Art 27(4)).",
+        "GDPR Art 22: solely automated decisions with significant effect need a lawful basis, human intervention and contest rights.",
+        "Directive 2004/113 Art 5 (Test-Achats, C-236/09): sex must not change premiums or benefits; pregnancy and maternity costs must not either."
+      ],
+      "fria_required": true,
+      "legacy_art111": true
+    },
+    {
+      "system_id": "S2",
+      "tier": "transparency",
+      "basis": [
+        "Interacts directly with people: Art 50(1) disclosure at first contact (Art 50(5))."
+      ],
+      "obligations": [
+        {
+          "article": "Art 50(1)",
+          "duty": "Tell users they are talking to an AI, clearly, at first interaction",
+          "holder": "provider",
+          "applies_from": "2026-08-02"
+        },
+        {
+          "article": "Art 50(2)",
+          "duty": "Mark generated text or audio as AI-made, machine-readably",
+          "holder": "provider",
+          "applies_from": "2026-12-02"
+        },
+        {
+          "article": "Art 4",
+          "duty": "Support AI literacy of staff who operate or use it (as softened by the Omnibus)",
+          "holder": "provider",
+          "applies_from": "2025-02-02"
+        }
+      ],
+      "flags": [
+        "A system built on a third-party model is still the provider of that system; check whether the model vendor's marking reaches your output.",
+        "Its output becomes input to S1: that path must be in the receiving system's data governance, logs and instructions for use."
+      ],
+      "other_law": [
+        "GDPR Art 9: health data is special category; needs an Art 9(2) basis. Art 35 DPIA (the FRIA may reuse it, AI Act Art 27(4))."
+      ],
+      "fria_required": false,
+      "legacy_art111": false
+    },
+    {
+      "system_id": "S3",
+      "tier": "minimal",
+      "basis": [
+        "Claims fraud detection is not listed in Annex III. The fraud carve-out in 5(b) concerns credit scoring and is not needed here."
+      ],
+      "obligations": [
+        {
+          "article": "Art 4",
+          "duty": "Support AI literacy of staff who operate or use it (as softened by the Omnibus)",
+          "holder": "provider",
+          "applies_from": "2025-02-02"
+        }
+      ],
+      "flags": [],
+      "other_law": [
+        "GDPR Art 9: health data is special category; needs an Art 9(2) basis. Art 35 DPIA (the FRIA may reuse it, AI Act Art 27(4))."
+      ],
+      "fria_required": false,
+      "legacy_art111": false
+    },
+    {
+      "system_id": "S4",
+      "tier": "prohibited",
+      "basis": [
+        "Infers emotions of workers from biometric data: prohibited by Art 5(1)(f) since 2 Feb 2025.",
+        "Emotion recognition on customers is listed high-risk in Annex III 1(c)."
+      ],
+      "obligations": [
+        {
+          "article": "Art 5(1)(f)",
+          "duty": "Do not use on employees; remove that capability",
+          "holder": "deployer",
+          "applies_from": "2025-02-02"
+        },
+        {
+          "article": "Art 50(3)",
+          "duty": "Inform people exposed to emotion recognition",
+          "holder": "deployer",
+          "applies_from": "2026-08-02"
+        },
+        {
+          "article": "Art 26(1)",
+          "duty": "Use according to the instructions for use",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 26(2)",
+          "duty": "Human oversight by competent, trained, empowered staff",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 26(4)",
+          "duty": "Input data relevant and representative, where controlled",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 26(5)",
+          "duty": "Monitor operation, report risks and serious incidents",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 26(6)",
+          "duty": "Keep logs at least six months",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 26(11)",
+          "duty": "Tell people a high-risk system is used in decisions about them",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 86",
+          "duty": "Explain the system's role in a decision on request",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 4",
+          "duty": "Support AI literacy of staff who operate or use it (as softened by the Omnibus)",
+          "holder": "deployer",
+          "applies_from": "2025-02-02"
+        }
+      ],
+      "flags": [
+        "Biometric system: Art 43(1) conformity route depends on harmonised standards; a notified body may be required."
+      ],
+      "other_law": [],
+      "fria_required": false,
+      "legacy_art111": false
+    },
+    {
+      "system_id": "S5",
+      "tier": "high_risk",
+      "basis": [
+        "Risk assessment or pricing of natural persons in life insurance: Annex III 5(c).",
+        "Profiles natural persons: Art 6(3) derogation unavailable."
+      ],
+      "obligations": [
+        {
+          "article": "Art 26(1)",
+          "duty": "Use according to the instructions for use",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 26(2)",
+          "duty": "Human oversight by competent, trained, empowered staff",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 26(4)",
+          "duty": "Input data relevant and representative, where controlled",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 26(5)",
+          "duty": "Monitor operation, report risks and serious incidents",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 26(6)",
+          "duty": "Keep logs at least six months",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 26(11)",
+          "duty": "Tell people a high-risk system is used in decisions about them",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 86",
+          "duty": "Explain the system's role in a decision on request",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 27",
+          "duty": "Fundamental rights impact assessment before first use, notified to the market surveillance authority",
+          "holder": "deployer",
+          "applies_from": "2027-12-02"
+        },
+        {
+          "article": "Art 4",
+          "duty": "Support AI literacy of staff who operate or use it (as softened by the Omnibus)",
+          "holder": "deployer",
+          "applies_from": "2025-02-02"
+        }
+      ],
+      "flags": [
+        "Already in service: under Art 111(2) the high-risk duties bite only once its design changes significantly. Confirm the post-Omnibus cut-off in Regulation (EU) 2026/1744 before relying on this."
+      ],
+      "other_law": [
+        "GDPR Art 9: health data is special category; needs an Art 9(2) basis. Art 35 DPIA (the FRIA may reuse it, AI Act Art 27(4)).",
+        "Directive 2004/113 Art 5 (Test-Achats, C-236/09): sex must not change premiums or benefits; pregnancy and maternity costs must not either."
+      ],
+      "fria_required": true,
+      "legacy_art111": true
+    },
+    {
+      "system_id": "S6",
+      "tier": "minimal",
+      "basis": [
+        "Pricing in home insurance is not listed: Annex III 5(c) covers life and health only."
+      ],
+      "obligations": [
+        {
+          "article": "Art 4",
+          "duty": "Support AI literacy of staff who operate or use it (as softened by the Omnibus)",
+          "holder": "provider",
+          "applies_from": "2025-02-02"
+        }
+      ],
+      "flags": [],
+      "other_law": [
+        "Directive 2004/113 Art 5 (Test-Achats, C-236/09): sex must not change premiums or benefits; pregnancy and maternity costs must not either."
+      ],
+      "fria_required": false,
+      "legacy_art111": false
+    }
+  ],
+  "gaps": [
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 9",
+      "duty": "Risk management system across the lifecycle",
+      "holder": "provider",
+      "status": "partial",
+      "note": "Model risk policy exists; no AI-specific risk register.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 10",
+      "duty": "Data governance: relevant, representative, bias examined",
+      "holder": "provider",
+      "status": "missing",
+      "note": "No bias examination of training data on record.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 11",
+      "duty": "Technical documentation (Annex IV)",
+      "holder": "provider",
+      "status": "partial",
+      "note": "Actuarial pricing memo; not Annex IV structured.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 12",
+      "duty": "Automatic event logging",
+      "holder": "provider",
+      "status": "partial",
+      "note": "Quotes logged 90 days; override reasons not logged.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 13",
+      "duty": "Instructions for use for deployers",
+      "holder": "provider",
+      "status": "missing",
+      "note": "No instructions for use for underwriters.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 14",
+      "duty": "Designed for effective human oversight",
+      "holder": "provider",
+      "status": "partial",
+      "note": "Underwriters see refers only; no override guidance.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 15",
+      "duty": "Accuracy, robustness, cybersecurity declared and met",
+      "holder": "provider",
+      "status": "partial",
+      "note": "Accuracy tracked (Gini); no robustness tests.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 17",
+      "duty": "Quality management system",
+      "holder": "provider",
+      "status": "missing",
+      "note": "No quality management system covering AI.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 43",
+      "duty": "Conformity assessment before putting into service",
+      "holder": "provider",
+      "status": "missing",
+      "note": "No conformity assessment planned.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 47-48",
+      "duty": "EU declaration of conformity and CE marking",
+      "holder": "provider",
+      "status": "missing",
+      "note": "No declaration of conformity.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 49(1)",
+      "duty": "Register in the EU database",
+      "holder": "provider",
+      "status": "missing",
+      "note": "Not registered.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 72-73",
+      "duty": "Post-market monitoring and serious incident reporting",
+      "holder": "provider",
+      "status": "partial",
+      "note": "Monthly loss ratio review; no incident procedure.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 26(1)",
+      "duty": "Use according to the instructions for use",
+      "holder": "deployer",
+      "status": "partial",
+      "note": "Pricing manual exists; underwriters not trained on it.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 26(2)",
+      "duty": "Human oversight by competent, trained, empowered staff",
+      "holder": "deployer",
+      "status": "partial",
+      "note": "Underwriters review refers; no authority to override price.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 26(4)",
+      "duty": "Input data relevant and representative, where controlled",
+      "holder": "deployer",
+      "status": "met",
+      "note": "Cierzo designs and validates the questionnaire.",
+      "state": "Done",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 26(5)",
+      "duty": "Monitor operation, report risks and serious incidents",
+      "holder": "deployer",
+      "status": "missing",
+      "note": "No route to report a model incident.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 26(6)",
+      "duty": "Keep logs at least six months",
+      "holder": "deployer",
+      "status": "missing",
+      "note": "90-day log retention is below six months.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 26(11)",
+      "duty": "Tell people a high-risk system is used in decisions about them",
+      "holder": "deployer",
+      "status": "missing",
+      "note": "Applicants are not told a model prices them.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 86",
+      "duty": "Explain the system's role in a decision on request",
+      "holder": "deployer",
+      "status": "missing",
+      "note": "No process to explain a price or decline.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 27",
+      "duty": "Fundamental rights impact assessment before first use, notified to the market surveillance authority",
+      "holder": "deployer",
+      "status": "missing",
+      "note": "No fundamental rights impact assessment.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S1",
+      "name": "Tarifa Salud",
+      "live": true,
+      "article": "Art 4",
+      "duty": "Support AI literacy of staff who operate or use it (as softened by the Omnibus)",
+      "holder": "provider",
+      "status": "partial",
+      "note": "Actuaries trained; underwriters and sales are not.",
+      "state": "In force, partial",
+      "applies_from": "2025-02-02"
+    },
+    {
+      "system": "S2",
+      "name": "Asistente Cierzo",
+      "live": true,
+      "article": "Art 50(1)",
+      "duty": "Tell users they are talking to an AI, clearly, at first interaction",
+      "holder": "provider",
+      "status": "missing",
+      "note": "Persona 'Luz' is not labelled as AI anywhere.",
+      "state": "OVERDUE",
+      "applies_from": "2026-08-02"
+    },
+    {
+      "system": "S2",
+      "name": "Asistente Cierzo",
+      "live": true,
+      "article": "Art 50(2)",
+      "duty": "Mark generated text or audio as AI-made, machine-readably",
+      "holder": "provider",
+      "status": "missing",
+      "note": "Generated replies carry no machine-readable mark.",
+      "state": "Due 02 Dec 2026 (3 mo)",
+      "applies_from": "2026-12-02"
+    },
+    {
+      "system": "S2",
+      "name": "Asistente Cierzo",
+      "live": true,
+      "article": "Art 4",
+      "duty": "Support AI literacy of staff who operate or use it (as softened by the Omnibus)",
+      "holder": "provider",
+      "status": "partial",
+      "note": "Product team trained; contact centre is not.",
+      "state": "In force, partial",
+      "applies_from": "2025-02-02"
+    },
+    {
+      "system": "S3",
+      "name": "Detector Fraude Siniestros",
+      "live": true,
+      "article": "Art 4",
+      "duty": "Support AI literacy of staff who operate or use it (as softened by the Omnibus)",
+      "holder": "provider",
+      "status": "met",
+      "note": "Investigators trained on score limits annually.",
+      "state": "Done",
+      "applies_from": "2025-02-02"
+    },
+    {
+      "system": "S4",
+      "name": "Voz Calidad",
+      "live": false,
+      "article": "Art 5(1)(f)",
+      "duty": "Do not use on employees; remove that capability",
+      "holder": "deployer",
+      "status": "not assessed",
+      "note": "",
+      "state": "Block before purchase",
+      "applies_from": "2025-02-02"
+    },
+    {
+      "system": "S4",
+      "name": "Voz Calidad",
+      "live": false,
+      "article": "Art 50(3)",
+      "duty": "Inform people exposed to emotion recognition",
+      "holder": "deployer",
+      "status": "not assessed",
+      "note": "",
+      "state": "Pre-deployment",
+      "applies_from": "2026-08-02"
+    },
+    {
+      "system": "S4",
+      "name": "Voz Calidad",
+      "live": false,
+      "article": "Art 26(1)",
+      "duty": "Use according to the instructions for use",
+      "holder": "deployer",
+      "status": "not assessed",
+      "note": "",
+      "state": "Pre-deployment",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S4",
+      "name": "Voz Calidad",
+      "live": false,
+      "article": "Art 26(2)",
+      "duty": "Human oversight by competent, trained, empowered staff",
+      "holder": "deployer",
+      "status": "not assessed",
+      "note": "",
+      "state": "Pre-deployment",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S4",
+      "name": "Voz Calidad",
+      "live": false,
+      "article": "Art 26(4)",
+      "duty": "Input data relevant and representative, where controlled",
+      "holder": "deployer",
+      "status": "not assessed",
+      "note": "",
+      "state": "Pre-deployment",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S4",
+      "name": "Voz Calidad",
+      "live": false,
+      "article": "Art 26(5)",
+      "duty": "Monitor operation, report risks and serious incidents",
+      "holder": "deployer",
+      "status": "not assessed",
+      "note": "",
+      "state": "Pre-deployment",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S4",
+      "name": "Voz Calidad",
+      "live": false,
+      "article": "Art 26(6)",
+      "duty": "Keep logs at least six months",
+      "holder": "deployer",
+      "status": "not assessed",
+      "note": "",
+      "state": "Pre-deployment",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S4",
+      "name": "Voz Calidad",
+      "live": false,
+      "article": "Art 26(11)",
+      "duty": "Tell people a high-risk system is used in decisions about them",
+      "holder": "deployer",
+      "status": "not assessed",
+      "note": "",
+      "state": "Pre-deployment",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S4",
+      "name": "Voz Calidad",
+      "live": false,
+      "article": "Art 86",
+      "duty": "Explain the system's role in a decision on request",
+      "holder": "deployer",
+      "status": "not assessed",
+      "note": "",
+      "state": "Pre-deployment",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S4",
+      "name": "Voz Calidad",
+      "live": false,
+      "article": "Art 4",
+      "duty": "Support AI literacy of staff who operate or use it (as softened by the Omnibus)",
+      "holder": "deployer",
+      "status": "not assessed",
+      "note": "",
+      "state": "Pre-deployment",
+      "applies_from": "2025-02-02"
+    },
+    {
+      "system": "S5",
+      "name": "Suscripcion Vida",
+      "live": true,
+      "article": "Art 26(1)",
+      "duty": "Use according to the instructions for use",
+      "holder": "deployer",
+      "status": "partial",
+      "note": "Vendor manual exists; not built into procedure.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S5",
+      "name": "Suscripcion Vida",
+      "live": true,
+      "article": "Art 26(2)",
+      "duty": "Human oversight by competent, trained, empowered staff",
+      "holder": "deployer",
+      "status": "met",
+      "note": "Underwriters sign off every rating.",
+      "state": "Done",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S5",
+      "name": "Suscripcion Vida",
+      "live": true,
+      "article": "Art 26(4)",
+      "duty": "Input data relevant and representative, where controlled",
+      "holder": "deployer",
+      "status": "partial",
+      "note": "Disclosures sent as typed; no completeness check.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S5",
+      "name": "Suscripcion Vida",
+      "live": true,
+      "article": "Art 26(5)",
+      "duty": "Monitor operation, report risks and serious incidents",
+      "holder": "deployer",
+      "status": "missing",
+      "note": "No channel to report vendor incidents.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S5",
+      "name": "Suscripcion Vida",
+      "live": true,
+      "article": "Art 26(6)",
+      "duty": "Keep logs at least six months",
+      "holder": "deployer",
+      "status": "partial",
+      "note": "Vendor holds logs; Cierzo has no access.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S5",
+      "name": "Suscripcion Vida",
+      "live": true,
+      "article": "Art 26(11)",
+      "duty": "Tell people a high-risk system is used in decisions about them",
+      "holder": "deployer",
+      "status": "missing",
+      "note": "Applicants not informed.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S5",
+      "name": "Suscripcion Vida",
+      "live": true,
+      "article": "Art 86",
+      "duty": "Explain the system's role in a decision on request",
+      "holder": "deployer",
+      "status": "missing",
+      "note": "No explanation process.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S5",
+      "name": "Suscripcion Vida",
+      "live": true,
+      "article": "Art 27",
+      "duty": "Fundamental rights impact assessment before first use, notified to the market surveillance authority",
+      "holder": "deployer",
+      "status": "missing",
+      "note": "No fundamental rights impact assessment.",
+      "state": "Due 02 Dec 2027 (15 mo)",
+      "applies_from": "2027-12-02"
+    },
+    {
+      "system": "S5",
+      "name": "Suscripcion Vida",
+      "live": true,
+      "article": "Art 4",
+      "duty": "Support AI literacy of staff who operate or use it (as softened by the Omnibus)",
+      "holder": "deployer",
+      "status": "met",
+      "note": "Underwriters trained by vendor.",
+      "state": "Done",
+      "applies_from": "2025-02-02"
+    },
+    {
+      "system": "S6",
+      "name": "Tarifa Hogar",
+      "live": true,
+      "article": "Art 4",
+      "duty": "Support AI literacy of staff who operate or use it (as softened by the Omnibus)",
+      "holder": "provider",
+      "status": "met",
+      "note": "Pricing team trained.",
+      "state": "Done",
+      "applies_from": "2025-02-02"
+    }
+  ]
+}
