@@ -1,50 +1,130 @@
 {
   "data": {
-    "source": "MEPS HC-243, 2022 Full Year Consolidated (AHRQ)",
-    "cohort": "adults 18-64 with any private cover, questionnaire answered",
-    "people": 8166,
-    "represents_millions": 144.7066
+    "source": "INE, Encuesta Europea de Salud en Espa\u00f1a 2020 (fieldwork 15 Jul 2019 to 24 Jul 2020)",
+    "prices": "Osakidetza, Tarifas 2024 (data/tariffs_osakidetza_2024.yaml)",
+    "cohort": "adults 18-64 with complete questionnaire and use answers",
+    "people": 14336,
+    "represents_millions": 29.4332,
+    "born_abroad": 1791,
+    "with_private_cover": 2772,
+    "mean_annual_cost_eur": 1110.3075,
+    "median_annual_cost_eur": 65.0,
+    "share_with_no_care": 0.2091,
+    "cost_breakdown_eur": {
+      "gp": 202.1292,
+      "specialist": 181.5203,
+      "emergency": 79.7004,
+      "inpatient": 474.48,
+      "day_hospital": 101.2684,
+      "tests": 71.2093
+    },
+    "age_profile": [
+      {
+        "age_band": "18-24",
+        "n": 1082,
+        "mean_cost_eur": 743.1298,
+        "mean_conditions": 0.2008,
+        "fair_or_worse_health": 0.0728
+      },
+      {
+        "age_band": "25-34",
+        "n": 1824,
+        "mean_cost_eur": 898.3337,
+        "mean_conditions": 0.3514,
+        "fair_or_worse_health": 0.1028
+      },
+      {
+        "age_band": "35-44",
+        "n": 3633,
+        "mean_cost_eur": 968.7636,
+        "mean_conditions": 0.4892,
+        "fair_or_worse_health": 0.1439
+      },
+      {
+        "age_band": "45-54",
+        "n": 3886,
+        "mean_cost_eur": 1142.99,
+        "mean_conditions": 0.8826,
+        "fair_or_worse_health": 0.2057
+      },
+      {
+        "age_band": "55-64",
+        "n": 3911,
+        "mean_cost_eur": 1605.5389,
+        "mean_conditions": 1.5366,
+        "fair_or_worse_health": 0.2981
+      }
+    ]
   },
   "model": {
-    "primary": "Tweedie GLM (power 1.6, log link), survey-weighted",
-    "validation": "5-fold cross-fitting, households kept within a fold",
-    "gini_glm": 0.3872,
-    "gini_gbm_challenger": 0.3389,
-    "book_price_to_cost": 1.0138,
+    "primary": "Poisson GLM (log link), survey-weighted",
+    "validation": "5-fold cross-fitting",
+    "gini_glm": 0.5969,
+    "gini_gbm_challenger": 0.5978,
+    "book_price_to_cost": 1.005,
     "decline_share_target": 0.02,
     "refer_share_target": 0.08,
     "base_levels": {
       "age_band": "35-44",
-      "region": "South",
+      "region": "Madrid",
       "self_rated_health": "good",
-      "smoker": "no"
+      "smoker": "never",
+      "bmi": "normal"
     },
     "relativities": {
-      "high_blood_pressure": 0.9713,
-      "coronary_heart_disease": 1.704,
-      "stroke": 1.3158,
-      "emphysema": 1.0549,
-      "high_cholesterol": 0.9641,
-      "cancer": 1.6946,
-      "diabetes": 1.2908,
-      "arthritis": 1.9002,
-      "asthma": 1.4485,
-      "age_band_18-24": 0.7173,
-      "age_band_25-34": 0.9482,
+      "hypertension": 1.1175,
+      "heart_attack": 1.416,
+      "coronary_disease": 1.3267,
+      "other_heart": 1.8483,
+      "osteoarthritis": 0.889,
+      "chronic_low_back_pain": 1.0287,
+      "asthma": 1.2171,
+      "copd": 0.8994,
+      "diabetes": 1.3726,
+      "high_cholesterol": 0.9077,
+      "depression": 1.0193,
+      "chronic_anxiety": 1.3568,
+      "stroke": 1.6393,
+      "cancer": 2.2707,
+      "kidney_disease": 1.5659,
+      "age_band_18-24": 1.1508,
+      "age_band_25-34": 1.1726,
       "age_band_35-44": 1.0,
-      "age_band_45-54": 1.0045,
-      "age_band_55-64": 1.0788,
-      "region_Midwest": 1.0978,
-      "region_Northeast": 0.9296,
-      "region_South": 1.0,
-      "region_West": 1.0416,
-      "self_rated_health_excellent": 0.5674,
-      "self_rated_health_fair": 1.2432,
+      "age_band_45-54": 0.8542,
+      "age_band_55-64": 0.82,
+      "region_Andalucia": 0.8183,
+      "region_Aragon": 0.9018,
+      "region_Asturias": 0.933,
+      "region_Baleares": 0.9124,
+      "region_C. Valenciana": 0.8572,
+      "region_Canarias": 0.9483,
+      "region_Cantabria": 0.7407,
+      "region_Castilla y Leon": 0.8405,
+      "region_Castilla-La Mancha": 0.8707,
+      "region_Cataluna": 1.1063,
+      "region_Ceuta": 1.0087,
+      "region_Extremadura": 0.7898,
+      "region_Galicia": 0.7119,
+      "region_La Rioja": 1.0923,
+      "region_Madrid": 1.0,
+      "region_Melilla": 0.8818,
+      "region_Murcia": 0.7371,
+      "region_Navarra": 0.6194,
+      "region_Pais Vasco": 1.0129,
+      "self_rated_health_bad": 6.9964,
+      "self_rated_health_fair": 3.0584,
       "self_rated_health_good": 1.0,
-      "self_rated_health_poor": 2.0095,
-      "self_rated_health_very_good": 0.7325,
-      "smoker_no": 1.0,
-      "smoker_yes": 0.6211
+      "self_rated_health_very_bad": 13.3116,
+      "self_rated_health_very_good": 0.6218,
+      "smoker_daily": 0.8661,
+      "smoker_former": 1.2802,
+      "smoker_never": 1.0,
+      "smoker_occasional": 0.9509,
+      "bmi_normal": 1.0,
+      "bmi_not_measured": 0.8088,
+      "bmi_obese": 1.0936,
+      "bmi_overweight": 1.0732,
+      "bmi_underweight": 1.2529
     }
   },
   "tolerance_price_to_cost": [
@@ -52,180 +132,256 @@
     1.25
   ],
   "groups": {
-    "ethnicity": [
+    "born": [
       {
-        "group": "Asian",
-        "n": 669,
-        "population_share": 0.0769,
-        "premium_index": 0.8526,
-        "cost_index": 0.7989,
-        "price_to_cost": 1.0673,
+        "group": "Born abroad",
+        "n": 1791,
+        "population_share": 0.1799,
+        "premium_index": 1.1145,
+        "cost_index": 0.9531,
+        "price_to_cost": 1.1693,
         "price_to_cost_ci": [
-          0.8767,
-          1.3061
+          0.9645,
+          1.4362
         ],
         "verdict": "inconclusive",
-        "decline_rate": 0.0145,
+        "decline_rate": 0.0197,
         "decline_rate_ci": [
-          0.0076,
-          0.0227
+          0.0124,
+          0.0274
         ],
-        "refer_rate": 0.0241,
+        "refer_rate": 0.0957,
         "refer_rate_ci": [
-          0.0132,
-          0.0359
+          0.0811,
+          0.1123
         ]
       },
       {
-        "group": "Black",
-        "n": 1032,
-        "population_share": 0.1174,
-        "premium_index": 0.9965,
-        "cost_index": 0.8508,
-        "price_to_cost": 1.1712,
+        "group": "Born in Spain",
+        "n": 12545,
+        "population_share": 0.8201,
+        "premium_index": 0.9749,
+        "cost_index": 1.0103,
+        "price_to_cost": 0.965,
         "price_to_cost_ci": [
-          1.0462,
-          1.3205
-        ],
-        "verdict": "inconclusive",
-        "decline_rate": 0.0192,
-        "decline_rate_ci": [
-          0.012,
-          0.0268
-        ],
-        "refer_rate": 0.088,
-        "refer_rate_ci": [
-          0.0712,
-          0.1038
-        ]
-      },
-      {
-        "group": "Hispanic",
-        "n": 1360,
-        "population_share": 0.1515,
-        "premium_index": 0.8991,
-        "cost_index": 0.619,
-        "price_to_cost": 1.4525,
-        "price_to_cost_ci": [
-          1.2652,
-          1.6567
-        ],
-        "verdict": "overcharged",
-        "decline_rate": 0.0114,
-        "decline_rate_ci": [
-          0.0068,
-          0.016
-        ],
-        "refer_rate": 0.0608,
-        "refer_rate_ci": [
-          0.0502,
-          0.071
-        ]
-      },
-      {
-        "group": "Other or multiple",
-        "n": 249,
-        "population_share": 0.0316,
-        "premium_index": 1.1276,
-        "cost_index": 0.9087,
-        "price_to_cost": 1.2409,
-        "price_to_cost_ci": [
-          0.9679,
-          1.5984
-        ],
-        "verdict": "inconclusive",
-        "decline_rate": 0.0456,
-        "decline_rate_ci": [
-          0.0283,
-          0.0667
-        ],
-        "refer_rate": 0.0583,
-        "refer_rate_ci": [
-          0.0319,
-          0.0873
-        ]
-      },
-      {
-        "group": "White",
-        "n": 4856,
-        "population_share": 0.6226,
-        "premium_index": 1.0369,
-        "cost_index": 1.1503,
-        "price_to_cost": 0.9015,
-        "price_to_cost_ci": [
-          0.876,
-          0.9326
+          0.9189,
+          1.0088
         ],
         "verdict": "within tolerance",
-        "decline_rate": 0.0227,
+        "decline_rate": 0.0209,
         "decline_rate_ci": [
-          0.0184,
-          0.0265
+          0.0182,
+          0.0237
         ],
-        "refer_rate": 0.0929,
+        "refer_rate": 0.0764,
         "refer_rate_ci": [
-          0.0847,
-          0.1016
+          0.071,
+          0.0821
         ]
       }
     ],
     "sex": [
       {
         "group": "Female",
-        "n": 4269,
-        "population_share": 0.5031,
-        "premium_index": 1.051,
-        "cost_index": 1.208,
-        "price_to_cost": 0.87,
+        "n": 7239,
+        "population_share": 0.4991,
+        "premium_index": 1.0765,
+        "cost_index": 1.0547,
+        "price_to_cost": 1.0207,
         "price_to_cost_ci": [
-          0.8248,
-          0.9103
+          0.9464,
+          1.0985
         ],
         "verdict": "within tolerance",
-        "decline_rate": 0.0222,
+        "decline_rate": 0.0228,
         "decline_rate_ci": [
-          0.018,
-          0.0262
+          0.0192,
+          0.0268
         ],
-        "refer_rate": 0.0921,
+        "refer_rate": 0.0914,
         "refer_rate_ci": [
           0.0841,
-          0.1009
+          0.1
         ]
       },
       {
         "group": "Male",
-        "n": 3897,
-        "population_share": 0.4969,
-        "premium_index": 0.9484,
-        "cost_index": 0.7895,
-        "price_to_cost": 1.2013,
+        "n": 7097,
+        "population_share": 0.5009,
+        "premium_index": 0.9238,
+        "cost_index": 0.9455,
+        "price_to_cost": 0.977,
         "price_to_cost_ci": [
-          1.1239,
-          1.3064
+          0.9047,
+          1.0674
         ],
-        "verdict": "inconclusive",
-        "decline_rate": 0.0191,
+        "verdict": "within tolerance",
+        "decline_rate": 0.0185,
         "decline_rate_ci": [
-          0.0146,
-          0.0232
+          0.0151,
+          0.0222
         ],
-        "refer_rate": 0.0699,
+        "refer_rate": 0.0684,
         "refer_rate_ci": [
-          0.0624,
-          0.0779
+          0.0623,
+          0.076
         ]
       }
     ]
   },
+  "private_cover_only": {
+    "people": 2772,
+    "born": [
+      {
+        "group": "Born abroad",
+        "n": 244,
+        "population_share": 0.121,
+        "premium_index": 1.025,
+        "cost_index": 0.8753,
+        "price_to_cost": 1.171,
+        "price_to_cost_ci": [
+          0.8843,
+          1.5367
+        ],
+        "verdict": "inconclusive",
+        "decline_rate": 0.007,
+        "decline_rate_ci": [
+          0.001,
+          0.0146
+        ],
+        "refer_rate": 0.075,
+        "refer_rate_ci": [
+          0.0419,
+          0.1108
+        ]
+      },
+      {
+        "group": "Born in Spain",
+        "n": 2528,
+        "population_share": 0.879,
+        "premium_index": 0.9966,
+        "cost_index": 1.0172,
+        "price_to_cost": 0.9797,
+        "price_to_cost_ci": [
+          0.9525,
+          1.0186
+        ],
+        "verdict": "within tolerance",
+        "decline_rate": 0.0136,
+        "decline_rate_ci": [
+          0.0086,
+          0.0184
+        ],
+        "refer_rate": 0.061,
+        "refer_rate_ci": [
+          0.0502,
+          0.0716
+        ]
+      }
+    ]
+  },
+  "unmet_need": [
+    {
+      "group": "Born abroad",
+      "measure": "unmet_waiting_list",
+      "label": "Went without care because of waiting lists",
+      "rate": 0.1106,
+      "ci": [
+        0.0946,
+        0.1278
+      ]
+    },
+    {
+      "group": "Born abroad",
+      "measure": "unmet_transport",
+      "label": "Went without care because of transport",
+      "rate": 0.0088,
+      "ci": [
+        0.0042,
+        0.0139
+      ]
+    },
+    {
+      "group": "Born abroad",
+      "measure": "unmet_cost",
+      "label": "Went without medical care because of cost",
+      "rate": 0.0268,
+      "ci": [
+        0.0181,
+        0.0359
+      ]
+    },
+    {
+      "group": "Born in Spain",
+      "measure": "unmet_waiting_list",
+      "label": "Went without care because of waiting lists",
+      "rate": 0.1203,
+      "ci": [
+        0.1135,
+        0.1263
+      ]
+    },
+    {
+      "group": "Born in Spain",
+      "measure": "unmet_transport",
+      "label": "Went without care because of transport",
+      "rate": 0.0095,
+      "ci": [
+        0.0076,
+        0.0113
+      ]
+    },
+    {
+      "group": "Born in Spain",
+      "measure": "unmet_cost",
+      "label": "Went without medical care because of cost",
+      "rate": 0.0178,
+      "ci": [
+        0.0154,
+        0.0205
+      ]
+    }
+  ],
+  "self_rated_health_by_class": [
+    {
+      "social_class": "1 Managers of large firms, professionals",
+      "n": 1693,
+      "fair_or_worse_age_standardised": 0.1085
+    },
+    {
+      "social_class": "2 Managers of small firms, associate professionals",
+      "n": 1206,
+      "fair_or_worse_age_standardised": 0.125
+    },
+    {
+      "social_class": "3 Intermediate occupations, self-employed",
+      "n": 2880,
+      "fair_or_worse_age_standardised": 0.1541
+    },
+    {
+      "social_class": "4 Supervisors, skilled technical workers",
+      "n": 1845,
+      "fair_or_worse_age_standardised": 0.1876
+    },
+    {
+      "social_class": "5 Skilled primary sector, semi-skilled workers",
+      "n": 4411,
+      "fair_or_worse_age_standardised": 0.2062
+    },
+    {
+      "social_class": "6 Unskilled workers",
+      "n": 1869,
+      "fair_or_worse_age_standardised": 0.2293
+    }
+  ],
   "sex_counterfactual": {
-    "female_to_male_premium_unisex": 1.1082,
-    "female_to_male_premium_if_sex_were_used": 1.6487,
-    "female_to_male_actual_cost": 1.5301,
-    "sex_recoverable_from_rating_factors_auc": 0.5916
+    "female_to_male_premium_unisex": 1.1652,
+    "female_to_male_premium_if_sex_were_used": 1.1564,
+    "female_to_male_actual_cost": 1.1154,
+    "sex_recoverable_from_rating_factors_auc": 0.6582
   },
   "bootstrap": {
     "replicates": 400,
-    "design": "PSUs resampled within strata"
+    "design": "people resampled within region (CCAA)"
   }
 }

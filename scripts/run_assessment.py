@@ -67,11 +67,18 @@ def main() -> int:
         "gaps": report.gap_table(rows),
         "roadmap": report.roadmap(rows),
     }
+    tariffs = yaml.safe_load((ROOT / "data" / "tariffs_osakidetza_2024.yaml")
+                             .read_text(encoding="utf-8"))
+    blocks["cost-build"] = report.cost_build(tariffs, ev)
     if ev:
         blocks |= {
             "evidence-headline": report.evidence_headline(ev),
             "evidence-model": report.evidence_model(ev),
-            "evidence-ethnicity": report.evidence_groups(ev, "ethnicity"),
+            "evidence-age": report.evidence_age(ev),
+            "evidence-born": report.evidence_groups(ev, "born"),
+            "evidence-private": report.evidence_private(ev),
+            "evidence-unmet": report.evidence_unmet(ev),
+            "evidence-class": report.evidence_class(ev),
             "evidence-sex": report.evidence_groups(ev, "sex"),
         }
     stale = report.render_docs(ROOT / "docs", blocks, check=args.check)

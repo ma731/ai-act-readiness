@@ -1,22 +1,37 @@
-"""Download MEPS HC-243 (2022 Full Year Consolidated, public, about 6 MB) into data/raw."""
+"""Download the two public sources into data/raw (about 20 MB in total).
+
+1. INE, Encuesta Europea de Salud en España 2020, adult microdata (the people).
+2. Osakidetza, Tarifas 2024 (the prices), so scripts/verify_tariffs.py can check every price.
+"""
 import io
 import sys
 import urllib.request
 import zipfile
 from pathlib import Path
 
-URL = "https://meps.ahrq.gov/mepsweb/data_files/pufs/h243/h243dta.zip"
-OUT = Path(__file__).parents[1] / "data" / "raw"
+RAW = Path(__file__).parents[1] / "data" / "raw"
+EESE = "https://www.ine.es/ftp/microdatos/enceursalud/datos_2020_individual.zip"
+TARIFFS = ("https://www.osakidetza.euskadi.eus/contenidos/informacion/osk_servic_para_empresas/"
+           "es_def/adjuntos/LIBRO-DE-TARIFAS-2024-CAS_V2.pdf")
+
+
+def _get(url: str) -> bytes:
+    req = urllib.request.Request(url, headers={"User-Agent": "ai-act-readiness"})
+    with urllib.request.urlopen(req, timeout=180) as r:
+        return r.read()
 
 
 def main() -> int:
-    if (OUT / "h243.dta").exists():
-        print("already present")
-        return 0
-    OUT.mkdir(parents=True, exist_ok=True)
-    with urllib.request.urlopen(URL, timeout=120) as r:
-        zipfile.ZipFile(io.BytesIO(r.read())).extractall(OUT)
-    print("saved", OUT / "h243.dta")
+    survey = RAW / "eese" / "STATA" / "EESEadulto_2020.dta"
+    if not survey.exists():
+        (RAW / "eese").mkdir(parents=True, exist_ok=True)
+        zipfile.ZipFile(io.BytesIO(_get(EESE))).extractall(RAW / "eese")
+        print("saved", survey)
+    pdf = RAW / "tariffs" / "osakidetza_2024.pdf"
+    if not pdf.exists():
+        pdf.parent.mkdir(parents=True, exist_ok=True)
+        pdf.write_bytes(_get(TARIFFS))
+        print("saved", pdf)
     return 0
 
 

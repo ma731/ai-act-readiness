@@ -30,7 +30,10 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r requirements-dev.txt
-      - run: python -m scripts.fetch_data
+      - name: Download the INE survey and the Osakidetza tariff
+        run: python -m scripts.fetch_data
+      - name: Every price matches the official PDF
+        run: python -m scripts.verify_tariffs
       - run: python -m scripts.run_assessment
       - name: Published figures unchanged
         run: git diff --exit-code -- docs README.md

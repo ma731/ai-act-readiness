@@ -1,8 +1,9 @@
 # Resumen ejecutivo: Cierzo Seguros ante el Reglamento de IA
 
-*Cierzo Seguros es una aseguradora ficticia. Los datos del modelo de tarificación son
-reales (encuesta MEPS 2022 de EE. UU.). Situación legal a 27 de septiembre de 2026, con el
-Ómnibus Digital ya en vigor. No es asesoramiento jurídico.*
+*Cierzo Seguros es una aseguradora ficticia. Todo lo demás es real: la normativa a 27 de
+septiembre de 2026 (con el Ómnibus Digital ya en vigor), la Encuesta Europea de Salud en
+España 2020 del INE y las tarifas oficiales de Osakidetza para 2024. No es asesoramiento
+jurídico.*
 
 ## Qué hay
 
@@ -21,18 +22,27 @@ incluye un **uso prohibido**.
 3. **Marcar los textos generados** por el chatbot antes del 2 de diciembre de 2026
    (art. 50(2)).
 
+## Cómo se ha evaluado el modelo de salud
+
+Con datos españoles oficiales: 14.336 adultos de 18 a 64 años de la encuesta del INE, con
+las mismas preguntas que un cuestionario de salud (diagnósticos, salud percibida, tabaco,
+peso, comunidad autónoma) y la asistencia sanitaria que usaron en el último año. Esa
+asistencia se valora con las tarifas que Osakidetza cobra a aseguradoras y otros terceros,
+comprobadas una a una contra el PDF oficial.
+
 ## Qué encontró la evaluación de impacto (art. 27)
 
-- El modelo de salud no usa ni el sexo ni el origen étnico, y aun así un grupo paga
-  **1,45 veces** su parte de los siniestros (intervalo del 95 %: 1,27 a 1,66). A iguales
-  respuestas, ese grupo gasta menos en sanidad; los datos no permiten saber si necesita
-  menos o accede menos.
-- El grupo "otra etnia o varias" es rechazado **2,0 veces** más a menudo que los
-  solicitantes blancos.
-- Tarificado sobre un año de gasto, el modelo **abarata a los fumadores un 38 %**: el
-  horizonte temporal del objetivo es erróneo.
-- **La regla unisex funciona**: las mujeres pagan 1,11 veces lo que los hombres con un coste
-  1,53 veces mayor, que es la solidaridad que exige la sentencia Test-Achats.
+- Las personas nacidas en el extranjero pagarían **1,17 veces** su parte del coste
+  sanitario (intervalo del 95 %: 0,96 a 1,44). Es una señal que vigilar, no una infracción
+  demostrada: el intervalo llega a 1. El país de nacimiento nunca es una variable del modelo.
+- Además dejan de recibir atención médica por motivos económicos más a menudo:
+  **2,7 %** frente al **1,8 %** de los nacidos en España. Parte de su menor uso parece
+  menor acceso, no menor necesidad.
+- **El sexo se cuela un poco**: sin usarlo, el modelo cotiza a las mujeres 1,17 veces lo
+  que a los hombres, con un coste 1,12 veces mayor. Dentro de la tolerancia.
+- **La salud percibida pesa más que cualquier diagnóstico** y sigue a la clase social: a
+  igual edad, la declara regular o peor el **10,8 %** de la clase más alta y el **22,9 %**
+  de los trabajadores no cualificados.
 - Varias condiciones del cuestionario apenas predicen el coste. Desde la Ley 4/2018, cada
   recargo por una condición de salud necesita una justificación actuarial documentada.
 
@@ -40,8 +50,8 @@ incluye un **uso prohibido**.
 
 - Medir lo mismo sobre la cartera real de Cierzo, usando el art. 10(5) para tratar datos de
   origen solo con fines de detección de sesgos.
-- Cambiar el objetivo a un horizonte plurianual antes de tocar los factores.
-- Revisar todos los rechazos de cualquier grupo que duplique la tasa de rechazo media.
+- Tarificar la necesidad y no solo el uso pasado, y volver a medir a los nacidos fuera.
+- Justificar por escrito cada recargo y el peso de la salud percibida.
 - Planificar el cumplimiento de alto riesgo para el **2 de diciembre de 2027**, sin confiar
   en la exención del art. 111(2): la revisión anual de la tarifa probablemente cuenta como
   un cambio significativo de diseño.

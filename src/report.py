@@ -104,66 +104,146 @@ def gap_table(rows) -> str:
     return "\n".join(out)
 
 
-def evidence_groups(ev: dict, by: str) -> str:
+def _eur(x: float) -> str:
+    return f"EUR {x:,.0f}"
+
+
+def evidence_groups(ev: dict, by: str, rows: list[dict] | None = None) -> str:
     out = ["| Group | People | Premium index | Cost index | Price-to-cost (95% CI) | "
            "Verdict | Declined | Referred |", "|---|---|---|---|---|---|---|---|"]
-    for g in ev["groups"][by]:
+    for g in rows if rows is not None else ev["groups"][by]:
         lo, hi = g["price_to_cost_ci"]
         dlo, dhi = g["decline_rate_ci"]
+        rlo, rhi = g["refer_rate_ci"]
         out.append(f"| {g['group']} | {g['n']:,} | {g['premium_index']:.2f} | "
                    f"{g['cost_index']:.2f} | **{g['price_to_cost']:.2f}** ({lo:.2f} to "
                    f"{hi:.2f}) | {g['verdict']} | {_pct(g['decline_rate'])} "
-                   f"({_pct(dlo)} to {_pct(dhi)}) | {_pct(g['refer_rate'])} |")
+                   f"({_pct(dlo)} to {_pct(dhi)}) | {_pct(g['refer_rate'])} "
+                   f"({_pct(rlo)} to {_pct(rhi)}) |")
+    return "\n".join(out)
+
+
+def evidence_private(ev: dict) -> str:
+    p = ev["private_cover_only"]
+    return (f"Only the {p['people']:,} people who already hold private cover:\n\n"
+            + evidence_groups(ev, "born", p["born"]))
+
+
+def evidence_unmet(ev: dict) -> str:
+    rows = {}
+    for u in ev["unmet_need"]:
+        rows.setdefault(u["label"], {})[u["group"]] = u
+    groups = sorted({u["group"] for u in ev["unmet_need"]})
+    out = ["| In the last 12 months | " + " | ".join(groups) + " |",
+           "|---|" + "---|" * len(groups)]
+    for label, by_group in rows.items():
+        cells = [f"{_pct(by_group[g]['rate'])} ({_pct(by_group[g]['ci'][0])} to "
+                 f"{_pct(by_group[g]['ci'][1])})" for g in groups]
+        out.append(f"| {label} | " + " | ".join(cells) + " |")
+    return "\n".join(out)
+
+
+def cost_build(tariffs: dict, ev: dict | None) -> str:
+    """How one year of care becomes euros: survey question, price, source line."""
+    p = tariffs["prices"]
+    used = [
+        ("GP visits in the last 4 weeks, x13 for a year", "gp_visit"),
+        ("Specialist visits in the last 4 weeks, x13", "specialist_visit"),
+        ("Emergency visits in 12 months, at a hospital", "emergency_hospital"),
+        ("Emergency visits in 12 months, elsewhere", "emergency_primary_care"),
+        ("Nights in hospital in 12 months (childbirth excluded)", "hospital_night"),
+        ("Admissions with no overnight stay", "admission_without_night"),
+        ("Day-hospital sessions in 12 months", "day_hospital_session"),
+        ("Had a CT scan in 12 months (priced as one)", "ct_scan"),
+        ("Had an MRI (one)", "mri_scan"),
+        ("Had an ultrasound (one)", "ultrasound"),
+        ("Had an X-ray (one)", "x_ray"),
+        ("Had blood or lab tests (one request)", "lab_profile"),
+        ("Plus the handling fee per lab request", "lab_order_handling"),
+    ]
+    out = ["| Survey answer | Price | Osakidetza 2024 line | Page |", "|---|---|---|---|"]
+    for q, key in used:
+        x = p[key]
+        out.append(f"| {q} | {_eur(x['eur'])} | {x['item']} ({x['article']}) | {x['page']} |")
+    if ev:
+        d = ev["data"]
+        b = d["cost_breakdown_eur"]
+        out += ["", f"Average cost per adult per year: **{_eur(d['mean_annual_cost_eur'])}** "
+                f"(hospital nights {_eur(b['inpatient'])}, GP {_eur(b['gp'])}, specialists "
+                f"{_eur(b['specialist'])}, day hospital {_eur(b['day_hospital'])}, emergencies "
+                f"{_eur(b['emergency'])}, tests {_eur(b['tests'])}). The median is "
+                f"{_eur(d['median_annual_cost_eur'])} and {_pct(d['share_with_no_care'])} used "
+                "no care at all: a few people cost a lot, as in any health book."]
+    return "\n".join(out)
+
+
+def evidence_age(ev: dict) -> str:
+    out = ["| Age | People | Average cost | Diagnosed conditions | Fair or worse health |",
+           "|---|---|---|---|---|"]
+    for a in ev["data"]["age_profile"]:
+        out.append(f"| {a['age_band']} | {a['n']:,} | {_eur(a['mean_cost_eur'])} | "
+                   f"{a['mean_conditions']:.2f} | {_pct(a['fair_or_worse_health'])} |")
+    return "\n".join(out)
+
+
+def evidence_class(ev: dict) -> str:
+    out = ["| Social class of the household | People | Rate their health fair or worse "
+           "(age-standardised) |", "|---|---|---|"]
+    for r in ev["self_rated_health_by_class"]:
+        out.append(f"| {r['social_class']} | {r['n']:,} | "
+                   f"{_pct(r['fair_or_worse_age_standardised'])} |")
     return "\n".join(out)
 
 
 def evidence_headline(ev: dict) -> str:
-    eth = {g["group"]: g for g in ev["groups"]["ethnicity"]}
-    worst = max(eth.values(), key=lambda g: g["price_to_cost"])
-    most_declined = max(eth.values(), key=lambda g: g["decline_rate"])
-    ref = eth["White"]
-    lo, hi = worst["price_to_cost_ci"]
+    born = {g["group"]: g for g in ev["groups"]["born"]}
+    ab = born["Born abroad"]
+    lo, hi = ab["price_to_cost_ci"]
+    un = {(u["group"], u["measure"]): u for u in ev["unmet_need"]}
+    ca, cs = un[("Born abroad", "unmet_cost")], un[("Born in Spain", "unmet_cost")]
     sx = ev["sex_counterfactual"]
-    rel = ev["model"]["relativities"]
+    m = ev["model"]
     return "\n".join([
-        f"- **{worst['group']} applicants pay {worst['price_to_cost']:.2f}x their share of "
-        f"claims** (95% CI {lo:.2f} to {hi:.2f}), {worst['population_share'] * 100:.0f}% of "
-        "the book. Ethnicity is never an input.",
-        f"- **Applicants in the '{most_declined['group']}' ethnic group are declined "
-        f"{most_declined['decline_rate'] / ref['decline_rate']:.1f}x as often** as White "
-        f"applicants ({_pct(most_declined['decline_rate'])} against "
-        f"{_pct(ref['decline_rate'])}).",
-        f"- **Smokers are priced {100 * (1 - rel['smoker_yes']):.0f}% below non-smokers**, "
-        "because the target is one year of spending.",
-        f"- **The unisex rule holds.** Women pay {sx['female_to_male_premium_unisex']:.2f}x "
-        f"what men pay against {sx['female_to_male_actual_cost']:.2f}x the cost; the other "
-        f"answers barely reveal sex (AUC {sx['sex_recoverable_from_rating_factors_auc']:.2f}).",
+        f"- **People born abroad would pay {ab['price_to_cost']:.2f}x their share of care "
+        f"costs** (95% CI {lo:.2f} to {hi:.2f}): a signal, not a proven breach, because the "
+        "interval reaches 1.0. Country of birth is never an input.",
+        f"- **They also go without care because of cost more often**: "
+        f"{_pct(ca['rate'])} against {_pct(cs['rate'])} for people born in Spain. Part of "
+        "their lower use looks like lower access, not lower need.",
+        f"- **Sex leaks back in, a little.** Sex is not an input, yet women are quoted "
+        f"{sx['female_to_male_premium_unisex']:.2f}x what men are, against "
+        f"{sx['female_to_male_actual_cost']:.2f}x in cost; the other answers predict sex "
+        f"with AUC {sx['sex_recoverable_from_rating_factors_auc']:.2f}. Within tolerance.",
+        f"- **The model is calibrated and explainable**: predicted over actual cost "
+        f"{m['book_price_to_cost']:.3f}, and the GLM ranks as well as a gradient-boosted "
+        f"challenger (Gini {m['gini_glm']:.3f} against {m['gini_gbm_challenger']:.3f}).",
     ])
 
 
 def evidence_model(ev: dict) -> str:
-    m, d, sx = ev["model"], ev["data"], ev["sex_counterfactual"]
+    m, d = ev["model"], ev["data"]
     rel = m["relativities"]
     cond = sorted(((k, rel[k]) for k in CONDITIONS.values()), key=lambda kv: -kv[1])
-    lines = [
-        f"- Data: {d['source']}; {d['cohort']}; **{d['people']:,} people** weighted to "
-        f"{d['represents_millions']:.1f} million.",
-        f"- Model: {m['primary']}; {m['validation']}.",
-        f"- Ranking power: Gini **{m['gini_glm']:.3f}** for the GLM against "
-        f"{m['gini_gbm_challenger']:.3f} for a gradient-boosted challenger, so the "
-        "explainable model is also the better one.",
-        f"- Book level: predicted over actual cost {m['book_price_to_cost']:.3f}.",
-        f"- Smokers: relativity **{rel['smoker_yes']:.2f}** against non-smokers.",
-        f"- Self-rated health: excellent {rel['self_rated_health_excellent']:.2f}, "
-        f"poor {rel['self_rated_health_poor']:.2f} (base: good).",
-        "- Conditions: " + ", ".join(f"{k.replace('_', ' ')} {v:.2f}" for k, v in cond) + ".",
-        f"- Sex is not an input. Women pay **{sx['female_to_male_premium_unisex']:.2f}x** "
-        f"what men pay and cost {sx['female_to_male_actual_cost']:.2f}x as much. With sex "
-        f"as a factor the ratio would be {sx['female_to_male_premium_if_sex_were_used']:.2f}x. "
-        f"Sex is only weakly recoverable from the other answers (AUC "
-        f"{sx['sex_recoverable_from_rating_factors_auc']:.2f}).",
-    ]
-    return "\n".join(lines)
+    return "\n".join([
+        f"- **People:** {d['source']}. Adults 18 to 64 with complete answers: "
+        f"**{d['people']:,} people**, weighted to {d['represents_millions']:.1f} million; "
+        f"{d['born_abroad']:,} born abroad, {d['with_private_cover']:,} with private cover.",
+        f"- **Prices:** {d['prices']}.",
+        f"- **Model:** {m['primary']}; {m['validation']}, so every price is out-of-sample.",
+        f"- **Accuracy:** Gini {m['gini_glm']:.3f} (GBM challenger "
+        f"{m['gini_gbm_challenger']:.3f}); predicted over actual cost "
+        f"{m['book_price_to_cost']:.3f}.",
+        f"- **Self-rated health** is the strongest factor: very good "
+        f"{rel['self_rated_health_very_good']:.2f}, fair {rel['self_rated_health_fair']:.2f}, "
+        f"bad {rel['self_rated_health_bad']:.2f}, very bad "
+        f"{rel['self_rated_health_very_bad']:.2f} (base: good).",
+        "- **Diagnosed conditions:** " + ", ".join(
+            f"{k.replace('_', ' ').replace('copd', 'COPD')} {v:.2f}" for k, v in cond) + ".",
+        f"- **Smoking** (base: never): daily {rel['smoker_daily']:.2f}, former "
+        f"{rel['smoker_former']:.2f}.",
+        f"- **Age** (base: 35-44): 18-24 {rel['age_band_18-24']:.2f}, 55-64 "
+        f"{rel['age_band_55-64']:.2f}, once conditions and health are known.",
+    ])
 
 
 def roadmap(rows) -> str:

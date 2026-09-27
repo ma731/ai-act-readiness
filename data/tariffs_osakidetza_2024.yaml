@@ -1,0 +1,83 @@
+# Unit prices used to turn each survey respondent's health care use into euros.
+#
+# Source: Osakidetza (Basque public health service), "Tarifas para facturación de servicios
+# sanitarios y docentes de Osakidetza para el año 2024", approved by its Board on
+# 18 December 2023. These are the prices Osakidetza bills to third parties that owe the cost
+# of care (insurers, mutuals), which is the cost concept an insurer prices.
+# URL: https://www.osakidetza.euskadi.eus/contenidos/informacion/osk_servic_para_empresas/es_def/adjuntos/LIBRO-DE-TARIFAS-2024-CAS_V2.pdf
+#
+# `page` is the PDF page, `article` is Osakidetza's own billing code printed next to the price.
+# scripts/fetch_data.py downloads the PDF and scripts/verify_tariffs.py checks every line.
+
+source: Osakidetza, Tarifas 2024
+url: https://www.osakidetza.euskadi.eus/contenidos/informacion/osk_servic_para_empresas/es_def/adjuntos/LIBRO-DE-TARIFAS-2024-CAS_V2.pdf
+
+prices:
+  gp_visit:
+    eur: 65
+    item: "Consulta médica (atención primaria, en centro)"
+    article: "10001485"
+    page: 58
+  specialist_visit:
+    eur: 119
+    item: "Consultas externas: Sucesivas"
+    article: "10001463"
+    page: 46
+    note: >
+      The survey does not say whether a specialist visit was a first or a follow-up visit.
+      All are priced at the follow-up rate, the lower of the two (first visit: 238).
+  emergency_hospital:
+    eur: 257
+    item: "Urgencias (hospital)"
+    article: "10001461"
+    page: 43
+  emergency_primary_care:
+    eur: 88
+    item: "Urgencias médicas en el Centro o P.A.C."
+    article: "10001489"
+    page: 58
+  hospital_night:
+    eur: 1278
+    item: "Estancia/día: Hospitalización"
+    article: "10001459"
+    page: 13
+  admission_without_night:
+    eur: 346
+    item: "Ingreso sin estancia"
+    article: "10002910"
+    page: 43
+  day_hospital_session:
+    eur: 519
+    item: "Hospital de día (médico)"
+    article: "10001464"
+    page: 48
+  ct_scan:
+    eur: 182
+    item: "TAC abdominal"
+    article: "10015035"
+    page: 108
+  mri_scan:
+    eur: 151
+    item: "RM columna lumbar sin contraste"
+    article: "10015212"
+    page: 103
+  ultrasound:
+    eur: 78
+    item: "Ecografía abdominal"
+    article: "10015309"
+    page: 96
+  x_ray:
+    eur: 26
+    item: "RX abdomen supino (one plain radiograph, 1 URV)"
+    article: "10014904"
+    page: 105
+  lab_profile:
+    eur: 34
+    item: "Perfil analítico básico y de rutina"
+    article: "10001596"
+    page: 51
+  lab_order_handling:
+    eur: 5
+    item: "Gestión de pedido (por petición analítica)"
+    article: "10003755"
+    page: 51
