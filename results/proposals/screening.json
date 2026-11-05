@@ -1,0 +1,1701 @@
+{
+ "legal_basis": "2026-09-27",
+ "reader": "offline keyword reader",
+ "results": [
+  {
+   "id": "P01",
+   "company": "Supermercados Moncayo (fictional)",
+   "title": "Checkout stress monitor",
+   "tier": "prohibited",
+   "verdict": "Do not proceed",
+   "articles": [
+    "Art 5(1)(f)",
+    "Annex III 1c",
+    "Art 26"
+   ],
+   "basis": [
+    "Infers emotions of people at work or in education (except for medical or safety reasons): prohibited by Art 5(1)(f) since 2 Feb 2025.",
+    "Annex III 1c: Emotion recognition."
+   ],
+   "flags": [
+    "Biometric system: the conformity route may require a notified body (Art 43(1))."
+   ],
+   "other_law": [
+    "GDPR Art 9: special category data (health, biometrics, beliefs...) needs an Art 9(2) basis."
+   ],
+   "obligations": [
+    {
+     "article": "Art 5(1)(f)",
+     "duty": "Do not place on the market or use; redesign or stop",
+     "holder": "deployer",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    },
+    {
+     "article": "Art 26(1)",
+     "duty": "Use according to the instructions for use",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(2)",
+     "duty": "Human oversight by competent, trained, empowered staff",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(4)",
+     "duty": "Input data relevant and representative, where controlled",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(5)",
+     "duty": "Monitor operation, report risks and serious incidents",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(6)",
+     "duty": "Keep logs at least six months",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(11)",
+     "duty": "Tell people a high-risk system is used in decisions about them",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 86",
+     "duty": "Explain the system's role in a decision on request",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 4",
+     "duty": "AI literacy of the staff who operate or use it",
+     "holder": "deployer",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    }
+   ],
+   "next_deadline": "2027-12-02",
+   "memo": "Do not proceed. Checkout stress monitor is classified as prohibited. Infers emotions of people at work or in education (except for medical or safety reasons): prohibited by Art 5(1)(f) since 2 Feb 2025. Annex III 1c: Emotion recognition. 8 obligations, starting with: Do not place on the market or use; redesign or stop (Art 5(1)(f)); Use according to the instructions for use (Art 26(1)); Human oversight by competent, trained, empowered staff (Art 26(2)). Next deadline: 02 Dec 2027.",
+   "needs_review": false,
+   "review_reasons": [],
+   "reader": "offline keyword reader",
+   "facts": {
+    "prohibited": [
+     "emotion_recognition_work_education"
+    ],
+    "annex_iii": [
+     "1c"
+    ],
+    "uses_special_category_data": true,
+    "role": [
+     "deployer"
+    ]
+   },
+   "evidence": [
+    {
+     "fact": "prohibited",
+     "value": "emotion_recognition_work_education",
+     "quote": "We want to install webcams at every checkout that read cashiers' facial expressions and flag stress or frustration to the shift manager in real time."
+    },
+    {
+     "fact": "annex_iii",
+     "value": "1c",
+     "quote": "We want to install webcams at every checkout that read cashiers' facial expressions and flag stress or frustration to the shift manager in real time."
+    },
+    {
+     "fact": "uses_special_category_data",
+     "value": true,
+     "quote": "We want to install webcams at every checkout that read cashiers' facial expressions and flag stress or frustration to the shift manager in real time."
+    },
+    {
+     "fact": "role",
+     "value": "deployer",
+     "quote": "We will use an off-the-shelf vendor tool."
+    }
+   ],
+   "trace": [
+    "read by offline keyword reader: 4 facts with verified quotes",
+    "classified: prohibited (Art 5(1)(f), Annex III 1c, Art 26)",
+    "memo from the template"
+   ],
+   "challenge_changed_tier": false
+  },
+  {
+   "id": "P02",
+   "company": "Banco Ebro (fictional)",
+   "title": "Consumer loan scoring",
+   "tier": "high_risk",
+   "verdict": "Proceed only with high-risk controls",
+   "articles": [
+    "Annex III 5b",
+    "Art 9-15",
+    "Art 26",
+    "Art 27"
+   ],
+   "basis": [
+    "Annex III 5b: Creditworthiness or credit score of natural persons (except fraud detection)."
+   ],
+   "flags": [],
+   "other_law": [
+    "GDPR Art 35: a data protection impact assessment is likely required.",
+    "GDPR Art 22: solely automated decisions with significant effects need a lawful basis, human intervention and a right to contest."
+   ],
+   "obligations": [
+    {
+     "article": "Art 9",
+     "duty": "Risk management system across the lifecycle",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 10",
+     "duty": "Data governance: relevant, representative, bias examined",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 11",
+     "duty": "Technical documentation (Annex IV)",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 12",
+     "duty": "Automatic event logging",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 13",
+     "duty": "Instructions for use for deployers",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 14",
+     "duty": "Designed for effective human oversight",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 15",
+     "duty": "Accuracy, robustness, cybersecurity declared and met",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 17",
+     "duty": "Quality management system",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 43",
+     "duty": "Conformity assessment before putting into service",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 47-48",
+     "duty": "EU declaration of conformity and CE marking",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 49(1)",
+     "duty": "Register in the EU database",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 72-73",
+     "duty": "Post-market monitoring and serious incident reporting",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(1)",
+     "duty": "Use according to the instructions for use",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(2)",
+     "duty": "Human oversight by competent, trained, empowered staff",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(4)",
+     "duty": "Input data relevant and representative, where controlled",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(5)",
+     "duty": "Monitor operation, report risks and serious incidents",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(6)",
+     "duty": "Keep logs at least six months",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(11)",
+     "duty": "Tell people a high-risk system is used in decisions about them",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 86",
+     "duty": "Explain the system's role in a decision on request",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 27",
+     "duty": "Fundamental rights impact assessment before first use, notified to the market surveillance authority",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 4",
+     "duty": "AI literacy of the staff who operate or use it",
+     "holder": "provider",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    }
+   ],
+   "next_deadline": "2027-12-02",
+   "memo": "Proceed only with high-risk controls. Consumer loan scoring is classified as high-risk. Annex III 5b: Creditworthiness or credit score of natural persons (except fraud detection). 20 obligations, starting with: Risk management system across the lifecycle (Art 9); Data governance: relevant, representative, bias examined (Art 10); Technical documentation (Annex IV) (Art 11). Next deadline: 02 Dec 2027.",
+   "needs_review": false,
+   "review_reasons": [],
+   "reader": "offline keyword reader",
+   "facts": {
+    "annex_iii": [
+     "5b"
+    ],
+    "profiling": true,
+    "uses_personal_data": true,
+    "automated_decision": true,
+    "role": [
+     "provider",
+     "deployer"
+    ]
+   },
+   "evidence": [
+    {
+     "fact": "annex_iii",
+     "value": "5b",
+     "quote": "We are building an in-house model that scores each applicant's creditworthiness from their transaction history and income, and automatically approves or declines consumer loans under 20,000 euros."
+    },
+    {
+     "fact": "profiling",
+     "value": true,
+     "quote": "We are building an in-house model that scores each applicant's creditworthiness from their transaction history and income, and automatically approves or declines consumer loans under 20,000 euros."
+    },
+    {
+     "fact": "uses_personal_data",
+     "value": true,
+     "quote": "We are building an in-house model that scores each applicant's creditworthiness from their transaction history and income, and automatically approves or declines consumer loans under 20,000 euros."
+    },
+    {
+     "fact": "automated_decision",
+     "value": true,
+     "quote": "We are building an in-house model that scores each applicant's creditworthiness from their transaction history and income, and automatically approves or declines consumer loans under 20,000 euros."
+    },
+    {
+     "fact": "role",
+     "value": "provider",
+     "quote": "We are building an in-house model that scores each applicant's creditworthiness from their transaction history and income, and automatically approves or declines consumer loans under 20,000 euros."
+    },
+    {
+     "fact": "role",
+     "value": "deployer",
+     "quote": "We are building an in-house model that scores each applicant's creditworthiness from their transaction history and income, and automatically approves or declines consumer loans under 20,000 euros."
+    },
+    {
+     "fact": "annex_iii",
+     "value": "5b",
+     "quote": "Larger loans go to an analyst."
+    }
+   ],
+   "trace": [
+    "read by offline keyword reader: 7 facts with verified quotes",
+    "classified: high_risk (Annex III 5b, Art 9-15, Art 26, Art 27)",
+    "memo from the template"
+   ],
+   "challenge_changed_tier": false
+  },
+  {
+   "id": "P03",
+   "company": "Banco Ebro (fictional)",
+   "title": "Card fraud alerts",
+   "tier": "minimal",
+   "verdict": "Proceed",
+   "articles": [],
+   "basis": [
+    "No prohibited practice, no Annex I or III ground and no transparency trigger found: minimal risk, voluntary codes only."
+   ],
+   "flags": [],
+   "other_law": [],
+   "obligations": [
+    {
+     "article": "Art 4",
+     "duty": "AI literacy of the staff who operate or use it",
+     "holder": "deployer",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    }
+   ],
+   "next_deadline": null,
+   "memo": "Proceed. Card fraud alerts is classified as minimal. No prohibited practice, no Annex I or III ground and no transparency trigger found: minimal risk, voluntary codes only.",
+   "needs_review": false,
+   "review_reasons": [],
+   "reader": "offline keyword reader",
+   "facts": {
+    "fraud_detection_only": true,
+    "role": [
+     "deployer"
+    ]
+   },
+   "evidence": [
+    {
+     "fact": "fraud_detection_only",
+     "value": true,
+     "quote": "We will use a vendor system that flags suspicious transactions on customer cards for fraud review."
+    },
+    {
+     "fact": "role",
+     "value": "deployer",
+     "quote": "We will use a vendor system that flags suspicious transactions on customer cards for fraud review."
+    }
+   ],
+   "trace": [
+    "read by offline keyword reader: 2 facts with verified quotes",
+    "classified: minimal (no articles)",
+    "memo from the template"
+   ],
+   "challenge_changed_tier": false
+  },
+  {
+   "id": "P04",
+   "company": "TalentoPro (fictional)",
+   "title": "CV shortlisting assistant",
+   "tier": "high_risk",
+   "verdict": "Proceed only with high-risk controls",
+   "articles": [
+    "Annex III 4a",
+    "Art 9-15"
+   ],
+   "basis": [
+    "Annex III 4a: Employment: recruitment and selection (job ads targeting, screening, evaluating candidates)."
+   ],
+   "flags": [],
+   "other_law": [
+    "GDPR Art 35: a data protection impact assessment is likely required."
+   ],
+   "obligations": [
+    {
+     "article": "Art 9",
+     "duty": "Risk management system across the lifecycle",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 10",
+     "duty": "Data governance: relevant, representative, bias examined",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 11",
+     "duty": "Technical documentation (Annex IV)",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 12",
+     "duty": "Automatic event logging",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 13",
+     "duty": "Instructions for use for deployers",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 14",
+     "duty": "Designed for effective human oversight",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 15",
+     "duty": "Accuracy, robustness, cybersecurity declared and met",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 17",
+     "duty": "Quality management system",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 43",
+     "duty": "Conformity assessment before putting into service",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 47-48",
+     "duty": "EU declaration of conformity and CE marking",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 49(1)",
+     "duty": "Register in the EU database",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 72-73",
+     "duty": "Post-market monitoring and serious incident reporting",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 4",
+     "duty": "AI literacy of the staff who operate or use it",
+     "holder": "provider",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    }
+   ],
+   "next_deadline": "2027-12-02",
+   "memo": "Proceed only with high-risk controls. CV shortlisting assistant is classified as high-risk. Annex III 4a: Employment: recruitment and selection (job ads targeting, screening, evaluating candidates). 12 obligations, starting with: Risk management system across the lifecycle (Art 9); Data governance: relevant, representative, bias examined (Art 10); Technical documentation (Annex IV) (Art 11). Next deadline: 02 Dec 2027.",
+   "needs_review": false,
+   "review_reasons": [],
+   "reader": "offline keyword reader",
+   "facts": {
+    "annex_iii": [
+     "4a"
+    ],
+    "profiling": true,
+    "uses_personal_data": true,
+    "role": [
+     "provider"
+    ]
+   },
+   "evidence": [
+    {
+     "fact": "annex_iii",
+     "value": "4a",
+     "quote": "We are building a tool that reads CVs, scores each candidate against the job description and shortlists the top 20 applicants for recruiters."
+    },
+    {
+     "fact": "profiling",
+     "value": true,
+     "quote": "We are building a tool that reads CVs, scores each candidate against the job description and shortlists the top 20 applicants for recruiters."
+    },
+    {
+     "fact": "uses_personal_data",
+     "value": true,
+     "quote": "We are building a tool that reads CVs, scores each candidate against the job description and shortlists the top 20 applicants for recruiters."
+    },
+    {
+     "fact": "role",
+     "value": "provider",
+     "quote": "We are building a tool that reads CVs, scores each candidate against the job description and shortlists the top 20 applicants for recruiters."
+    },
+    {
+     "fact": "annex_iii",
+     "value": "4a",
+     "quote": "Recruiters only see the shortlist."
+    }
+   ],
+   "trace": [
+    "read by offline keyword reader: 5 facts with verified quotes",
+    "classified: high_risk (Annex III 4a, Art 9-15)",
+    "memo from the template"
+   ],
+   "challenge_changed_tier": false
+  },
+  {
+   "id": "P05",
+   "company": "Logistica Aragon (fictional)",
+   "title": "Warehouse shift planner",
+   "tier": "high_risk",
+   "verdict": "Proceed only with high-risk controls",
+   "articles": [
+    "Annex III 4b",
+    "Art 6(3)",
+    "Art 26"
+   ],
+   "basis": [
+    "Annex III 4b: Employment: decisions on terms, promotion, termination, task allocation from behaviour or traits, or performance monitoring.",
+    "Derogation claimed (Art 6(3)(d) preparatory task), but the system profiles people, so Art 6(3) keeps it high-risk."
+   ],
+   "flags": [],
+   "other_law": [],
+   "obligations": [
+    {
+     "article": "Art 26(1)",
+     "duty": "Use according to the instructions for use",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(2)",
+     "duty": "Human oversight by competent, trained, empowered staff",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(4)",
+     "duty": "Input data relevant and representative, where controlled",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(5)",
+     "duty": "Monitor operation, report risks and serious incidents",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(6)",
+     "duty": "Keep logs at least six months",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(11)",
+     "duty": "Tell people a high-risk system is used in decisions about them",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 86",
+     "duty": "Explain the system's role in a decision on request",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 4",
+     "duty": "AI literacy of the staff who operate or use it",
+     "holder": "deployer",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    }
+   ],
+   "next_deadline": "2027-12-02",
+   "memo": "Proceed only with high-risk controls. Warehouse shift planner is classified as high-risk. Annex III 4b: Employment: decisions on terms, promotion, termination, task allocation from behaviour or traits, or performance monitoring. Derogation claimed (Art 6(3)(d) preparatory task), but the system profiles people, so Art 6(3) keeps it high-risk. 7 obligations, starting with: Use according to the instructions for use (Art 26(1)); Human oversight by competent, trained, empowered staff (Art 26(2)); Input data relevant and representative, where controlled (Art 26(4)). Next deadline: 02 Dec 2027.",
+   "needs_review": true,
+   "review_reasons": [
+    "relies on or rejects an Art 6(3) derogation claim"
+   ],
+   "reader": "offline keyword reader",
+   "facts": {
+    "annex_iii": [
+     "4b"
+    ],
+    "profiling": true,
+    "role": [
+     "deployer"
+    ],
+    "art6_3_claim": [
+     "preparatory"
+    ]
+   },
+   "evidence": [
+    {
+     "fact": "annex_iii",
+     "value": "4b",
+     "quote": "We will use a vendor tool that tracks pickers' productivity scores and behaviour data and allocates tasks and shifts each morning."
+    },
+    {
+     "fact": "profiling",
+     "value": true,
+     "quote": "We will use a vendor tool that tracks pickers' productivity scores and behaviour data and allocates tasks and shifts each morning."
+    },
+    {
+     "fact": "role",
+     "value": "deployer",
+     "quote": "We will use a vendor tool that tracks pickers' productivity scores and behaviour data and allocates tasks and shifts each morning."
+    },
+    {
+     "fact": "role",
+     "value": "deployer",
+     "quote": "The vendor says the tool only prepares a recommendation and the final decision remains with the supervisor."
+    },
+    {
+     "fact": "art6_3_claim",
+     "value": "preparatory",
+     "quote": "The vendor says the tool only prepares a recommendation and the final decision remains with the supervisor."
+    }
+   ],
+   "trace": [
+    "read by offline keyword reader: 5 facts with verified quotes",
+    "classified: high_risk (Annex III 4b, Art 6(3), Art 26)",
+    "memo from the template"
+   ],
+   "challenge_changed_tier": false
+  },
+  {
+   "id": "P06",
+   "company": "Universidad del Cierzo (fictional)",
+   "title": "Online exam proctoring",
+   "tier": "high_risk",
+   "verdict": "Proceed only with high-risk controls",
+   "articles": [
+    "Annex III 3d",
+    "Art 26"
+   ],
+   "basis": [
+    "Annex III 3d: Education: monitoring prohibited behaviour during tests."
+   ],
+   "flags": [],
+   "other_law": [],
+   "obligations": [
+    {
+     "article": "Art 26(1)",
+     "duty": "Use according to the instructions for use",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(2)",
+     "duty": "Human oversight by competent, trained, empowered staff",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(4)",
+     "duty": "Input data relevant and representative, where controlled",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(5)",
+     "duty": "Monitor operation, report risks and serious incidents",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(6)",
+     "duty": "Keep logs at least six months",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(11)",
+     "duty": "Tell people a high-risk system is used in decisions about them",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 86",
+     "duty": "Explain the system's role in a decision on request",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 4",
+     "duty": "AI literacy of the staff who operate or use it",
+     "holder": "deployer",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    }
+   ],
+   "next_deadline": "2027-12-02",
+   "memo": "Proceed only with high-risk controls. Online exam proctoring is classified as high-risk. Annex III 3d: Education: monitoring prohibited behaviour during tests. 7 obligations, starting with: Use according to the instructions for use (Art 26(1)); Human oversight by competent, trained, empowered staff (Art 26(2)); Input data relevant and representative, where controlled (Art 26(4)). Next deadline: 02 Dec 2027.",
+   "needs_review": false,
+   "review_reasons": [],
+   "reader": "offline keyword reader",
+   "facts": {
+    "annex_iii": [
+     "3d"
+    ],
+    "role": [
+     "deployer"
+    ]
+   },
+   "evidence": [
+    {
+     "fact": "annex_iii",
+     "value": "3d",
+     "quote": "We want to deploy an AI proctoring service that watches webcam footage during online exams and flags students it suspects of cheating for the exam board."
+    },
+    {
+     "fact": "role",
+     "value": "deployer",
+     "quote": "We want to deploy an AI proctoring service that watches webcam footage during online exams and flags students it suspects of cheating for the exam board."
+    }
+   ],
+   "trace": [
+    "read by offline keyword reader: 2 facts with verified quotes",
+    "classified: high_risk (Annex III 3d, Art 26)",
+    "memo from the template"
+   ],
+   "challenge_changed_tier": false
+  },
+  {
+   "id": "P07",
+   "company": "Ayuntamiento de Villanueva (fictional)",
+   "title": "Resident reliability score",
+   "tier": "prohibited",
+   "verdict": "Do not proceed",
+   "articles": [
+    "Art 5(1)(c)"
+   ],
+   "basis": [
+    "Social scoring that leads to detrimental or unjustified treatment: prohibited by Art 5(1)(c) since 2 Feb 2025."
+   ],
+   "flags": [
+    "Role not stated: assumed both provider (you build it) and deployer (you use it)."
+   ],
+   "other_law": [],
+   "obligations": [
+    {
+     "article": "Art 5(1)(c)",
+     "duty": "Do not place on the market or use; redesign or stop",
+     "holder": "provider",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    },
+    {
+     "article": "Art 4",
+     "duty": "AI literacy of the staff who operate or use it",
+     "holder": "provider",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    }
+   ],
+   "next_deadline": null,
+   "memo": "Do not proceed. Resident reliability score is classified as prohibited. Social scoring that leads to detrimental or unjustified treatment: prohibited by Art 5(1)(c) since 2 Feb 2025. 1 obligations, starting with: Do not place on the market or use; redesign or stop (Art 5(1)(c)).",
+   "needs_review": false,
+   "review_reasons": [],
+   "reader": "offline keyword reader",
+   "facts": {
+    "prohibited": [
+     "social_scoring"
+    ]
+   },
+   "evidence": [
+    {
+     "fact": "prohibited",
+     "value": "social_scoring",
+     "quote": "The council plans a resident reliability score built from fines, unpaid taxes and complaints, used to decide who gets priority for municipal sports facilities and housing subsidies."
+    }
+   ],
+   "trace": [
+    "read by offline keyword reader: 1 facts with verified quotes",
+    "classified: prohibited (Art 5(1)(c))",
+    "memo from the template"
+   ],
+   "challenge_changed_tier": false
+  },
+  {
+   "id": "P08",
+   "company": "Seguros Moncayo (fictional)",
+   "title": "Life insurance pricing",
+   "tier": "high_risk",
+   "verdict": "Proceed only with high-risk controls",
+   "articles": [
+    "Annex III 5c",
+    "Art 9-15",
+    "Art 26",
+    "Art 27"
+   ],
+   "basis": [
+    "Annex III 5c: Risk assessment and pricing in life and health insurance."
+   ],
+   "flags": [],
+   "other_law": [
+    "GDPR Art 9: special category data (health, biometrics, beliefs...) needs an Art 9(2) basis.",
+    "GDPR Art 22: solely automated decisions with significant effects need a lawful basis, human intervention and a right to contest."
+   ],
+   "obligations": [
+    {
+     "article": "Art 9",
+     "duty": "Risk management system across the lifecycle",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 10",
+     "duty": "Data governance: relevant, representative, bias examined",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 11",
+     "duty": "Technical documentation (Annex IV)",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 12",
+     "duty": "Automatic event logging",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 13",
+     "duty": "Instructions for use for deployers",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 14",
+     "duty": "Designed for effective human oversight",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 15",
+     "duty": "Accuracy, robustness, cybersecurity declared and met",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 17",
+     "duty": "Quality management system",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 43",
+     "duty": "Conformity assessment before putting into service",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 47-48",
+     "duty": "EU declaration of conformity and CE marking",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 49(1)",
+     "duty": "Register in the EU database",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 72-73",
+     "duty": "Post-market monitoring and serious incident reporting",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(1)",
+     "duty": "Use according to the instructions for use",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(2)",
+     "duty": "Human oversight by competent, trained, empowered staff",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(4)",
+     "duty": "Input data relevant and representative, where controlled",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(5)",
+     "duty": "Monitor operation, report risks and serious incidents",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(6)",
+     "duty": "Keep logs at least six months",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(11)",
+     "duty": "Tell people a high-risk system is used in decisions about them",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 86",
+     "duty": "Explain the system's role in a decision on request",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 27",
+     "duty": "Fundamental rights impact assessment before first use, notified to the market surveillance authority",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 4",
+     "duty": "AI literacy of the staff who operate or use it",
+     "holder": "provider",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    }
+   ],
+   "next_deadline": "2027-12-02",
+   "memo": "Proceed only with high-risk controls. Life insurance pricing is classified as high-risk. Annex III 5c: Risk assessment and pricing in life and health insurance. 20 obligations, starting with: Risk management system across the lifecycle (Art 9); Data governance: relevant, representative, bias examined (Art 10); Technical documentation (Annex IV) (Art 11). Next deadline: 02 Dec 2027.",
+   "needs_review": false,
+   "review_reasons": [],
+   "reader": "offline keyword reader",
+   "facts": {
+    "annex_iii": [
+     "5c"
+    ],
+    "uses_special_category_data": true,
+    "role": [
+     "provider",
+     "deployer"
+    ],
+    "automated_decision": true
+   },
+   "evidence": [
+    {
+     "fact": "annex_iii",
+     "value": "5c",
+     "quote": "We are building an in-house model that sets premiums for individual life insurance from the medical questionnaire and lifestyle answers."
+    },
+    {
+     "fact": "uses_special_category_data",
+     "value": true,
+     "quote": "We are building an in-house model that sets premiums for individual life insurance from the medical questionnaire and lifestyle answers."
+    },
+    {
+     "fact": "role",
+     "value": "provider",
+     "quote": "We are building an in-house model that sets premiums for individual life insurance from the medical questionnaire and lifestyle answers."
+    },
+    {
+     "fact": "role",
+     "value": "deployer",
+     "quote": "We are building an in-house model that sets premiums for individual life insurance from the medical questionnaire and lifestyle answers."
+    },
+    {
+     "fact": "automated_decision",
+     "value": true,
+     "quote": "Standard cases are accepted automatically with no human review."
+    }
+   ],
+   "trace": [
+    "read by offline keyword reader: 5 facts with verified quotes",
+    "classified: high_risk (Annex III 5c, Art 9-15, Art 26, Art 27)",
+    "memo from the template"
+   ],
+   "challenge_changed_tier": false
+  },
+  {
+   "id": "P09",
+   "company": "TeleNorte (fictional)",
+   "title": "Customer service chatbot",
+   "tier": "transparency",
+   "verdict": "Proceed, with transparency duties",
+   "articles": [
+    "Art 50(1)"
+   ],
+   "basis": [
+    "Interacts directly with people: they must be told it is an AI (Art 50(1))."
+   ],
+   "flags": [],
+   "other_law": [],
+   "obligations": [
+    {
+     "article": "Art 50(1)",
+     "duty": "Tell people they are interacting with an AI, at first contact",
+     "holder": "deployer",
+     "applies_from": "2026-08-02",
+     "in_force": true
+    },
+    {
+     "article": "Art 4",
+     "duty": "AI literacy of the staff who operate or use it",
+     "holder": "deployer",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    }
+   ],
+   "next_deadline": null,
+   "memo": "Proceed, with transparency duties. Customer service chatbot is classified as transparency. Interacts directly with people: they must be told it is an AI (Art 50(1)). 1 obligations, starting with: Tell people they are interacting with an AI, at first contact (Art 50(1)).",
+   "needs_review": false,
+   "review_reasons": [],
+   "reader": "offline keyword reader",
+   "facts": {
+    "interacts_with_people": true,
+    "role": [
+     "deployer"
+    ]
+   },
+   "evidence": [
+    {
+     "fact": "interacts_with_people",
+     "value": true,
+     "quote": "We will deploy a chatbot on our website that answers billing questions and helps customers change their tariff."
+    },
+    {
+     "fact": "role",
+     "value": "deployer",
+     "quote": "We will deploy a chatbot on our website that answers billing questions and helps customers change their tariff."
+    },
+    {
+     "fact": "role",
+     "value": "deployer",
+     "quote": "It is built on a vendor's general-purpose model."
+    }
+   ],
+   "trace": [
+    "read by offline keyword reader: 3 facts with verified quotes",
+    "classified: transparency (Art 50(1))",
+    "memo from the template"
+   ],
+   "challenge_changed_tier": false
+  },
+  {
+   "id": "P10",
+   "company": "Agencia Luz (fictional)",
+   "title": "Ad creative generator",
+   "tier": "transparency",
+   "verdict": "Proceed, with transparency duties",
+   "articles": [
+    "Art 50(2)"
+   ],
+   "basis": [
+    "Generates synthetic content: outputs must be marked as AI-generated, machine-readably (Art 50(2))."
+   ],
+   "flags": [],
+   "other_law": [],
+   "obligations": [
+    {
+     "article": "Art 50(2)",
+     "duty": "Mark generated content as AI-made, machine-readably",
+     "holder": "provider",
+     "applies_from": "2026-08-02",
+     "in_force": true
+    },
+    {
+     "article": "Art 4",
+     "duty": "AI literacy of the staff who operate or use it",
+     "holder": "provider",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    }
+   ],
+   "next_deadline": null,
+   "memo": "Proceed, with transparency duties. Ad creative generator is classified as transparency. Generates synthetic content: outputs must be marked as AI-generated, machine-readably (Art 50(2)). 1 obligations, starting with: Mark generated content as AI-made, machine-readably (Art 50(2)).",
+   "needs_review": false,
+   "review_reasons": [],
+   "reader": "offline keyword reader",
+   "facts": {
+    "generates_synthetic_content": true,
+    "role": [
+     "provider",
+     "deployer"
+    ]
+   },
+   "evidence": [
+    {
+     "fact": "generates_synthetic_content",
+     "value": true,
+     "quote": "We are building an in-house tool that generates images and short videos for our clients' social media ads from a text brief."
+    },
+    {
+     "fact": "role",
+     "value": "provider",
+     "quote": "We are building an in-house tool that generates images and short videos for our clients' social media ads from a text brief."
+    },
+    {
+     "fact": "role",
+     "value": "deployer",
+     "quote": "We are building an in-house tool that generates images and short videos for our clients' social media ads from a text brief."
+    }
+   ],
+   "trace": [
+    "read by offline keyword reader: 3 facts with verified quotes",
+    "classified: transparency (Art 50(2))",
+    "memo from the template"
+   ],
+   "challenge_changed_tier": false
+  },
+  {
+   "id": "P11",
+   "company": "Muebles Yecla (fictional)",
+   "title": "Stock forecasting",
+   "tier": "minimal",
+   "verdict": "Proceed",
+   "articles": [],
+   "basis": [
+    "No prohibited practice, no Annex I or III ground and no transparency trigger found: minimal risk, voluntary codes only."
+   ],
+   "flags": [
+    "Role not stated: assumed both provider (you build it) and deployer (you use it)."
+   ],
+   "other_law": [],
+   "obligations": [
+    {
+     "article": "Art 4",
+     "duty": "AI literacy of the staff who operate or use it",
+     "holder": "provider",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    }
+   ],
+   "next_deadline": null,
+   "memo": "Proceed. Stock forecasting is classified as minimal. No prohibited practice, no Annex I or III ground and no transparency trigger found: minimal risk, voluntary codes only.",
+   "needs_review": false,
+   "review_reasons": [],
+   "reader": "offline keyword reader",
+   "facts": {
+    "uses_personal_data": true
+   },
+   "evidence": [
+    {
+     "fact": "uses_personal_data",
+     "value": true,
+     "quote": "No personal data is used."
+    }
+   ],
+   "trace": [
+    "read by offline keyword reader: 1 facts with verified quotes",
+    "classified: minimal (no articles)",
+    "memo from the template"
+   ],
+   "challenge_changed_tier": false
+  },
+  {
+   "id": "P12",
+   "company": "FaceFind (fictional)",
+   "title": "Face search database",
+   "tier": "prohibited",
+   "verdict": "Do not proceed",
+   "articles": [
+    "Art 5(1)(e)"
+   ],
+   "basis": [
+    "Builds facial recognition databases by untargeted scraping of images from the internet or CCTV: prohibited by Art 5(1)(e) since 2 Feb 2025."
+   ],
+   "flags": [
+    "Role not stated: assumed both provider (you build it) and deployer (you use it)."
+   ],
+   "other_law": [
+    "GDPR Art 9: special category data (health, biometrics, beliefs...) needs an Art 9(2) basis."
+   ],
+   "obligations": [
+    {
+     "article": "Art 5(1)(e)",
+     "duty": "Do not place on the market or use; redesign or stop",
+     "holder": "provider",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    },
+    {
+     "article": "Art 4",
+     "duty": "AI literacy of the staff who operate or use it",
+     "holder": "provider",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    }
+   ],
+   "next_deadline": null,
+   "memo": "Do not proceed. Face search database is classified as prohibited. Builds facial recognition databases by untargeted scraping of images from the internet or CCTV: prohibited by Art 5(1)(e) since 2 Feb 2025. 1 obligations, starting with: Do not place on the market or use; redesign or stop (Art 5(1)(e)).",
+   "needs_review": false,
+   "review_reasons": [],
+   "reader": "offline keyword reader",
+   "facts": {
+    "prohibited": [
+     "facial_scraping"
+    ],
+    "profiling": true,
+    "uses_special_category_data": true
+   },
+   "evidence": [
+    {
+     "fact": "prohibited",
+     "value": "facial_scraping",
+     "quote": "Our startup will scrape public photos from social networks to build a searchable database of faces, so that clients can upload a photo and find a person's profiles."
+    },
+    {
+     "fact": "profiling",
+     "value": true,
+     "quote": "Our startup will scrape public photos from social networks to build a searchable database of faces, so that clients can upload a photo and find a person's profiles."
+    },
+    {
+     "fact": "uses_special_category_data",
+     "value": true,
+     "quote": "Our startup will scrape public photos from social networks to build a searchable database of faces, so that clients can upload a photo and find a person's profiles."
+    }
+   ],
+   "trace": [
+    "read by offline keyword reader: 3 facts with verified quotes",
+    "classified: prohibited (Art 5(1)(e))",
+    "memo from the template"
+   ],
+   "challenge_changed_tier": false
+  },
+  {
+   "id": "P13",
+   "company": "Servicio Regional de Emergencias (fictional)",
+   "title": "Emergency call triage",
+   "tier": "high_risk",
+   "verdict": "Proceed only with high-risk controls",
+   "articles": [
+    "Annex III 5d",
+    "Art 26"
+   ],
+   "basis": [
+    "Annex III 5d: Emergency calls: evaluation, dispatch and triage."
+   ],
+   "flags": [],
+   "other_law": [],
+   "obligations": [
+    {
+     "article": "Art 26(1)",
+     "duty": "Use according to the instructions for use",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(2)",
+     "duty": "Human oversight by competent, trained, empowered staff",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(4)",
+     "duty": "Input data relevant and representative, where controlled",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(5)",
+     "duty": "Monitor operation, report risks and serious incidents",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(6)",
+     "duty": "Keep logs at least six months",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 26(11)",
+     "duty": "Tell people a high-risk system is used in decisions about them",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 86",
+     "duty": "Explain the system's role in a decision on request",
+     "holder": "deployer",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 4",
+     "duty": "AI literacy of the staff who operate or use it",
+     "holder": "deployer",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    }
+   ],
+   "next_deadline": "2027-12-02",
+   "memo": "Proceed only with high-risk controls. Emergency call triage is classified as high-risk. Annex III 5d: Emergency calls: evaluation, dispatch and triage. 7 obligations, starting with: Use according to the instructions for use (Art 26(1)); Human oversight by competent, trained, empowered staff (Art 26(2)); Input data relevant and representative, where controlled (Art 26(4)). Next deadline: 02 Dec 2027.",
+   "needs_review": false,
+   "review_reasons": [],
+   "reader": "offline keyword reader",
+   "facts": {
+    "annex_iii": [
+     "5d"
+    ],
+    "role": [
+     "deployer"
+    ]
+   },
+   "evidence": [
+    {
+     "fact": "annex_iii",
+     "value": "5d",
+     "quote": "We will use a vendor model that listens to 112 emergency calls, estimates urgency and recommends which ambulance to dispatch, which the operator confirms."
+    },
+    {
+     "fact": "role",
+     "value": "deployer",
+     "quote": "We will use a vendor model that listens to 112 emergency calls, estimates urgency and recommends which ambulance to dispatch, which the operator confirms."
+    }
+   ],
+   "trace": [
+    "read by offline keyword reader: 2 facts with verified quotes",
+    "classified: high_risk (Annex III 5d, Art 26)",
+    "memo from the template"
+   ],
+   "challenge_changed_tier": false
+  },
+  {
+   "id": "P14",
+   "company": "Juguetes Pirineo (fictional)",
+   "title": "Talking doll with in-app store",
+   "tier": "prohibited",
+   "verdict": "Do not proceed",
+   "articles": [
+    "Art 5(1)(b)"
+   ],
+   "basis": [
+    "Exploits vulnerabilities due to age, disability or social or economic situation, causing significant harm: prohibited by Art 5(1)(b) since 2 Feb 2025."
+   ],
+   "flags": [],
+   "other_law": [],
+   "obligations": [
+    {
+     "article": "Art 5(1)(b)",
+     "duty": "Do not place on the market or use; redesign or stop",
+     "holder": "provider",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    },
+    {
+     "article": "Art 4",
+     "duty": "AI literacy of the staff who operate or use it",
+     "holder": "provider",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    }
+   ],
+   "next_deadline": null,
+   "memo": "Do not proceed. Talking doll with in-app store is classified as prohibited. Exploits vulnerabilities due to age, disability or social or economic situation, causing significant harm: prohibited by Art 5(1)(b) since 2 Feb 2025. 1 obligations, starting with: Do not place on the market or use; redesign or stop (Art 5(1)(b)).",
+   "needs_review": true,
+   "review_reasons": [
+    "Art 5(1)(a)/(b) needs a 'significant harm' judgement a person should confirm"
+   ],
+   "reader": "offline keyword reader",
+   "facts": {
+    "prohibited": [
+     "exploits_vulnerabilities"
+    ],
+    "role": [
+     "provider"
+    ]
+   },
+   "evidence": [
+    {
+     "fact": "prohibited",
+     "value": "exploits_vulnerabilities",
+     "quote": "We are building a talking doll that chats with children and uses persuasive prompts to nudge kids towards in-app purchases of new outfits."
+    },
+    {
+     "fact": "role",
+     "value": "provider",
+     "quote": "We are building a talking doll that chats with children and uses persuasive prompts to nudge kids towards in-app purchases of new outfits."
+    }
+   ],
+   "trace": [
+    "read by offline keyword reader: 2 facts with verified quotes",
+    "classified: prohibited (Art 5(1)(b))",
+    "memo from the template"
+   ],
+   "challenge_changed_tier": false
+  },
+  {
+   "id": "P15",
+   "company": "Aguas del Ebro (fictional)",
+   "title": "Pipe pressure control",
+   "tier": "high_risk",
+   "verdict": "Proceed only with high-risk controls",
+   "articles": [
+    "Annex III 2",
+    "Art 9-15"
+   ],
+   "basis": [
+    "Annex III 2: Safety component in critical infrastructure (digital, road traffic, water, gas, heating, electricity)."
+   ],
+   "flags": [],
+   "other_law": [],
+   "obligations": [
+    {
+     "article": "Art 9",
+     "duty": "Risk management system across the lifecycle",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 10",
+     "duty": "Data governance: relevant, representative, bias examined",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 11",
+     "duty": "Technical documentation (Annex IV)",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 12",
+     "duty": "Automatic event logging",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 13",
+     "duty": "Instructions for use for deployers",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 14",
+     "duty": "Designed for effective human oversight",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 15",
+     "duty": "Accuracy, robustness, cybersecurity declared and met",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 17",
+     "duty": "Quality management system",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 43",
+     "duty": "Conformity assessment before putting into service",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 47-48",
+     "duty": "EU declaration of conformity and CE marking",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 49(1)",
+     "duty": "Register in the EU database",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 72-73",
+     "duty": "Post-market monitoring and serious incident reporting",
+     "holder": "provider",
+     "applies_from": "2027-12-02",
+     "in_force": false
+    },
+    {
+     "article": "Art 4",
+     "duty": "AI literacy of the staff who operate or use it",
+     "holder": "provider",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    }
+   ],
+   "next_deadline": "2027-12-02",
+   "memo": "Proceed only with high-risk controls. Pipe pressure control is classified as high-risk. Annex III 2: Safety component in critical infrastructure (digital, road traffic, water, gas, heating, electricity). 12 obligations, starting with: Risk management system across the lifecycle (Art 9); Data governance: relevant, representative, bias examined (Art 10); Technical documentation (Annex IV) (Art 11). Next deadline: 02 Dec 2027.",
+   "needs_review": false,
+   "review_reasons": [],
+   "reader": "offline keyword reader",
+   "facts": {
+    "annex_iii": [
+     "2"
+    ],
+    "role": [
+     "provider"
+    ]
+   },
+   "evidence": [
+    {
+     "fact": "annex_iii",
+     "value": "2",
+     "quote": "We are building an AI model that controls pressure valves and automatic shut-off in the municipal water network to prevent bursts."
+    },
+    {
+     "fact": "role",
+     "value": "provider",
+     "quote": "We are building an AI model that controls pressure valves and automatic shut-off in the municipal water network to prevent bursts."
+    }
+   ],
+   "trace": [
+    "read by offline keyword reader: 2 facts with verified quotes",
+    "classified: high_risk (Annex III 2, Art 9-15)",
+    "memo from the template"
+   ],
+   "challenge_changed_tier": false
+  },
+  {
+   "id": "P16",
+   "company": "Grupo Medianoche (fictional)",
+   "title": "CEO video avatar",
+   "tier": "transparency",
+   "verdict": "Proceed, with transparency duties",
+   "articles": [
+    "Art 50(4)"
+   ],
+   "basis": [
+    "Produces deep fakes of real people or events: disclose that the content is artificial (Art 50(4))."
+   ],
+   "flags": [],
+   "other_law": [],
+   "obligations": [
+    {
+     "article": "Art 50(4)",
+     "duty": "Disclose that the image, audio or video is artificially generated",
+     "holder": "deployer",
+     "applies_from": "2026-08-02",
+     "in_force": true
+    },
+    {
+     "article": "Art 4",
+     "duty": "AI literacy of the staff who operate or use it",
+     "holder": "deployer",
+     "applies_from": "2025-02-02",
+     "in_force": true
+    }
+   ],
+   "next_deadline": null,
+   "memo": "Proceed, with transparency duties. CEO video avatar is classified as transparency. Produces deep fakes of real people or events: disclose that the content is artificial (Art 50(4)). 1 obligations, starting with: Disclose that the image, audio or video is artificially generated (Art 50(4)).",
+   "needs_review": false,
+   "review_reasons": [],
+   "reader": "offline keyword reader",
+   "facts": {
+    "deepfake": true,
+    "role": [
+     "deployer"
+    ]
+   },
+   "evidence": [
+    {
+     "fact": "deepfake",
+     "value": true,
+     "quote": "We will use a vendor tool to create a deepfake video avatar of our CEO that presents quarterly results to employees."
+    },
+    {
+     "fact": "role",
+     "value": "deployer",
+     "quote": "We will use a vendor tool to create a deepfake video avatar of our CEO that presents quarterly results to employees."
+    }
+   ],
+   "trace": [
+    "read by offline keyword reader: 2 facts with verified quotes",
+    "classified: transparency (Art 50(4))",
+    "memo from the template"
+   ],
+   "challenge_changed_tier": false
+  }
+ ]
+}

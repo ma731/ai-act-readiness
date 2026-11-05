@@ -46,6 +46,51 @@ This is a portfolio project, not legal advice.
 - **The model is calibrated and explainable**: predicted over actual cost 1.005, and the GLM ranks as well as a gradient-boosted challenger (Gini 0.597 against 0.598).
 <!-- END:evidence-headline -->
 
+## The proposal screener: agents read, code decides
+
+**[Live page](https://ma731.github.io/ai-act-readiness/proposals.html)** · code in [`src/screener/`](src/screener/)
+
+The assessment above goes deep on one insurer. The screener goes wide: a company sends a
+spreadsheet of AI ideas, and each comes back with a verdict, the articles behind it, the
+obligations it carries, a short memo, and whether a person should look at it.
+
+```bash
+python -m scripts.screen_proposals my_proposals.xlsx    # columns: id, company, title, proposal
+```
+
+| Step | Who | What |
+|---|---|---|
+| 1. Read | agent | turns the proposal into facts, quoting the sentence each fact comes from |
+| 2. Verify | code | drops any fact whose quote is not in the proposal, so a reader cannot invent one |
+| 3. Classify | code | applies the Act: every Art 5 practice, every Annex III area, the Annex I route, Art 50, the Art 6(3) derogation, the GDPR links ([`law.py`](src/screener/law.py)) |
+| 4. Challenge | agent | a second reader hunts for missed facts; code re-classifies if it finds any |
+| 5. Explain | agent + code | a memo, checked so it cites only articles the classification used |
+| 6. Escalate | code | disputed or judgement-heavy cases go to a human-review queue |
+
+It is a workflow, not a free-roaming agent, on purpose: a legal classification must be
+predictable and repeatable, so the model reads and explains and code decides. Without a model
+configured, an offline keyword reader runs, so the demo and CI need no key.
+
+**Choosing the model.** Set one of these in your environment (or a `.env` you load); the
+screener picks the first one it finds, or the one named in `SCREENER_PROVIDER`.
+
+| Provider | `SCREENER_PROVIDER` | Variables |
+|---|---|---|
+| OpenAI model on Azure OpenAI | `azure_openai` | `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`, `OPENAI_API_VERSION`, `AZURE_OPENAI_DEPLOYMENT` (your deployment name, e.g. `gpt-4o-mini`) |
+| Claude on Azure (Microsoft Foundry) | `foundry` | `ANTHROPIC_FOUNDRY_API_KEY`, `ANTHROPIC_FOUNDRY_RESOURCE`, `SCREENER_MODEL` (your Claude deployment name) |
+| Claude API | `anthropic` | `ANTHROPIC_API_KEY` |
+
+Every provider gets the same prompts, the same strict JSON schema and the same quote check,
+so swapping models changes who reads, never how the verdict is reached. A run of 16
+proposals is three short calls each (read, challenge, memo): cents on a small model.
+
+On the [16 sample proposals](data/proposals_sample.csv) (fictional companies, one per outcome)
+the screener agrees with every label and sends the two judgement calls to review: a shift
+planner that claims the Art 6(3) exemption while profiling workers, and a toy whose "significant
+harm" a person should weigh. **That is a test of the pipeline, not of reading ability:** the
+offline reader was tuned on these samples. Measuring the Claude reader needs proposals labelled
+by someone other than the person who wrote the rules.
+
 ## Where the data comes from
 
 The model needs, for each person, the answers they would give on an insurance application,
@@ -101,6 +146,9 @@ data/tariffs_osakidetza_2024.yaml  the prices, each with page and billing code
 src/pricing.py                     turns survey answers into costs; the pricing model (Poisson GLM)
 src/evidence.py                    price-to-cost by group, unmet need, bootstrap intervals
 src/report.py                      writes every table and number into the documents
+src/screener/                      the proposal screener: law.py (the Act, wide), readers.py
+                                   (offline, Azure OpenAI and Claude readers, quote guard), pipeline.py
+scripts/screen_proposals.py        spreadsheet in, Excel workbook + memos out
 docs/decisions/                    why each important choice was made
 ```
 
