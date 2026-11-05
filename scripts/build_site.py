@@ -30,7 +30,8 @@ FONTS = ("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wg
          "0,700;1,400&family=IBM+Plex+Mono:wght@400;600;700&family=Instrument+Serif:ital@0;1"
          "&display=swap")
 NAV = [("index.html", "Overview"), ("evidence.html", "Evidence"),
-       ("roadmap.html", "Roadmap"), ("documents.html", "Documents")]
+       ("roadmap.html", "Roadmap"), ("proposals.html", "Proposal screener"),
+       ("documents.html", "Documents")]
 DOCS = [
     ("docs/01_classification.md", "Classification", "Which systems the Act catches, and why"),
     ("docs/02_fria_tarifa_salud.md", "Fundamental rights impact assessment",
@@ -522,6 +523,66 @@ table and number in them is generated from the results.</p></div>
                 "The classification, FRIA, gap assessment, Spanish summary and decision records.")
 
 
+def proposals_page() -> str:
+    """The proposal screener, from results/proposals/screening.json."""
+    data = json.loads((ROOT / "results" / "proposals" / "screening.json").read_text(encoding="utf-8"))
+    res = data["results"]
+    n = len(res)
+    count = {t: sum(r["tier"] == t for r in res) for t in TIER}
+    review = sum(r["needs_review"] for r in res)
+    steps = [
+        ("Read", "A reader agent turns each free-text proposal into facts, and must quote the sentence "
+                 "each fact comes from."),
+        ("Verify", "Code drops any fact whose quote is not in the proposal, so a reader cannot invent one."),
+        ("Classify", "Code applies the Act: Article 5, Annex III, Annex I, Article 50, the Article 6(3) "
+                     "derogation. The model never decides the tier."),
+        ("Challenge", "With a model, a second reader hunts for missed facts; code re-classifies if it "
+                      "finds any."),
+        ("Explain", "A memo is written and checked: it may only cite articles the classification used."),
+        ("Escalate", "Disputed or judgement-heavy cases go to a human-review queue."),
+    ]
+    flow = "".join(f'<li><span class="sid">{i}</span><div><h3>{e(t)}</h3></div>'
+                   f'<p class="why">{e(d)}</p><span></span></li>'
+                   for i, (t, d) in enumerate(steps, 1))
+    reg = []
+    for r in res:
+        cites = " · ".join(r["articles"][:4])
+        flag = '<span class="flag">REVIEW</span>' if r["needs_review"] else ""
+        why = "; ".join(r["review_reasons"]) if r["needs_review"] else ""
+        reg.append(
+            f'<li><span class="sid">{e(r["id"])}</span>'
+            f'<div><h3>{e(r["title"])}{flag}</h3><p class="what">{e(r["company"])}</p></div>'
+            f'<p class="why">{e(r["memo"])}<span class="cite">{e(cites)}</span>'
+            f'{f"<span class=cite>Review: {e(why)}</span>" if why else ""}</p>'
+            f'<span class="stamp {r["tier"]}">{TIER[r["tier"]]}</span></li>')
+    facts = "".join(
+        f'<div class="fact{" alert" if t == "prohibited" else ""}"><b>{count[t]}</b><span>{TIER[t].lower()}</span></div>'
+        for t in TIER) + f'<div class="fact"><b>{review}</b><span>for human review</span></div>'
+    body = f"""
+<section class="hero">
+  <p class="kicker">Proposal screener · agents read, code decides</p>
+  <h1>{WORDS.get(n, n) if n < 7 else n} proposals. <em>{count['prohibited']}</em> must not go ahead.</h1>
+  <p class="lede">Companies send a spreadsheet of AI ideas. Each one is read, checked against the
+  EU AI Act and returned with a verdict, the articles behind it, the obligations it carries and a
+  short memo. These sixteen are fictional companies, written to cover every outcome.</p>
+  <div class="facts">{facts}</div>
+</section>
+{sec("01", "How it decides", "A workflow, not a free-roaming agent: a legal classification has to be predictable, so the model reads and explains, and code decides.", '<ol class="register">' + flow + "</ol>")}
+{sec("02", "The verdicts", f"Read by: {e(data['reader'])}. Every verdict matches the label written for the proposal; the offline reader is a keyword baseline tuned on these samples, so this is a test of the pipeline, not of reading ability.", '<ol class="register">' + "".join(reg) + "</ol>")}
+{sec("03", "Run it on your own proposals", "", '''<div class="prose"><p>Put your proposals in a spreadsheet with
+the columns <code>id</code>, <code>company</code>, <code>title</code> and <code>proposal</code>, then run</p>
+<pre><code>python -m scripts.screen_proposals my_proposals.xlsx</code></pre>
+<p>With an <code>ANTHROPIC_API_KEY</code>, Claude reads and challenges each proposal; without one, the
+offline reader runs. The result is a workbook with a summary, a review queue, every obligation, the
+quotes behind each fact, and the step-by-step trace.</p>
+<p><a href="downloads/screening.xlsx">Download the sample result (Excel)</a> ·
+<a href="downloads/proposals_sample.csv">the sample input (CSV)</a> ·
+<a href="''' + REPO + '''/tree/main/src/screener">the code</a></p></div>''')}
+"""
+    return page("proposals.html", "Proposal screener: AI ideas checked against the EU AI Act", body,
+                "Upload AI use-case proposals; agents read them, code applies the EU AI Act, and each comes back with a verdict, articles, obligations and a memo.")
+
+
 def main() -> int:
     systems, results, rows, ev, tariffs = load()
     if OUT.exists():
@@ -532,8 +593,12 @@ def main() -> int:
         "index.html": index(systems, results, rows, ev),
         "evidence.html": evidence_page(ev, tariffs),
         "roadmap.html": roadmap_page(rows),
+        "proposals.html": proposals_page(),
         "documents.html": documents_page(),
     }
+    (OUT / "downloads").mkdir()
+    shutil.copy(ROOT / "results" / "proposals" / "screening.xlsx", OUT / "downloads" / "screening.xlsx")
+    shutil.copy(ROOT / "data" / "proposals_sample.csv", OUT / "downloads" / "proposals_sample.csv")
     for md, title, desc in DOCS:
         out, text = render_doc(md, title, desc)
         pages[out] = text
