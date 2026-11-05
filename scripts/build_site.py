@@ -572,8 +572,8 @@ def proposals_page() -> str:
 {sec("03", "Run it on your own proposals", "", '''<div class="prose"><p>Put your proposals in a spreadsheet with
 the columns <code>id</code>, <code>company</code>, <code>title</code> and <code>proposal</code>, then run</p>
 <pre><code>python -m scripts.screen_proposals my_proposals.xlsx</code></pre>
-<p>With an <code>ANTHROPIC_API_KEY</code>, Claude reads and challenges each proposal; without one, the
-offline reader runs. The result is a workbook with a summary, a review queue, every obligation, the
+<p>With a model configured (an OpenAI model on Azure OpenAI, Claude on Azure Foundry, or the Claude
+API), the model reads and challenges each proposal; without one, the offline reader runs. The result is a workbook with a summary, a review queue, every obligation, the
 quotes behind each fact, and the step-by-step trace.</p>
 <p><a href="downloads/screening.xlsx">Download the sample result (Excel)</a> ·
 <a href="downloads/proposals_sample.csv">the sample input (CSV)</a> ·

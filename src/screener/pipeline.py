@@ -89,7 +89,7 @@ def screen_one(row: dict, reader=None) -> Screening:
     a = classify(facts)
     trace.append(f"classified: {a.tier} ({', '.join(a.articles) or 'no articles'})")
 
-    # 4. challenge (Claude reader only; the offline reader has no second opinion)
+    # 4. challenge (model readers only; the offline reader has no second opinion)
     changed = False
     if hasattr(reader, "challenge"):
         extra = reader.challenge(text, kept)
@@ -110,8 +110,8 @@ def screen_one(row: dict, reader=None) -> Screening:
 
     # 5. explain, then check the explanation
     memo = template_memo(row.get("title") or row["id"], a)
-    if hasattr(reader, "client"):
-        drafted = _claude_memo(reader, row, a)
+    if hasattr(reader, "write"):
+        drafted = _model_memo(reader, row, a)
         problems = check_memo(drafted, a)
         if problems:
             trace.append("memo check failed (" + "; ".join(problems) + "): used the template memo")
@@ -138,18 +138,13 @@ def screen_one(row: dict, reader=None) -> Screening:
                      review_reasons=review, trace=trace, challenge_changed_tier=changed)
 
 
-def _claude_memo(reader, row: dict, a: Assessment) -> str:
+def _model_memo(reader, row: dict, a: Assessment) -> str:
     system = ("Write a plain-English screening memo (80-120 words) for a business reader. Start with the verdict "
               f"exactly as given. Cite ONLY these articles: {', '.join(a.articles + sorted({o.article for o in a.obligations}))}. "
               "No legal advice disclaimers, no headings.")
     user = (f"Proposal: {row['proposal']}\nVerdict: {a.verdict}\nTier: {a.tier}\nBasis: {' '.join(a.basis)}\n"
             f"Obligations: {'; '.join(f'{o.article}: {o.duty}' for o in a.obligations)}")
-    resp = reader.client.beta.messages.create(
-        model=reader.model, max_tokens=4000, system=system, messages=[{"role": "user", "content": user}],
-        output_config={"effort": "low"}, betas=["server-side-fallback-2026-07-01"], fallbacks="default")
-    if resp.stop_reason == "refusal":
-        return ""
-    return next((b.text for b in resp.content if b.type == "text"), "")
+    return reader.write(system, user)
 
 
 def screen_all(rows: list[dict], reader=None) -> list[Screening]:

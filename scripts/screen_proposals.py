@@ -8,8 +8,9 @@ Input columns: id, company, title, proposal (free text). Optional: expected_tier
 an Evaluation sheet comparing the screener with your labels.
 
 Writes results/proposals/screening.xlsx (Summary, Review queue, Obligations, Evidence, Trace,
-Evaluation, About), screening.json and screening.md. With ANTHROPIC_API_KEY set, Claude reads
-and challenges each proposal; without it, the offline keyword reader runs.
+Evaluation, About), screening.json and screening.md. With a model configured (Azure OpenAI,
+Claude on Azure Foundry, or the Claude API; see the README), the model reads and challenges
+each proposal; without one, the offline keyword reader runs.
 """
 from __future__ import annotations
 

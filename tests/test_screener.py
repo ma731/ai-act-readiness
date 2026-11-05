@@ -104,3 +104,61 @@ def test_cli_writes_the_workbook(tmp_path):
     wb = openpyxl.load_workbook(tmp_path / "screening.xlsx")
     assert {"Summary", "Review queue", "Obligations", "Evidence", "Evaluation", "About"} <= set(wb.sheetnames)
     assert wb["Summary"].max_row == len(ROWS) + 1
+
+
+# ---------- model readers: provider choice and the shared contract, no network ----------
+def test_provider_is_picked_from_the_environment(monkeypatch):
+    from src.screener import readers
+    for v in ("SCREENER_PROVIDER", "AZURE_OPENAI_API_KEY", "AZURE_OPENAI_ENDPOINT", "ANTHROPIC_FOUNDRY_API_KEY",
+              "ANTHROPIC_FOUNDRY_RESOURCE", "ANTHROPIC_FOUNDRY_BASE_URL", "ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN"):
+        monkeypatch.delenv(v, raising=False)
+    assert readers.detect_provider() is None
+    assert isinstance(readers.make_reader(), OfflineReader)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "x")
+    assert readers.detect_provider() == "anthropic"
+    monkeypatch.setenv("AZURE_OPENAI_API_KEY", "x")
+    monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "https://example.openai.azure.com")
+    assert readers.detect_provider() == "azure_openai"
+    monkeypatch.setenv("SCREENER_PROVIDER", "foundry")
+    assert readers.detect_provider() == "foundry"
+    monkeypatch.setenv("SCREENER_PROVIDER", "nonsense")
+    assert readers.detect_provider() is None
+
+
+class FakeModel:
+    """Stands in for any provider: returns canned JSON for reads, a memo for write()."""
+
+    def __init__(self, evidence, memo="", refuse=False):
+        from src.screener.readers import ModelReader
+        self.base = ModelReader()
+        self.evidence, self.memo, self.refuse = evidence, memo, refuse
+        self.base._complete = self._complete
+        self.calls = []
+
+    def _complete(self, system, user, schema, effort):
+        import json
+        self.calls.append((schema is not None, effort))
+        if self.refuse:
+            return None
+        if schema is None:
+            return self.memo
+        first = len([c for c in self.calls if c[0]]) == 1
+        return json.dumps({"evidence": self.evidence if first else [], "unknowns": []})
+
+
+def test_any_model_reader_runs_the_full_workflow():
+    text = "We will use a chatbot that talks to customers on our website."
+    fake = FakeModel([{"fact": "interacts_with_people", "value": "true", "quote": "a chatbot that talks to customers"},
+                      {"fact": "role", "value": "deployer", "quote": "We will use a chatbot"}])
+    fake.memo = template_memo("Chatbot", classify({"interacts_with_people": True, "role": ["deployer"]}))
+    s = screen_one({"id": "Z", "title": "Chatbot", "proposal": text}, fake.base)
+    assert s.assessment.tier == "transparency"
+    assert s.memo == fake.memo and "memo written by the model and checked" in s.trace
+    assert fake.calls == [(True, "low"), (True, "medium"), (False, "low")]   # read, challenge, memo
+
+
+def test_a_refusing_model_falls_back_safely():
+    fake = FakeModel([], refuse=True)
+    s = screen_one({"id": "R", "title": "Odd", "proposal": "We forecast weekly demand from past sales."}, fake.base)
+    assert s.needs_review and any("declined" in r for r in s.review_reasons)
+    assert "memo from the template" not in s.trace and s.memo   # template memo kept after an empty draft

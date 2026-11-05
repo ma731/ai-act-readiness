@@ -1,9 +1,11 @@
 """The reader agents: turn a free-text proposal into facts, each backed by a quote.
 
-Two readers share one output shape:
+Every reader shares one output shape:
   * OfflineReader: keyword rules. Free, deterministic, runs in CI and on the static site.
     It is a baseline, tuned on the sample proposals, and says so.
-  * ClaudeReader: Claude with a strict JSON schema. The real reader.
+  * Model readers, all with a strict JSON schema: Claude on the Claude API, Claude on
+    Azure (Foundry), or an OpenAI model on Azure OpenAI. `make_reader` picks one from
+    the environment.
 
 Whatever reads the proposal, `verify_quotes` then drops any fact whose quote is not
 actually in the proposal text. A reader cannot add a fact the proposal does not contain.
@@ -167,25 +169,22 @@ def _bool_or_str(value: str):
     return True if str(value).lower() == "true" else value
 
 
-class ClaudeReader:
-    """Claude via the Anthropic SDK. Needs ANTHROPIC_API_KEY (or an `ant auth login` profile)."""
+DECLINED = {"evidence": [], "unknowns": ["The model declined to read this proposal; review by hand."]}
 
-    def __init__(self, model: str = MODEL):
-        import anthropic
-        self.client = anthropic.Anthropic()
-        self.model = model
-        self.name = f"Claude ({model})"
+
+class ModelReader:
+    """What every model reader shares. A subclass only says how to call its provider:
+    `_complete(system, user, schema, effort)` returns the text, or None on a refusal."""
+
+    name = "model reader"
+
+    def _complete(self, system: str, user: str, schema: dict | None, effort: str) -> str | None:
+        raise NotImplementedError
 
     def _ask(self, system: str, user: str, effort: str = "low") -> dict:
-        resp = self.client.beta.messages.create(
-            model=self.model, max_tokens=8000, system=system,
-            messages=[{"role": "user", "content": user}],
-            output_config={"effort": effort, "format": {"type": "json_schema", "schema": SCHEMA}},
-            betas=["server-side-fallback-2026-07-01"], fallbacks="default",
-        )
-        if resp.stop_reason == "refusal":
-            return {"evidence": [], "unknowns": ["The model declined to read this proposal; review by hand."]}
-        text = next(b.text for b in resp.content if b.type == "text")
+        text = self._complete(system, user, SCHEMA, effort)
+        if text is None:
+            return dict(DECLINED, unknowns=list(DECLINED["unknowns"]))
         out = json.loads(text)
         for e in out["evidence"]:
             e["value"] = _bool_or_str(e["value"])
@@ -200,12 +199,106 @@ class ClaudeReader:
         found = json.dumps([{k: e[k] for k in ("fact", "value")} for e in evidence])
         return self._ask(CHALLENGE_PROMPT, f"PROPOSAL:\n{text}\n\nFACTS ALREADY FOUND:\n{found}", effort="medium")
 
+    def write(self, system: str, user: str) -> str:
+        """Free text (the memo). Empty string on a refusal, so the template memo is used."""
+        return self._complete(system, user, None, "low") or ""
+
+
+class ClaudeReader(ModelReader):
+    """Claude on the Claude API. Needs ANTHROPIC_API_KEY."""
+
+    def __init__(self, model: str | None = None):
+        import anthropic
+        self.client = anthropic.Anthropic()
+        self.model = model or MODEL
+        self.name = f"Claude ({self.model})"
+
+    def _complete(self, system, user, schema, effort):
+        config = {"effort": effort}
+        if schema:
+            config["format"] = {"type": "json_schema", "schema": schema}
+        resp = self.client.beta.messages.create(
+            model=self.model, max_tokens=8000, system=system,
+            messages=[{"role": "user", "content": user}], output_config=config,
+            betas=["server-side-fallback-2026-07-01"], fallbacks="default",
+        )
+        if resp.stop_reason == "refusal":
+            return None
+        return next((b.text for b in resp.content if b.type == "text"), "")
+
+
+class FoundryClaudeReader(ModelReader):
+    """Claude on Azure (Microsoft Foundry). Needs ANTHROPIC_FOUNDRY_API_KEY and
+    ANTHROPIC_FOUNDRY_RESOURCE. Server-side fallbacks are a Claude API feature, so none here."""
+
+    def __init__(self, model: str | None = None):
+        from anthropic import AnthropicFoundry
+        self.client = AnthropicFoundry()
+        self.model = model or os.getenv("SCREENER_MODEL") or "claude-opus-5-5"
+        self.name = f"Claude on Azure Foundry ({self.model})"
+
+    def _complete(self, system, user, schema, effort):
+        kwargs = {}
+        if schema:
+            kwargs["output_config"] = {"format": {"type": "json_schema", "schema": schema}}
+        resp = self.client.messages.create(
+            model=self.model, max_tokens=8000, system=system,
+            messages=[{"role": "user", "content": user}], **kwargs,
+        )
+        if resp.stop_reason == "refusal":
+            return None
+        return next((b.text for b in resp.content if b.type == "text"), "")
+
+
+class AzureOpenAIReader(ModelReader):
+    """An OpenAI model deployed on Azure OpenAI. Uses the same variables as Titan:
+    AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, OPENAI_API_VERSION, plus the deployment
+    name in AZURE_OPENAI_DEPLOYMENT (or SCREENER_MODEL)."""
+
+    def __init__(self, deployment: str | None = None):
+        from openai import AzureOpenAI
+        self.client = AzureOpenAI(api_version=os.getenv("OPENAI_API_VERSION", "2024-10-21"))
+        self.model = deployment or os.getenv("AZURE_OPENAI_DEPLOYMENT") or os.getenv("SCREENER_MODEL") or "gpt-4o-mini"
+        self.name = f"Azure OpenAI ({self.model})"
+
+    def _complete(self, system, user, schema, effort):
+        kwargs = {}
+        if schema:
+            kwargs["response_format"] = {"type": "json_schema",
+                                         "json_schema": {"name": "facts", "schema": schema, "strict": True}}
+        resp = self.client.chat.completions.create(
+            model=self.model, messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+            **kwargs,
+        )
+        msg = resp.choices[0].message
+        if getattr(msg, "refusal", None):
+            return None
+        return msg.content or ""
+
+
+PROVIDERS = {"anthropic": ClaudeReader, "foundry": FoundryClaudeReader, "azure_openai": AzureOpenAIReader}
+
+
+def detect_provider() -> str | None:
+    """SCREENER_PROVIDER wins; otherwise the first provider whose credentials are set."""
+    chosen = os.getenv("SCREENER_PROVIDER", "").strip().lower()
+    if chosen:
+        return chosen if chosen in PROVIDERS else None
+    if os.getenv("AZURE_OPENAI_API_KEY") and os.getenv("AZURE_OPENAI_ENDPOINT"):
+        return "azure_openai"
+    if os.getenv("ANTHROPIC_FOUNDRY_API_KEY") and (os.getenv("ANTHROPIC_FOUNDRY_RESOURCE") or os.getenv("ANTHROPIC_FOUNDRY_BASE_URL")):
+        return "foundry"
+    if os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN"):
+        return "anthropic"
+    return None
+
 
 def make_reader(prefer_model: bool = True):
-    """Claude when credentials are available, else the offline reader."""
-    if prefer_model and (os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN")):
+    """A model reader when a provider is configured, else the offline reader."""
+    provider = detect_provider() if prefer_model else None
+    if provider:
         try:
-            return ClaudeReader()
-        except Exception:  # noqa: BLE001 - a missing SDK must not stop a screening
+            return PROVIDERS[provider]()
+        except Exception:  # noqa: BLE001 - a missing SDK or setting must not stop a screening
             pass
     return OfflineReader()

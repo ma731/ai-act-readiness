@@ -68,9 +68,21 @@ python -m scripts.screen_proposals my_proposals.xlsx    # columns: id, company, 
 | 6. Escalate | code | disputed or judgement-heavy cases go to a human-review queue |
 
 It is a workflow, not a free-roaming agent, on purpose: a legal classification must be
-predictable and repeatable, so the model reads and explains and code decides. With an
-`ANTHROPIC_API_KEY`, Claude is the reader and the challenger; without one, an offline keyword
-reader runs, so the demo and CI need no key.
+predictable and repeatable, so the model reads and explains and code decides. Without a model
+configured, an offline keyword reader runs, so the demo and CI need no key.
+
+**Choosing the model.** Set one of these in your environment (or a `.env` you load); the
+screener picks the first one it finds, or the one named in `SCREENER_PROVIDER`.
+
+| Provider | `SCREENER_PROVIDER` | Variables |
+|---|---|---|
+| OpenAI model on Azure OpenAI | `azure_openai` | `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`, `OPENAI_API_VERSION`, `AZURE_OPENAI_DEPLOYMENT` (your deployment name, e.g. `gpt-4o-mini`) |
+| Claude on Azure (Microsoft Foundry) | `foundry` | `ANTHROPIC_FOUNDRY_API_KEY`, `ANTHROPIC_FOUNDRY_RESOURCE`, `SCREENER_MODEL` (your Claude deployment name) |
+| Claude API | `anthropic` | `ANTHROPIC_API_KEY` |
+
+Every provider gets the same prompts, the same strict JSON schema and the same quote check,
+so swapping models changes who reads, never how the verdict is reached. A run of 16
+proposals is three short calls each (read, challenge, memo): cents on a small model.
 
 On the [16 sample proposals](data/proposals_sample.csv) (fictional companies, one per outcome)
 the screener agrees with every label and sends the two judgement calls to review: a shift
@@ -135,7 +147,7 @@ src/pricing.py                     turns survey answers into costs; the pricing 
 src/evidence.py                    price-to-cost by group, unmet need, bootstrap intervals
 src/report.py                      writes every table and number into the documents
 src/screener/                      the proposal screener: law.py (the Act, wide), readers.py
-                                   (offline and Claude readers, quote guard), pipeline.py
+                                   (offline, Azure OpenAI and Claude readers, quote guard), pipeline.py
 scripts/screen_proposals.py        spreadsheet in, Excel workbook + memos out
 docs/decisions/                    why each important choice was made
 ```
