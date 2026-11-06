@@ -735,3 +735,15 @@ body.landing { overflow-x: clip; }
   .window { margin-top: -120px; }
   .hero-tag { font-size: 12px; text-align: left; }
 }
+
+/* the EU flag as a label for the law, next to (never inside) the Veredicto mark */
+.eu-badge { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px 4px 5px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--surface); font: 500 12.5px/1.2 var(--sans); color: var(--ink-2); white-space: nowrap; }
+.eu-badge .flag-eu { width: 22px; height: 15px; border-radius: 3px; }
+.snav .eu-badge { margin-left: -14px; }
+.side-badge { align-self: flex-start; margin: -8px 0 0 8px; }
+@media (max-width: 860px) {
+  .side-badge { display: none; }
+  .snav .eu-badge { margin-left: -16px; }
+}
+@media (max-width: 400px) { .snav .eu-badge { font-size: 0; gap: 0; padding: 4px 5px; } }
