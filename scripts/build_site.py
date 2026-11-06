@@ -9,10 +9,12 @@ from __future__ import annotations
 
 import html
 import json
+import math
 import re
 import shutil
 from datetime import date
 from pathlib import Path
+from urllib.parse import quote
 
 import markdown
 import yaml
@@ -70,6 +72,46 @@ APP_NAV = [
 NAV = [(h, label) for _, items in APP_NAV for h, label, _ in items]
 
 
+# ---------------------------------------------------------------- brand ---------------- #
+LOGO_SVG = ('<svg class="{cls}" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#003399"/>'
+            '<path d="M8.6 10.6 15 23" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/>'
+            '<path d="M15 23 24.4 7.6" fill="none" stroke="#FFCC00" stroke-width="3.4" stroke-linecap="round"/></svg>')
+
+
+def logo(cls: str = "mark") -> str:
+    """Veredicto's mark: a V whose right arm is a check."""
+    return LOGO_SVG.format(cls=cls)
+
+
+def _star(cx: float, cy: float, r: float) -> str:
+    pts = []
+    for k in range(10):
+        a = -math.pi / 2 + k * math.pi / 5
+        rr = r if k % 2 == 0 else r * 0.382
+        pts.append(f"{cx + rr * math.cos(a):.2f},{cy + rr * math.sin(a):.2f}")
+    return " ".join(pts)
+
+
+def eu_flag(cls: str = "flag-eu") -> str:
+    """The EU flag, used only to mark EU law, never as this project's logo."""
+    w, h = 27, 18
+    stars = "".join(
+        f'<polygon points="{_star(w / 2 + h / 3 * math.cos(-math.pi / 2 + i * math.pi / 6), h / 2 + h / 3 * math.sin(-math.pi / 2 + i * math.pi / 6), h / 18)}"/>'
+        for i in range(12))
+    return (f'<svg class="{cls}" viewBox="0 0 {w} {h}" role="img" aria-label="Flag of the European Union">'
+            f'<rect width="{w}" height="{h}" fill="#003399"/><g fill="#FFCC00">{stars}</g></svg>')
+
+
+def nl_flag(cls: str = "flag-eu") -> str:
+    return (f'<svg class="{cls}" viewBox="0 0 9 6" role="img" aria-label="Flag of the Netherlands">'
+            '<rect width="9" height="2" fill="#AE1C28"/><rect y="2" width="9" height="2" fill="#fff"/>'
+            '<rect y="4" width="9" height="2" fill="#21468B"/></svg>')
+
+
+FAVICON = "data:image/svg+xml," + quote(LOGO_SVG.format(cls="f").replace('class="f" ', 'xmlns="http://www.w3.org/2000/svg" '))
+NOT_EU = "Independent project. Not affiliated with or endorsed by the European Union or any EU institution."
+
+
 def icon(name: str) -> str:
     return f'<svg viewBox="0 0 24 24" aria-hidden="true">{ICONS[name]}</svg>'
 
@@ -89,6 +131,7 @@ def head(title: str, description: str, up: str) -> str:
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="{FONTS}">
 <link rel="stylesheet" href="{up}style.css">
+<link rel="icon" href="{FAVICON}">
 </head>"""
 
 
@@ -112,7 +155,7 @@ def page(path: str, title: str, body: str, description: str, counts: dict | None
 <body>
 <div class="app">
 <aside class="side">
-  <a class="org" href="{up}index.html" title="{PRODUCT} home"><span class="logo">§</span>
+  <a class="org" href="{up}index.html" title="{PRODUCT} home">{logo()}
     <span><b>Cierzo Seguros</b><span>{PRODUCT} workspace</span></span></a>
   <nav aria-label="Workspace" style="display:contents">{"".join(groups)}</nav>
   <div class="side-foot">
@@ -124,12 +167,12 @@ def page(path: str, title: str, body: str, description: str, counts: dict | None
 </aside>
 <div class="content">
 <header class="topbar"><span class="crumb">Cierzo Seguros / <b>{e(crumb)}</b></span>
-  <span class="basis">Regulation (EU) 2024/1689, as of {LEGAL_BASIS_DATE:%d %b %Y}</span></header>
+  <span class="basis">{eu_flag()}Regulation (EU) 2024/1689, as of {LEGAL_BASIS_DATE:%d %b %Y}</span></header>
 <main>
 {body}
 </main>
 <footer>
-  <span>Cierzo Seguros is fictional. The law, the survey data and the prices are real. Not legal advice.</span>
+  <span>Cierzo Seguros is fictional. The law, the survey data and the prices are real. Not legal advice. {NOT_EU}</span>
   <span><a href="{REPO}">Source on GitHub</a> · built {date.today():%d %b %Y}</span>
 </footer>
 </div>
@@ -830,17 +873,18 @@ def landing() -> str:
 })();
 </script>"""
     body = f"""<div class="site">
-<header class="snav"><a class="sbrand" href="index.html"><span class="logo">§</span>{PRODUCT}</a>
+<header class="snav"><a class="sbrand" href="index.html">{logo()}{PRODUCT}</a>
 <nav aria-label="Main"><a href="#how">How it works</a><a href="#examples">Examples</a><a href="inventory.html">Case study</a><a href="documents.html">Docs</a></nav>
 <span class="snav-cta"><a class="btn ghost sm" href="{REPO}">GitHub</a><a class="btn sm" href="proposals.html">Open the app</a></span></header>
 
 <section class="shero">
-  <h1>Check an AI idea against the EU&nbsp;AI&nbsp;Act before anyone builds it.</h1>
+  <p class="hero-tag">{eu_flag()}Built on Regulation (EU) 2024/1689, the AI Act, as amended by the Digital Omnibus</p>
+  <h1>Check an AI idea against the <span class="gold">EU&nbsp;AI&nbsp;Act</span> before anyone builds it.</h1>
   <p class="slede">Send a spreadsheet of proposals. Each comes back with a verdict, the articles behind it,
   its obligations and a short memo. A model reads; the law is applied in code, so the same proposal always
   gets the same answer.</p>
-  <p class="actions center"><a class="btn lg" href="proposals.html">Open the app</a>
-  <a class="btn ghost lg" href="downloads/screening.xlsx">See a sample result</a></p>
+  <p class="actions center"><a class="btn gold lg" href="proposals.html">Open the app</a>
+  <a class="btn light lg" href="downloads/screening.xlsx">See a sample result</a></p>
   {f'<a class="live" href="register.html"><span class="pulse" aria-hidden="true"></span><b>Live</b> Screening the Dutch public algorithm register · {reg["comparison"]["entries"]:,} entries · synced {_when(reg["synced"])}</a>' if reg else ""}
   <p class="fine">Portfolio project. The companies are fictional; the law is current to {LEGAL_BASIS_DATE:%d %B %Y}. Not legal advice.</p>
 </section>
@@ -848,7 +892,7 @@ def landing() -> str:
 <a class="window" href="proposals.html" aria-label="Open the proposal intake">
   <div class="win-bar"><i></i><i></i><i></i><span>veredicto / cierzo-seguros / intake</span></div>
   <div class="win-body">
-    <div class="win-side"><span class="logo">§</span><b>Cierzo Seguros</b>
+    <div class="win-side">{logo()}<b>Cierzo Seguros</b>
       <span class="on">{icon('inbox')}Proposal intake</span><span>{icon('grid')}AI inventory</span>
       <span>{icon('chart')}Fairness evidence</span><span>{icon('calendar')}Obligations</span></div>
     <div class="win-main"><div class="win-title"><b>Proposal intake</b><span>{n} screened · {review} waiting for a person</span></div>
@@ -885,7 +929,8 @@ def landing() -> str:
 </section>
 
 <footer class="sfoot"><span><b>{PRODUCT}</b> · EU AI Act screening</span>
-<span>Built by Marco Ortiz Togashi · <a href="{REPO}">Source on GitHub</a> · Not legal advice</span></footer>
+<span>Built by Marco Ortiz Togashi · <a href="{REPO}">Source on GitHub</a> · Not legal advice</span>
+<span class="not-eu">{NOT_EU}</span></footer>
 </div>
 {js}
 {DEMO_JS}"""
@@ -1054,7 +1099,7 @@ def register_page(reg: dict) -> str:
         for k, v in areas.items())
     body = f"""
 <section class="hero"><div class="page-head"><div>
-<p class="kicker"><span class="pulse" aria-hidden="true"></span> Live · synced {_when(reg['synced'])}</p>
+<p class="kicker">{nl_flag()} <span class="pulse" aria-hidden="true"></span> Live · synced {_when(reg['synced'])}</p>
 <h1>Dutch public algorithm register</h1>
 <p class="lede">Every algorithm a Dutch public body has published on <a href="https://algoritmes.overheid.nl">algoritmes.overheid.nl</a>,
 screened every morning. Each body also states its own category; {c['declared_high_risk']} call their system a high-risk AI system.
