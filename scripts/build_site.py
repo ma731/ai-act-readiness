@@ -26,12 +26,8 @@ REPO = "https://github.com/ma731/ai-act-readiness"
 WORDS = {0: "No", 1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six"}
 TIER = {"prohibited": "Prohibited", "high_risk": "High-risk",
         "transparency": "Transparency", "minimal": "Minimal"}
-FONTS = ("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;"
-         "0,700;1,400&family=IBM+Plex+Mono:wght@400;600;700&family=Instrument+Serif:ital@0;1"
-         "&display=swap")
-NAV = [("index.html", "Overview"), ("evidence.html", "Evidence"),
-       ("roadmap.html", "Roadmap"), ("proposals.html", "Proposal screener"),
-       ("documents.html", "Documents")]
+FONTS = ("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700"
+         "&family=IBM+Plex+Mono:wght@400;500;600&display=swap")
 DOCS = [
     ("docs/01_classification.md", "Classification", "Which systems the Act catches, and why"),
     ("docs/02_fria_tarifa_salud.md", "Fundamental rights impact assessment",
@@ -52,19 +48,35 @@ DOCS = [
 e = html.escape
 
 
-# ---------------------------------------------------------------- page shell ---------- #
-def page(path: str, title: str, body: str, description: str) -> str:
-    depth = path.count("/")
-    up = "../" * depth
-    current = ' aria-current="page"'
-    nav = "".join(
-        f'<a href="{up}{href}"{current if href == path else ""}>{label}</a>'
-        for href, label in NAV)
+PRODUCT = "Veredicto"
+ICONS = {
+    "inbox": '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+    "grid": '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+    "chart": '<path d="M3 3v18h18"/><path d="M7 16v-4"/><path d="M12 16V8"/><path d="M17 16v-7"/>',
+    "calendar": '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+    "file": '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/>',
+    "back": '<path d="M19 12H5M12 19l-7-7 7-7"/>',
+}
+APP_NAV = [
+    ("Screening", [("proposals.html", "Proposal intake", "inbox")]),
+    ("Cierzo assessment", [("inventory.html", "AI inventory", "grid"),
+                           ("evidence.html", "Fairness evidence", "chart"),
+                           ("roadmap.html", "Obligations", "calendar"),
+                           ("documents.html", "Documents", "file")]),
+]
+NAV = [(h, label) for _, items in APP_NAV for h, label, _ in items]
+
+
+def icon(name: str) -> str:
+    return f'<svg viewBox="0 0 24 24" aria-hidden="true">{ICONS[name]}</svg>'
+
+
+def head(title: str, description: str, up: str) -> str:
     return f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{e(title)}</title>
 <meta name="description" content="{e(description)}">
 <meta property="og:title" content="{e(title)}">
@@ -74,21 +86,52 @@ def page(path: str, title: str, body: str, description: str) -> str:
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="{FONTS}">
 <link rel="stylesheet" href="{up}style.css">
-</head>
+</head>"""
+
+
+# ---------------------------------------------------------------- page shell ---------- #
+def page(path: str, title: str, body: str, description: str, counts: dict | None = None) -> str:
+    """The app: sidebar, top bar, content."""
+    up = "../" * path.count("/")
+    here = "documents.html" if path.startswith("docs/") else path
+    counts = counts or {}
+    groups, crumb = [], ""
+    for label, items in APP_NAV:
+        links = []
+        for href, name, ic in items:
+            cur = ' aria-current="page"' if href == here else ""
+            if cur:
+                crumb = name
+            n = f'<span class="count">{counts[href]}</span>' if href in counts else ""
+            links.append(f'<a href="{up}{href}"{cur}>{icon(ic)}<span>{e(name)}</span>{n}</a>')
+        groups.append(f'<div class="navgroup"><span>{e(label)}</span>{"".join(links)}</div>')
+    return f"""{head(title, description, up)}
 <body>
-<header class="mast">
-  <a class="brand" href="{up}index.html">Cierzo&nbsp;Seguros <span class="muted">/ AI Act</span></a>
-  <nav aria-label="Sections">{nav}</nav>
-  <span class="ref">Law as of {LEGAL_BASIS_DATE:%d %b %Y}</span>
-</header>
+<div class="app">
+<aside class="side">
+  <a class="org" href="{up}index.html" title="{PRODUCT} home"><span class="logo">§</span>
+    <span><b>Cierzo Seguros</b><span>{PRODUCT} workspace</span></span></a>
+  <nav aria-label="Workspace" style="display:contents">{"".join(groups)}</nav>
+  <div class="side-foot">
+    <span>Law as of {LEGAL_BASIS_DATE:%d %b %Y}</span>
+    <span>Cierzo Seguros is fictional. Not legal advice.</span>
+    <a href="{up}index.html">About {PRODUCT}</a>
+    <a href="{REPO}">Source on GitHub</a>
+  </div>
+</aside>
+<div class="content">
+<header class="topbar"><span class="crumb">Cierzo Seguros / <b>{e(crumb)}</b></span>
+  <span class="basis">Regulation (EU) 2024/1689, as of {LEGAL_BASIS_DATE:%d %b %Y}</span></header>
 <main>
 {body}
 </main>
 <footer>
-  <span>Cierzo Seguros is fictional. The law, the survey data and the prices are real.
-  Not legal advice.</span>
+  <span>Cierzo Seguros is fictional. The law, the survey data and the prices are real. Not legal advice.</span>
   <span><a href="{REPO}">Source on GitHub</a> · built {date.today():%d %b %Y}</span>
 </footer>
+</div>
+</div>
+<script>try {{ document.querySelector('.navgroup a[aria-current]').scrollIntoView({{ inline: 'center', block: 'nearest' }}); }} catch (e) {{}}</script>
 </body>
 </html>
 """
@@ -96,8 +139,8 @@ def page(path: str, title: str, body: str, description: str) -> str:
 
 def sec(num: str, title: str, intro: str, inner: str) -> str:
     p = f"<p>{intro}</p>" if intro else ""
-    return (f'<section><div class="sec-head"><span class="num">{num}</span>'
-            f"<h2>{title}</h2>{p}</div>{inner}</section>")
+    return (f'<section><div class="sec-head"><h2>{title}</h2>{p}</div>'
+            f'<div class="sec-body">{inner}</div></section>')
 
 
 def table_from_md(md_table: str) -> str:
@@ -185,13 +228,6 @@ def pct(x: float, nd: int = 1) -> str:
 
 
 # ---------------------------------------------------------------- pages --------------- #
-WIND = """<svg class="wind" viewBox="0 0 420 260" aria-hidden="true">
-<path d="M0 40 C120 20 200 70 300 44 S400 30 420 46"/>
-<path d="M0 90 C90 70 190 120 290 92 S380 80 420 96"/>
-<path d="M30 140 C130 118 220 166 320 138 S400 126 420 140"/>
-<path d="M0 190 C100 172 200 214 310 186 S390 176 420 190"/>
-<path d="M60 236 C150 220 230 256 330 232 S400 224 420 236"/></svg>"""
-
 SUMMARY = {
     "S1": "Prices individual health insurance from the application questionnaire",
     "S2": "Customer chatbot on the website and app, built on a third-party model",
@@ -202,14 +238,13 @@ SUMMARY = {
 }
 
 
-def index(systems, results, rows, ev) -> str:
+def inventory(systems, results, rows, ev) -> str:
     n = len(systems)
     tiers = [c.tier for c in results]
     banned = tiers.count("prohibited")
     overdue = sum(1 for r in rows if r["state"] == "OVERDUE")
     high = tiers.count("high_risk")
-    title = (f"{WORDS[n]} AI systems. {WORDS[banned]} is <em>banned</em>. "
-             f"{WORDS[overdue]} is <em>overdue</em>.")
+    title = "AI inventory"
 
     reg = []
     for s, c in zip(systems, results, strict=True):
@@ -219,7 +254,7 @@ def index(systems, results, rows, ev) -> str:
             r"(Art \d+(?:\(\d+\))?(?:\([a-z]\))?|Annex III \d\([a-z]\))", b)})
         reg.append(
             f'<li><span class="sid">{s["id"]}</span>'
-            f'<div><h3>{e(s["name"])}{"<span class=flag>OVERDUE</span>" if late else ""}</h3>'
+            f'<div><h3>{e(s["name"])}{"<span class=flag>Overdue</span>" if late else ""}</h3>'
             f'<p class="what">{e(SUMMARY[s["id"]])}'
             f'{" (proposed)" if s.get("status") == "proposed" else ""}</p></div>'
             f'<p class="why">{e(why)}<span class="cite">{e(" · ".join(cites))}</span></p>'
@@ -257,24 +292,25 @@ answer is the heaviest factor in the price.</p><span class="ci">age-standardised
         for r in urgent)
 
     body = f"""
-<div class="hero">{WIND}
-<div class="kicker">EU AI Act readiness assessment · Spanish health and life insurer</div>
+<section class="hero"><div class="page-head"><div>
 <h1>{title}</h1>
-<p class="lede">What a Responsible AI team would hand a client: every AI system classified
-under the AI Act with the article behind each call, the pricing model tested for harm on
-official Spanish data, and a dated plan for every gap.</p>
+<p class="lede">Every AI system Cierzo runs or plans to buy, classified under the EU AI Act with the
+article behind each call. Its health pricing model was tested for harm on official Spanish data.</p></div>
+<div class="actions"><a class="btn ghost" href="documents.html">Documents</a>
+<a class="btn" href="roadmap.html">View obligations</a></div></div>
 <div class="facts">
-<div class="fact"><b>{n}</b><span>AI systems assessed</span></div>
-<div class="fact"><b>{high}</b><span>high-risk (Annex III 5(c))</span></div>
-<div class="fact alert"><b>{overdue}</b><span>obligation overdue today</span></div>
-<div class="fact"><b>{d['people']:,}</b><span>people in the INE survey behind the evidence</span></div>
-</div></div>
-{sec("01", "The register", "Each system is described by facts; the tier is what the rules engine concludes from them, citing the article.", '<ul class="register">' + "".join(reg) + "</ul>")}
-{sec("02", "Act now", "Everything prohibited or already past its deadline.", '<div class="table-wrap"><table><thead><tr><th>System</th><th>Article</th><th>Duty</th><th></th></tr></thead><tbody>' + urgent_html + "</tbody></table></div>")}
-{sec("03", "What the pricing model does to people", "The health pricing model rebuilt on official Spanish data and tested group by group. <a href='evidence.html'>See all the evidence</a>.", findings)}
-{sec("04", "Read the documents", "", doclist())}
+<div class="fact"><b>{n}</b><span>AI systems</span></div>
+<div class="fact"><b>{high}</b><span>high-risk</span></div>
+<div class="fact alert"><b>{banned}</b><span>prohibited, block before purchase</span></div>
+<div class="fact alert"><b>{overdue}</b><span>obligation overdue</span></div>
+<div class="fact"><b>{d['people']:,}</b><span>people behind the fairness tests</span></div>
+</div></section>
+{sec("01", "Systems", "Each system is described by facts; the tier is what the rules engine concludes from them.", '<ul class="register">' + "".join(reg) + "</ul>")}
+{sec("02", "Needs action now", "Prohibited uses and obligations already past their deadline.", '<div class="table-wrap"><table><thead><tr><th>System</th><th>Article</th><th>Duty</th><th></th></tr></thead><tbody>' + urgent_html + "</tbody></table></div>")}
+{sec("03", "Fairness findings: Tarifa Salud", "The health pricing model rebuilt on official Spanish data and tested group by group. <a href='evidence.html'>All the evidence</a>.", findings)}
+{sec("04", "Documents", "", doclist())}
 """
-    return page("index.html", "Cierzo Seguros: EU AI Act readiness", body,
+    return page("inventory.html", f"AI inventory · Cierzo Seguros · {PRODUCT}", body,
                 "EU AI Act readiness for a fictional Spanish insurer: classification, a "
                 "fundamental rights impact assessment on INE data, and a dated roadmap.")
 
@@ -310,9 +346,9 @@ def evidence_page(ev, tariffs) -> str:
                f"                                        total €{2*13*t['gp_visit']['eur'] + t['emergency_hospital']['eur'] + 3*t['hospital_night']['eur']:,}")
 
     body = f"""
-<div class="hero" style="padding-bottom:28px">
-<div class="kicker">Article 27 evidence · Tarifa Salud</div>
-<h1 style="max-width:18ch">Does each group pay for the care it uses?</h1>
+<div class="hero">
+<p class="kicker">Article 27 evidence · Tarifa Salud</p>
+<h1>Does each group pay for the care it uses?</h1>
 <p class="lede">A fair price is not the same price for everyone: people with more health
 needs cost more. The test is whether each group is charged in line with the care it
 actually uses. Everything below is built from official Spanish sources.</p></div>
@@ -406,7 +442,7 @@ threshold.</li></ul>
 <p><a href="docs/decisions/0001-spanish-data-and-prices.html">Every assumption, and which way
 it pushes the cost</a></p></div>''')}
 """
-    return page("evidence.html", "Evidence: does each group pay for its care?", body,
+    return page("evidence.html", f"Fairness evidence · Cierzo Seguros · {PRODUCT}", body,
                 "The Tarifa Salud pricing model rebuilt on INE survey data and Osakidetza "
                 "tariffs, tested group by group.")
 
@@ -458,9 +494,9 @@ def roadmap_page(rows) -> str:
     legend = "".join(f'<span><i style="background:{colors[k]}"></i>{counts[k]} {k}</span>'
                      for k in counts)
     body = f"""
-<div class="hero" style="padding-bottom:28px">
-<div class="kicker">Gap assessment · dated against the Digital Omnibus</div>
-<h1 style="max-width:16ch">What to fix, and by when</h1>
+<div class="hero">
+<p class="kicker">Gap assessment · dated against the Digital Omnibus</p>
+<h1>Obligations and deadlines</h1>
 <p class="lede">Every obligation the classification produced, set against Cierzo's current
 controls. The Omnibus moved stand-alone high-risk duties to 2 December 2027; chatbot
 transparency did not move.</p>
@@ -474,7 +510,7 @@ does not rely on the exemption. <a href="docs/decisions/0003-legacy-systems.html
 </p><p><a href="docs/03_gap_assessment.html">Every obligation, with status and the AESIA guide
 that covers it</a></p></div>''')}
 """
-    return page("roadmap.html", "Roadmap: what to fix, and by when", body,
+    return page("roadmap.html", f"Obligations · Cierzo Seguros · {PRODUCT}", body,
                 "Every AI Act obligation for Cierzo Seguros, its current status and deadline.")
 
 
@@ -514,73 +550,341 @@ def render_doc(md_path: str, title: str, desc: str) -> tuple[str, str]:
 
 
 def documents_page() -> str:
-    body = f"""<div class="hero" style="padding-bottom:28px">
-<div class="kicker">The full assessment</div><h1>Documents</h1>
+    body = f"""<div class="hero"><h1>Documents</h1>
 <p class="lede">The repository's own documents, rendered. Prose is written by hand; every
 table and number in them is generated from the results.</p></div>
-<section>{doclist()}</section>"""
-    return page("documents.html", "Documents · Cierzo Seguros", body,
+<section><div class="sec-body">{doclist()}</div></section>"""
+    return page("documents.html", f"Documents · Cierzo Seguros · {PRODUCT}", body,
                 "The classification, FRIA, gap assessment, Spanish summary and decision records.")
 
 
-def proposals_page() -> str:
-    """The proposal screener, from results/proposals/screening.json."""
+def fact_label(fact: str, value) -> str:
+    """A fact as a reviewer would say it."""
+    from src.screener.law import ANNEX_III, ART6_3, PROHIBITED
+    if fact == "prohibited":
+        return f"{PROHIBITED.get(value, ('Art 5', ''))[0]} {str(value).replace('_', ' ')}"
+    if fact == "annex_iii":
+        return f"Annex III {value}"
+    if fact == "art6_3_claim":
+        return ART6_3.get(value, str(value)).split(" ", 1)[0] + " claim"
+    if fact == "role":
+        return str(value)
+    names = {"annex_i_safety_component": "Annex I safety component", "fraud_detection_only": "fraud only",
+             "profiling": "profiling", "affects_natural_persons": "affects people",
+             "interacts_with_people": "talks to people", "generates_synthetic_content": "generates content",
+             "deepfake": "deepfake", "emotion_or_biometric_categorisation": "emotion or biometrics",
+             "uses_personal_data": "personal data", "uses_special_category_data": "special-category data",
+             "automated_decision": "automated decision"}
+    _ = ANNEX_III
+    return names.get(fact, fact.replace("_", " "))
+
+
+def annotated(text: str, evidence: list[dict]) -> str:
+    """The proposal sentence by sentence; quoted sentences marked, with the facts they gave."""
+    from src.screener.readers import sentences
+    norm = lambda s: " ".join(s.lower().split())  # noqa: E731
+    out = []
+    for s in sentences(text):
+        tags = [fact_label(ev["fact"], ev["value"]) for ev in evidence
+                if norm(ev["quote"]) and norm(ev["quote"]) in norm(s)]
+        if tags:
+            chips = "".join(f"<span class='fchip'>{e(t)}</span>" for t in dict.fromkeys(tags))
+            out.append(f"<mark>{e(s)}</mark><span class='fchips'>{chips}</span>")
+        else:
+            out.append(f"<span class='dim'>{e(s)}</span>")
+    return " ".join(out)
+
+
+def screening():
+    import csv
     data = json.loads((ROOT / "results" / "proposals" / "screening.json").read_text(encoding="utf-8"))
+    texts = {r["id"]: r["proposal"] for r in csv.DictReader(
+        (ROOT / "data" / "proposals_sample.csv").open(encoding="utf-8"))}
+    return data, texts
+
+
+CHEV = '<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>'
+CLOSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>'
+
+
+def detail(r: dict, text: str) -> str:
+    """Drawer content for one proposal."""
+    obligations = "".join(
+        f"<tr><td class='mono'>{e(o['article'])}</td><td>{e(o['duty'])}</td>"
+        f"<td class='mono nowrap'>{e(o['applies_from'])}</td></tr>"
+        for o in r["obligations"] if o["article"] != "Art 4")
+    ob = (f"<div class='table-wrap'><table class='obl'><thead><tr><th>Article</th><th>Duty</th>"
+          f"<th>Applies from</th></tr></thead><tbody>{obligations}</tbody></table></div>"
+          if obligations else "<p class='muted small'>Only AI literacy (Art 4), as for every AI system.</p>")
+    rv = ("<div class='review'><b>Sent to a person</b><ul>"
+          + "".join(f"<li>{e(x)}</li>" for x in r["review_reasons"]) + "</ul></div>") if r["needs_review"] else ""
+    trace = "".join(f"<li>{e(t)}</li>" for t in r["trace"])
+    return f"""<div class="dr-head"><span class="sid">{e(r['id'])}</span>
+<h2 id="dr-title">{e(r['title'])}</h2><span class="co">{e(r['company'])}</span>
+<span><span class="stamp {r['tier']}">{TIER[r['tier']]}</span></span>
+<button type="button" class="x" data-close aria-label="Close">{CLOSE}</button></div>
+<div class="dr-body">{rv}
+<p class="label">Verdict</p><p class="memo">{e(r['memo'])}</p>
+<p class="label">Proposal</p><p class="proposal">{annotated(text, r['evidence'])}</p>
+<p class="legend-q"><mark>Highlighted</mark> sentences were quoted by the reader. Facts without a real quote are dropped before the law is applied.</p>
+<p class="label">Obligations</p>{ob}
+<p class="label">Audit trail</p><ol class="trace">{trace}</ol></div>"""
+
+
+QUEUE_JS = """<script>
+(() => {
+  const chips = [...document.querySelectorAll('.chip')];
+  const items = [...document.querySelectorAll('.pv')];
+  const shown = document.getElementById('shown');
+  const drawer = document.getElementById('drawer'), scrim = document.getElementById('scrim');
+  const inner = document.getElementById('dr-inner');
+  let current = null, opener = null;
+  const visible = () => items.filter(i => !i.hidden);
+  chips.forEach(c => c.addEventListener('click', () => {
+    const f = c.dataset.filter;
+    chips.forEach(x => x.setAttribute('aria-pressed', String(x === c)));
+    let n = 0;
+    items.forEach(r => {
+      const on = f === 'all' || r.dataset.tags.split(' ').includes(f);
+      r.hidden = !on;
+      r.classList.remove('in');
+      if (on) { r.style.setProperty('--i', Math.min(n++, 10)); void r.offsetWidth; r.classList.add('in'); }
+    });
+    shown.textContent = n === items.length ? `${n} proposals` : `${n} of ${items.length}`;
+  }));
+  function open(id) {
+    const tpl = document.getElementById('t-' + id);
+    if (!tpl) return;
+    inner.replaceChildren(tpl.content.cloneNode(true));
+    current = id;
+    drawer.setAttribute('data-open', ''); scrim.setAttribute('data-open', '');
+    drawer.setAttribute('aria-hidden', 'false');
+    document.documentElement.style.overflow = 'hidden';
+    inner.querySelector('[data-close]').focus({ preventScroll: true });
+    const v = visible().map(i => i.dataset.id), k = v.indexOf(id);
+    document.getElementById('prev').disabled = k <= 0;
+    document.getElementById('next').disabled = k < 0 || k >= v.length - 1;
+    try { history.replaceState(null, '', '#' + id); } catch (e) {}
+  }
+  function close() {
+    drawer.removeAttribute('data-open'); scrim.removeAttribute('data-open');
+    drawer.setAttribute('aria-hidden', 'true');
+    document.documentElement.style.overflow = '';
+    current = null;
+    try { history.replaceState(null, '', location.pathname); } catch (e) {}
+    if (opener) opener.focus({ preventScroll: true });
+  }
+  function step(d) {
+    const v = visible().map(i => i.dataset.id), k = v.indexOf(current) + d;
+    if (k >= 0 && k < v.length) open(v[k]);
+  }
+  items.forEach(i => i.querySelector('.pv-row').addEventListener('click', e => { opener = e.currentTarget; open(i.dataset.id); }));
+  scrim.addEventListener('click', close);
+  drawer.addEventListener('click', e => { if (e.target.closest('[data-close]')) close(); });
+  document.getElementById('prev').addEventListener('click', () => step(-1));
+  document.getElementById('next').addEventListener('click', () => step(1));
+  document.addEventListener('keydown', e => {
+    if (!current) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowDown' || e.key === 'j') { e.preventDefault(); step(1); }
+    if (e.key === 'ArrowUp' || e.key === 'k') { e.preventDefault(); step(-1); }
+  });
+  const h = location.hash.slice(1);
+  if (h && document.getElementById('t-' + h)) open(h);
+  document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(b.dataset.copy); b.dataset.state = 'done'; setTimeout(() => b.dataset.state = '', 1600); }
+    catch (e) { const r = document.createRange(); r.selectNodeContents(b.previousElementSibling); getSelection().removeAllRanges(); getSelection().addRange(r); }
+  }));
+})();
+</script>"""
+
+
+def queue_rows(res: list[dict], interactive: bool = True) -> str:
+    rows = []
+    for r in res:
+        flag = '<span class="flag rv">Review</span>' if r["needs_review"] else ""
+        tag = "button type='button'" if interactive else "div"
+        end = "button" if interactive else "div"
+        rows.append(
+            f'<li class="pv" data-id="{e(r["id"])}" data-tags="{r["tier"]}{" review" if r["needs_review"] else ""}">'
+            f'<{tag} class="pv-row"><span class="sid">{e(r["id"])}</span>'
+            f'<span class="pv-main"><span class="pv-title">{e(r["title"])}{flag}</span>'
+            f'<span class="pv-co">{e(r["company"].replace(" (fictional)", ""))}</span></span>'
+            f'<span class="stamp {r["tier"]}">{TIER[r["tier"]]}</span>'
+            f'<span class="pv-arts">{e(", ".join(r["articles"][:3]))}</span>{CHEV}</{end}></li>')
+    return "".join(rows)
+
+
+def proposals_page() -> str:
+    data, texts = screening()
     res = data["results"]
     n = len(res)
     count = {t: sum(r["tier"] == t for r in res) for t in TIER}
     review = sum(r["needs_review"] for r in res)
+    agree = sum(r["tier"] == (x.get("expected_tier") or r["tier"]) for r, x in zip(res, res, strict=True))
+    chips = [("all", "All", n)] + [(t, TIER[t], count[t]) for t in TIER] + [("review", "Needs review", review)]
+    filters = "".join(
+        f'<button type="button" class="chip" data-filter="{k}" aria-pressed="{"true" if k == "all" else "false"}">'
+        f'{e(label)}<span class="n">{c}</span></button>' for k, label, c in chips)
+    templates = "".join(f'<template id="t-{e(r["id"])}">{detail(r, texts.get(r["id"], ""))}</template>' for r in res)
     steps = [
-        ("Read", "A reader agent turns each free-text proposal into facts, and must quote the sentence "
-                 "each fact comes from."),
-        ("Verify", "Code drops any fact whose quote is not in the proposal, so a reader cannot invent one."),
-        ("Classify", "Code applies the Act: Article 5, Annex III, Annex I, Article 50, the Article 6(3) "
-                     "derogation. The model never decides the tier."),
-        ("Challenge", "With a model, a second reader hunts for missed facts; code re-classifies if it "
-                      "finds any."),
-        ("Explain", "A memo is written and checked: it may only cite articles the classification used."),
-        ("Escalate", "Disputed or judgement-heavy cases go to a human-review queue."),
+        ("Read", "agent", "Turns each proposal into facts, quoting the sentence each fact comes from."),
+        ("Verify", "code", "Drops any fact whose quote is not in the proposal."),
+        ("Classify", "code", "Applies Article 5, Annex III, Annex I, Article 50 and the 6(3) derogation."),
+        ("Challenge", "agent", "A second reader looks for missed facts; code re-classifies."),
+        ("Explain", "agent", "Writes a memo, checked to cite only articles the classification used."),
+        ("Escalate", "code", "Disputed or judgement-heavy cases go to a person."),
     ]
-    flow = "".join(f'<li><span class="sid">{i}</span><div><h3>{e(t)}</h3></div>'
-                   f'<p class="why">{e(d)}</p><span></span></li>'
-                   for i, (t, d) in enumerate(steps, 1))
-    reg = []
-    for r in res:
-        cites = " · ".join(r["articles"][:4])
-        flag = '<span class="flag">REVIEW</span>' if r["needs_review"] else ""
-        why = "; ".join(r["review_reasons"]) if r["needs_review"] else ""
-        reg.append(
-            f'<li><span class="sid">{e(r["id"])}</span>'
-            f'<div><h3>{e(r["title"])}{flag}</h3><p class="what">{e(r["company"])}</p></div>'
-            f'<p class="why">{e(r["memo"])}<span class="cite">{e(cites)}</span>'
-            f'{f"<span class=cite>Review: {e(why)}</span>" if why else ""}</p>'
-            f'<span class="stamp {r["tier"]}">{TIER[r["tier"]]}</span></li>')
-    facts = "".join(
-        f'<div class="fact{" alert" if t == "prohibited" else ""}"><b>{count[t]}</b><span>{TIER[t].lower()}</span></div>'
-        for t in TIER) + f'<div class="fact"><b>{review}</b><span>for human review</span></div>'
+    flow = "".join(f'<li><span class="step-n">{i}</span><h3>{e(t)}</h3><span class="who {w}">{w}</span>'
+                   f'<p>{e(d)}</p></li>' for i, (t, w, d) in enumerate(steps, 1))
+    cmd = "python -m scripts.screen_proposals my_proposals.xlsx"
+    _ = agree
     body = f"""
 <section class="hero">
-  <p class="kicker">Proposal screener · agents read, code decides</p>
-  <h1>{WORDS.get(n, n) if n < 7 else n} proposals. <em>{count['prohibited']}</em> must not go ahead.</h1>
-  <p class="lede">Companies send a spreadsheet of AI ideas. Each one is read, checked against the
-  EU AI Act and returned with a verdict, the articles behind it, the obligations it carries and a
-  short memo. These sixteen are fictional companies, written to cover every outcome.</p>
-  <div class="facts">{facts}</div>
+  <div class="page-head">
+    <div><h1>Proposal intake</h1>
+    <p class="lede">{n} proposals screened against the EU AI Act. Open one to see the sentences behind its verdict.</p></div>
+    <div class="actions"><a class="btn ghost" href="downloads/proposals_sample.csv">Sample input</a>
+    <a class="btn" href="downloads/screening.xlsx">Export to Excel</a></div>
+  </div>
+  <div class="facts">
+    <div class="fact alert"><b>{count['prohibited']}</b><span>prohibited</span></div>
+    <div class="fact"><b>{count['high_risk']}</b><span>high-risk</span></div>
+    <div class="fact"><b>{count['transparency']}</b><span>transparency only</span></div>
+    <div class="fact"><b>{count['minimal']}</b><span>minimal</span></div>
+    <div class="fact"><b>{review}</b><span>waiting for a person</span></div>
+  </div>
 </section>
-{sec("01", "How it decides", "A workflow, not a free-roaming agent: a legal classification has to be predictable, so the model reads and explains, and code decides.", '<ol class="register">' + flow + "</ol>")}
-{sec("02", "The verdicts", f"Read by: {e(data['reader'])}. Every verdict matches the label written for the proposal; the offline reader is a keyword baseline tuned on these samples, so this is a test of the pipeline, not of reading ability.", '<ol class="register">' + "".join(reg) + "</ol>")}
-{sec("03", "Run it on your own proposals", "", '''<div class="prose"><p>Put your proposals in a spreadsheet with
-the columns <code>id</code>, <code>company</code>, <code>title</code> and <code>proposal</code>, then run</p>
-<pre><code>python -m scripts.screen_proposals my_proposals.xlsx</code></pre>
-<p>With a model configured (an OpenAI model on Azure OpenAI, Claude on Azure Foundry, or the Claude
-API), the model reads and challenges each proposal; without one, the offline reader runs. The result is a workbook with a summary, a review queue, every obligation, the
-quotes behind each fact, and the step-by-step trace.</p>
-<p><a href="downloads/screening.xlsx">Download the sample result (Excel)</a> ·
-<a href="downloads/proposals_sample.csv">the sample input (CSV)</a> ·
-<a href="''' + REPO + '''/tree/main/src/screener">the code</a></p></div>''')}
+<section>
+  <div class="sec-body">
+    <div class="toolbar"><div class="filters" role="group" aria-label="Filter by verdict">{filters}</div>
+    <p class="shown mono" id="shown" aria-live="polite">{n} proposals</p></div>
+    <div class="pvs-head" aria-hidden="true"><span>ID</span><span>Proposal</span><span>Verdict</span><span>Articles</span><span></span></div>
+    <ol class="pvs">{queue_rows(res)}</ol>
+    <p class="small muted" style="margin:12px 0 0">Read by the {e(data['reader'])}, a keyword baseline tuned on these samples, so agreeing with all 16 labels tests the pipeline, not reading ability. Configure Azure OpenAI or Claude to use a model reader.</p>
+  </div>
+</section>
+{sec("", "How a verdict is reached", "A fixed workflow, not a free-roaming agent: the model reads and explains, code decides, so the same proposal always gets the same answer.", '<ol class="flow">' + flow + "</ol>")}
+{sec("", "Screen your own proposals", "", f'''<div class="prose"><p>Put proposals in a spreadsheet with the columns
+<code>id</code>, <code>company</code>, <code>title</code> and <code>proposal</code>, then run:</p>
+<div class="cmd"><code>{cmd}</code><button type="button" class="copy" data-copy="{cmd}"><span class="c1">Copy</span><span class="c2">Copied</span></button></div>
+<p class="muted">You get a workbook with a summary, the review queue, every obligation, the quote behind each fact and the audit trail. <a href="{REPO}/tree/main/src/screener">Source code</a>.</p></div>''')}
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dr-title" aria-hidden="true">
+  <div id="dr-inner" class="dr-inner"></div>
+  <div class="dr-nav"><button type="button" class="btn ghost" id="prev">Previous</button>
+  <button type="button" class="btn ghost" id="next">Next</button></div>
+</aside>
+{templates}
+{QUEUE_JS}
 """
-    return page("proposals.html", "Proposal screener: AI ideas checked against the EU AI Act", body,
-                "Upload AI use-case proposals; agents read them, code applies the EU AI Act, and each comes back with a verdict, articles, obligations and a memo.")
+    return page("proposals.html", f"Proposal intake · {PRODUCT}", body,
+                "AI use-case proposals screened against the EU AI Act: verdict, articles, obligations and the quotes behind each fact.",
+                counts={"proposals.html": n})
+
+
+def landing() -> str:
+    """The product homepage."""
+    data, texts = screening()
+    res = data["results"]
+    by_tier = {}
+    for r in res:
+        by_tier.setdefault(r["tier"], r)
+    examples = [by_tier[t] for t in ("prohibited", "high_risk", "transparency") if t in by_tier]
+    tabs = "".join(
+        f'<button type="button" role="tab" id="tab-{i}" aria-controls="ex-{i}" aria-selected="{"true" if i == 0 else "false"}"'
+        f' tabindex="{0 if i == 0 else -1}">{e(r["title"])}</button>' for i, r in enumerate(examples))
+    panels = "".join(f"""<div class="ex" role="tabpanel" id="ex-{i}" aria-labelledby="tab-{i}"{"" if i == 0 else " hidden"}>
+<div class="ex-text"><p class="label">The proposal</p><p class="proposal">{annotated(texts.get(r['id'], ''), r['evidence'])}</p></div>
+<div class="ex-out"><p class="label">What comes back</p><span class="stamp {r['tier']}">{TIER[r['tier']]}</span>
+<p class="memo">{e(r['memo'].split('. ')[0].rstrip('.'))}.</p>
+<p class="arts">{"".join(f"<span class='fchip'>{e(a)}</span>" for a in r['articles'][:5])}</p>
+<p class="small muted">{len([o for o in r['obligations'] if o['article'] != 'Art 4'])} obligations{f", first due {r['next_deadline']}" if r['next_deadline'] else ""}</p>
+<a class="more" href="proposals.html#{e(r['id'])}">Open in the app</a></div></div>""" for i, r in enumerate(examples))
+    mini = queue_rows(res[:7], interactive=False)
+    n, review = len(res), sum(r["needs_review"] for r in res)
+    people = json.loads((ROOT / "results" / "pricing_evidence.json").read_text("utf-8"))["data"]["people"]
+    js = """<script>
+(() => {
+  const tabs = [...document.querySelectorAll('[role=tab]')];
+  const pick = t => {
+    tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1;
+      document.getElementById(x.getAttribute('aria-controls')).hidden = !on; });
+    const bar = document.querySelector('.seg-ind');
+    if (bar) { bar.style.width = t.offsetWidth + 'px'; bar.style.transform = `translateX(${t.offsetLeft - 4}px)`; }
+  };
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => pick(t));
+    t.addEventListener('keydown', e => {
+      const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (d) { const n = tabs[(i + d + tabs.length) % tabs.length]; n.focus(); pick(n); }
+    });
+  });
+  const first = tabs.find(t => t.getAttribute('aria-selected') === 'true');
+  if (first) requestAnimationFrame(() => { document.querySelector('.seg').classList.add('ready'); pick(first); });
+  addEventListener('resize', () => { const t = tabs.find(x => x.getAttribute('aria-selected') === 'true'); if (t) pick(t); });
+})();
+</script>"""
+    body = f"""<div class="site">
+<header class="snav"><a class="sbrand" href="index.html"><span class="logo">§</span>{PRODUCT}</a>
+<nav aria-label="Main"><a href="#how">How it works</a><a href="#examples">Examples</a><a href="inventory.html">Case study</a><a href="documents.html">Docs</a></nav>
+<span class="snav-cta"><a class="btn ghost sm" href="{REPO}">GitHub</a><a class="btn sm" href="proposals.html">Open the app</a></span></header>
+
+<section class="shero">
+  <h1>Check an AI idea against the EU&nbsp;AI&nbsp;Act before anyone builds it.</h1>
+  <p class="slede">Send a spreadsheet of proposals. Each comes back with a verdict, the articles behind it,
+  its obligations and a short memo. A model reads; the law is applied in code, so the same proposal always
+  gets the same answer.</p>
+  <p class="actions center"><a class="btn lg" href="proposals.html">Open the app</a>
+  <a class="btn ghost lg" href="downloads/screening.xlsx">See a sample result</a></p>
+  <p class="fine">Portfolio project. The companies are fictional; the law is current to {LEGAL_BASIS_DATE:%d %B %Y}. Not legal advice.</p>
+</section>
+
+<a class="window" href="proposals.html" aria-label="Open the proposal intake">
+  <div class="win-bar"><i></i><i></i><i></i><span>veredicto / cierzo-seguros / intake</span></div>
+  <div class="win-body">
+    <div class="win-side"><span class="logo">§</span><b>Cierzo Seguros</b>
+      <span class="on">{icon('inbox')}Proposal intake</span><span>{icon('grid')}AI inventory</span>
+      <span>{icon('chart')}Fairness evidence</span><span>{icon('calendar')}Obligations</span></div>
+    <div class="win-main"><div class="win-title"><b>Proposal intake</b><span>{n} screened · {review} waiting for a person</span></div>
+      <ol class="pvs">{mini}</ol></div>
+  </div>
+</a>
+
+<section class="sblock" id="examples">
+  <h2>Three proposals, three answers.</h2>
+  <p class="ssub">Highlighted sentences are the ones the reader quoted. A fact with no real quote never reaches the law.</p>
+  <div class="seg" role="tablist" aria-label="Example proposals"><span class="seg-ind" aria-hidden="true"></span>{tabs}</div>
+  <div class="ex-wrap">{panels}</div>
+</section>
+
+<section class="sblock" id="how">
+  <h2>A model reads. Code decides. A person checks.</h2>
+  <div class="cols">
+    <div><h3>Read, with receipts</h3><p>An agent turns free text into facts, and must quote the sentence each fact comes from. Code throws out any fact whose quote is not in the proposal.</p></div>
+    <div><h3>The law, in code</h3><p>Every Article 5 practice, every Annex III area, the Annex I route, Article 50 and the Article 6(3) derogation, with the dates the Digital Omnibus set. The model never picks the tier.</p></div>
+    <div><h3>People where it matters</h3><p>A second reader looks for missed facts. Disputed cases, derogation claims and "significant harm" calls go to a review queue instead of getting a confident answer.</p></div>
+  </div>
+  <div class="runs"><span>Runs on</span><b>Azure OpenAI</b><b>Claude on Azure Foundry</b><b>Claude API</b><b>Offline, no key</b></div>
+</section>
+
+<section class="sblock case">
+  <div><p class="eyebrow">Case study</p><h2>Cierzo Seguros, a Spanish health and life insurer</h2>
+  <p>Six AI systems classified, the health pricing model tested for harm on {people:,} adults from Spain's official
+  health survey, and a dated plan for every gap. One prohibited use blocked before purchase, one obligation already overdue.</p>
+  <p class="actions"><a class="btn" href="inventory.html">Read the case study</a><a class="btn ghost" href="evidence.html">See the fairness evidence</a></p></div>
+</section>
+
+<footer class="sfoot"><span><b>{PRODUCT}</b> · EU AI Act screening</span>
+<span>Built by Marco Ortiz Togashi · <a href="{REPO}">Source on GitHub</a> · Not legal advice</span></footer>
+</div>
+{js}"""
+    return f"""{head(f"{PRODUCT}: check AI ideas against the EU AI Act", "Screen AI use-case proposals against the EU AI Act: a model reads, code applies the law, people review the hard cases.", "")}
+<body class="landing">
+{body}
+</body>
+</html>
+"""
 
 
 def main() -> int:
@@ -590,7 +894,8 @@ def main() -> int:
     OUT.mkdir()
     shutil.copy(ROOT / "site_src" / "style.css", OUT / "style.css")
     pages = {
-        "index.html": index(systems, results, rows, ev),
+        "index.html": landing(),
+        "inventory.html": inventory(systems, results, rows, ev),
         "evidence.html": evidence_page(ev, tariffs),
         "roadmap.html": roadmap_page(rows),
         "proposals.html": proposals_page(),
