@@ -1,6 +1,8 @@
 # AI Act readiness: a Spanish health insurer
 
-**Live site: [ma731.github.io/ai-act-readiness](https://ma731.github.io/ai-act-readiness/)**
+**Live site: [ma731.github.io/ai-act-readiness](https://ma731.github.io/ai-act-readiness/)** · the screener is
+presented as a product, *Veredicto*, with this assessment as its
+[case study](https://ma731.github.io/ai-act-readiness/inventory.html).
 
 This project does what a Responsible AI team does for a client: it takes an insurer's AI
 systems, works out what the EU AI Act requires of each one, tests the riskiest one for harm
@@ -48,7 +50,7 @@ This is a portfolio project, not legal advice.
 
 ## The proposal screener: agents read, code decides
 
-**[Live page](https://ma731.github.io/ai-act-readiness/proposals.html)** · code in [`src/screener/`](src/screener/)
+**[Open the app](https://ma731.github.io/ai-act-readiness/proposals.html)** · code in [`src/screener/`](src/screener/)
 
 The assessment above goes deep on one insurer. The screener goes wide: a company sends a
 spreadsheet of AI ideas, and each comes back with a verdict, the articles behind it, the
@@ -90,6 +92,31 @@ planner that claims the Art 6(3) exemption while profiling workers, and a toy wh
 harm" a person should weigh. **That is a test of the pipeline, not of reading ability:** the
 offline reader was tuned on these samples. Measuring the Claude reader needs proposals labelled
 by someone other than the person who wrote the rules.
+
+### Live proposals and a stress test, refreshed every morning
+
+Sixteen hand-written samples cannot show whether the screener reads well. Two more sources can:
+
+| | What | Measured |
+|---|---|---|
+| [Live register](https://ma731.github.io/ai-act-readiness/register.html) | Every algorithm Dutch public bodies publish on [algoritmes.overheid.nl](https://algoritmes.overheid.nl), screened and compared with the category each body chose itself (44 call theirs a high-risk AI system) | <!-- BEGIN:live --> 1,633 entries; the keyword reader also flags 18 of the 44 declared high-risk systems <!-- END:live --> |
+| [Stress test](https://ma731.github.io/ai-act-readiness/stress.html) | 160 generated proposals over 20 scenarios with hand-written answers, each phrased plainly and in disguise ("a wellbeing layer" for emotion recognition) | keyword reader: 96% on plain wording, 32% on disguised; 48 prohibited or high-risk proposals called milder |
+
+That gap is the case for a model reader, and the quote check is what makes one safe to use.
+Two caveats travel with the register numbers: it lists rule-based algorithms that are not AI
+systems under Art 3(1), and a body's own category is a declaration, not a ruling.
+
+```bash
+python -m scripts.live_register          # download the register, screen what is new or changed
+python -m scripts.stress_test            # generate the test set and score the reader
+python -m scripts.stress_test --rewrite 20   # plus 20 model-rewritten proposals (needs a model)
+```
+
+**Auto-update.** The `pages` workflow runs every morning: it pulls the register, screens only
+entries that are new, changed, or were read by an older reader, re-runs the stress test, keeps the
+results on the `live-data` branch (so no bot writes to `main`), and redeploys the site. Add the
+Azure OpenAI or Foundry variables from the table above as repository secrets and the daily run
+uses that model instead of the keyword reader.
 
 ## Where the data comes from
 

@@ -13,3 +13,6 @@ testpaths = ["tests"]
 "src/screener/*.py" = ["E501"]       # rule tables and prompts read better unwrapped
 "scripts/screen_proposals.py" = ["E501"]
 "tests/test_screener.py" = ["E501"]
+"tests/test_live.py" = ["E501"]
+"scripts/live_register.py" = ["E501"]
+"scripts/stress_test.py" = ["E501"]

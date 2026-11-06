@@ -101,14 +101,66 @@ RULES: list[tuple[str, object, str]] = [
 ]
 
 
+# Dutch rules, for the Dutch public algorithm register. Same facts, same quote rule.
+RULES_NL: list[tuple[str, object, str]] = [
+    ("prohibited", "emotion_recognition_work_education",
+     r"emoti\w*.{0,80}(medewerker|werknemer|personeel|leerling|student)"),
+    ("prohibited", "social_scoring", r"(burgerscore|sociale score|betrouwbaarheidsscore)"),
+    # Art 5(1)(d) is about predicting that a person offends; place-based "hotspot" maps are not.
+    ("prohibited", "crime_prediction_profiling",
+     r"voorspel\w*.{0,80}(of (iemand|een persoon)|personen|individu\w*).{0,60}(crimin|strafba|delict)"),
+    ("annex_iii", "1a", r"(gezichtsherkenning|biometrische identificatie)"),
+    ("annex_iii", "1c", r"emoti\w*.{0,60}(herken|detect|analy)"),
+    ("annex_iii", "2", r"(verkeersregelinstallatie|verkeerslicht|waterkering|stuw\b|sluis|gemaal|drinkwater|stroomnet|energienet)"
+                       r".{0,100}(automatisch|aanstu|regel|bedien)"),
+    ("annex_iii", "3a", r"toelating\w*.{0,60}(onderwijs|opleiding|school)|(onderwijs|school)\w*.{0,60}toelating"),
+    ("annex_iii", "3b", r"(beoordel|nakijk)\w*.{0,40}(toets|examen|tentamen)"),
+    ("annex_iii", "4a", r"\b(sollicit\w*|werving\w*|kandidaten|vacature\w*|recruitment\w*)\b"),
+    ("annex_iii", "4b", r"(personeelsbeoordeling|prestaties van (medewerkers|werknemers)|taakverdeling.{0,40}medewerkers)"),
+    ("annex_iii", "5a", r"(uitkering|bijstand|toeslag|participatiewet|wmo|schuldhulp|minimaregeling)\w*.{0,100}"
+                        r"(aanvra|recht|beoordel|toeken|controle|risico|rechtmatig)"
+                        r"|(aanvra|beoordel|toeken|controle|risico)\w*.{0,60}(uitkering|bijstand|toeslag|participatiewet|wmo)"),
+    ("annex_iii", "5b", r"(kredietwaardig\w*|kredietscore|lening\w*.{0,40}beoordel)"),
+    ("fraud_detection_only", True, r"(fraude|misbruik|oneigenlijk gebruik)"),
+    ("annex_iii", "5d", r"(\b112\b|meldkamer)"),
+    # Law enforcement uses; not municipal enforcement (parking, permits) or the word "politiek".
+    ("annex_iii", "6", r"(recidive|opsporingsonderzoek|strafzaak|strafzaken|verdachte\w*|betrouwbaarheid van (het )?bewijs"
+                       r"|dna[- ]?profiel\w*|risico op (her)?(crimin|delict|strafba))"),
+    ("annex_iii", "7", r"(asiel\w*|vreemdeling\w*|visum|grenscontrole|migratie)"),
+    ("annex_iii", "8a", r"(rechter\b|rechtspraak|rechtbank|vonnis)"),
+    # 8b is influencing elections, not running them (voting passes, polling stations).
+    ("annex_iii", "8b", r"(beïnvloed\w*.{0,40}(verkiezing|stemgedrag|kiezer)|stemadvies|kiezers.{0,40}(bereik|target))"),
+    ("interacts_with_people", True, r"(chatbot|chatfunctie|virtuele assistent|digitale assistent|spraakassistent)"),
+    ("generates_synthetic_content", True, r"(generatieve ai|taalmodel|chatgpt|copilot|\bgpt)"),
+    ("deepfake", True, r"deepfake"),
+    ("profiling", True, r"(risicoprofiel\w*|risicoscore\w*|risicoscan\w*|risicoselectie|risicomodel\w*|profilering"
+                        r"|selectie.{0,30}(burgers|inwoners|aanvragers)|voorspel\w*.{0,40}kans|kans (is )?dat (iemand|u|een persoon))"),
+    ("uses_personal_data", True, r"(persoonsgegevens|\bbsn\b|burgerservicenummer)"),
+    ("uses_special_category_data", True, r"(gezondheidsgegevens|medische gegevens|biometrische|etnisch\w*|religie|strafrechtelijke gegevens)"),
+    ("automated_decision", True, r"(automatisch\w* (besl|toege|afgewez|afwijz)|zonder menselijke tussenkomst|geautomatiseerde besluit)"),
+    ("role", "deployer", r"(leverancier:|ingekocht|aangeschaft|standaardsoftware)"),
+    ("role", "provider", r"(zelf ontwikkeld|eigen ontwikkeling|intern ontwikkeld|in eigen beheer)"),
+    ("art6_3_claim", "preparatory", r"(medewerker (neemt|beslist|beoordeelt)|besluit wordt (altijd )?genomen door|geen automatische besluit|ondersteun\w* (de|onze) medewerker)"),
+]
+
+
 class OfflineReader:
     name = "offline keyword reader"
+
+    def __init__(self, lang: str = "en"):
+        import hashlib
+        self.lang = lang
+        self.rules = RULES_NL if lang == "nl" else RULES
+        if lang != "en":
+            self.name = f"offline keyword reader ({lang})"
+        # Changes whenever a rule changes, so cached screenings are redone.
+        self.version = hashlib.sha1(repr(self.rules).encode()).hexdigest()[:8]
 
     def read(self, text: str) -> dict:
         evidence = []
         for sent in sentences(text):
             low = sent.lower()
-            for fact, value, pattern in RULES:
+            for fact, value, pattern in self.rules:
                 if re.search(pattern, low):
                     evidence.append({"fact": fact, "value": value, "quote": sent})
         # Fraud only counts as a carve-out when the proposal is about fraud and not lending.
@@ -150,7 +202,8 @@ SCHEMA = {
 READ_PROMPT = (
     "You read proposals for AI use cases and extract facts that matter under the EU AI Act. "
     "Assert a fact only if a sentence of the proposal supports it, and copy that sentence "
-    "(or a contiguous part of it) exactly into `quote`. Do not paraphrase quotes. Do not decide "
+    "(or a contiguous part of it) exactly into `quote`, in the proposal's own language (it may be "
+    "Dutch or another language). Do not paraphrase or translate quotes. Do not decide "
     "the risk tier: other code does that. List in `unknowns` the facts that matter but the "
     "proposal does not settle (for example who builds the system, or whether a human reviews "
     "each decision). For boolean facts use the value \"true\".\n\n" + FACT_GUIDE
