@@ -55,10 +55,13 @@ ICONS = {
     "chart": '<path d="M3 3v18h18"/><path d="M7 16v-4"/><path d="M12 16V8"/><path d="M17 16v-7"/>',
     "calendar": '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
     "file": '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/>',
+    "radio": '<circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49M7.76 16.24a6 6 0 0 1 0-8.49M19.07 4.93a10 10 0 0 1 0 14.14M4.93 19.07a10 10 0 0 1 0-14.14"/>',
+    "flask": '<path d="M9 3h6M10 3v6L4.5 18.5A2 2 0 0 0 6.2 21.5h11.6a2 2 0 0 0 1.7-3L14 9V3"/><path d="M7 15h10"/>',
     "back": '<path d="M19 12H5M12 19l-7-7 7-7"/>',
 }
 APP_NAV = [
-    ("Screening", [("proposals.html", "Proposal intake", "inbox")]),
+    ("Screening", [("proposals.html", "Proposal intake", "inbox"), ("register.html", "Live register", "radio"),
+                   ("stress.html", "Stress test", "flask")]),
     ("Cierzo assessment", [("inventory.html", "AI inventory", "grid"),
                            ("evidence.html", "Fairness evidence", "chart"),
                            ("roadmap.html", "Obligations", "calendar"),
@@ -804,6 +807,7 @@ def landing() -> str:
     mini = queue_rows(res[:7], interactive=False)
     n, review = len(res), sum(r["needs_review"] for r in res)
     people = json.loads((ROOT / "results" / "pricing_evidence.json").read_text("utf-8"))["data"]["people"]
+    reg, st = live_data()
     js = """<script>
 (() => {
   const tabs = [...document.querySelectorAll('[role=tab]')];
@@ -837,6 +841,7 @@ def landing() -> str:
   gets the same answer.</p>
   <p class="actions center"><a class="btn lg" href="proposals.html">Open the app</a>
   <a class="btn ghost lg" href="downloads/screening.xlsx">See a sample result</a></p>
+  {f'<a class="live" href="register.html"><span class="pulse" aria-hidden="true"></span><b>Live</b> Screening the Dutch public algorithm register · {reg["comparison"]["entries"]:,} entries · synced {_when(reg["synced"])}</a>' if reg else ""}
   <p class="fine">Portfolio project. The companies are fictional; the law is current to {LEGAL_BASIS_DATE:%d %B %Y}. Not legal advice.</p>
 </section>
 
@@ -860,6 +865,8 @@ def landing() -> str:
 
 <section class="sblock" id="how">
   <h2>A model reads. Code decides. A person checks.</h2>
+  <p class="ssub">Watch a proposal go through. Every fact has to point at a sentence, or it never reaches the law.</p>
+  {demo_html(examples, texts)}
   <div class="cols">
     <div><h3>Read, with receipts</h3><p>An agent turns free text into facts, and must quote the sentence each fact comes from. Code throws out any fact whose quote is not in the proposal.</p></div>
     <div><h3>The law, in code</h3><p>Every Article 5 practice, every Annex III area, the Annex I route, Article 50 and the Article 6(3) derogation, with the dates the Digital Omnibus set. The model never picks the tier.</p></div>
@@ -867,6 +874,8 @@ def landing() -> str:
   </div>
   <div class="runs"><span>Runs on</span><b>Azure OpenAI</b><b>Claude on Azure Foundry</b><b>Claude API</b><b>Offline, no key</b></div>
 </section>
+
+{measured_html(reg, st, n)}
 
 <section class="sblock case">
   <div><p class="eyebrow">Case study</p><h2>Cierzo Seguros, a Spanish health and life insurer</h2>
@@ -878,13 +887,348 @@ def landing() -> str:
 <footer class="sfoot"><span><b>{PRODUCT}</b> · EU AI Act screening</span>
 <span>Built by Marco Ortiz Togashi · <a href="{REPO}">Source on GitHub</a> · Not legal advice</span></footer>
 </div>
-{js}"""
+{js}
+{DEMO_JS}"""
     return f"""{head(f"{PRODUCT}: check AI ideas against the EU AI Act", "Screen AI use-case proposals against the EU AI Act: a model reads, code applies the law, people review the hard cases.", "")}
 <body class="landing">
 {body}
 </body>
 </html>
 """
+
+
+def live_data() -> tuple[dict | None, dict | None]:
+    """The live register and stress-test results, if they exist."""
+    reg, st = ROOT / "results" / "live" / "nl_register.json", ROOT / "results" / "generated" / "stress_test.json"
+    return (json.loads(reg.read_text("utf-8")) if reg.exists() else None,
+            json.loads(st.read_text("utf-8")) if st.exists() else None)
+
+
+def register_json(reg: dict) -> str:
+    """The register list the page loads; details live in data/r/<id>.json."""
+    rows = [{"i": r["id"], "t": r["title"], "o": r["company"], "d": r["declared"], "s": r["tier"],
+             "a": r["articles"][:4], "v": int(r["needs_review"]), "p": r["published"], "c": r.get("category", "")}
+            for r in reg["results"]]
+    return json.dumps({"synced": reg["synced"], "reader": reg.get("reader", ""), "rows": rows},
+                      ensure_ascii=False, separators=(",", ":"))
+
+
+def register_details(reg: dict, out: Path) -> None:
+    out.mkdir(parents=True, exist_ok=True)
+    for r in reg["results"]:
+        d = {"u": r["url"], "st": r.get("status", ""), "x": r["proposal"],
+             "f": [[ev["fact"], str(ev["value"]), ev["quote"]] for ev in r["evidence"]], "w": r["review_reasons"]}
+        (out / f"{r['id']}.json").write_text(json.dumps(d, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+
+
+DECL = {"high_risk": "Declared high-risk", "impactful": "Impactful", "other": "Other"}
+
+REGISTER_JS = """<script>
+(async () => {
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const TIER = {prohibited:'Prohibited', high_risk:'High-risk', transparency:'Transparency', minimal:'Minimal'};
+  const DECL = {high_risk:'Declared high-risk', impactful:'Impactful', other:'Other'};
+  const list = document.getElementById('rg-list'), more = document.getElementById('rg-more');
+  const shown = document.getElementById('shown'), q = document.getElementById('rg-q');
+  let data;
+  try { data = await (await fetch('data/register.json')).json(); }
+  catch (e) { list.innerHTML = '<li class="empty">Could not load the register data.</li>'; return; }
+  const rows = data.rows; let filter = 'all', page = 60, view = rows;
+  const sev = s => s === 'high_risk' || s === 'prohibited';
+  const match = r => filter === 'all' || (filter === 'declared' && r.d === 'high_risk') || (filter === 'flagged' && sev(r.s))
+    || (filter === 'disagree' && (sev(r.s) !== (r.d === 'high_risk'))) || (filter === 'review' && r.v);
+  function render() {
+    const term = q.value.trim().toLowerCase();
+    view = rows.filter(r => match(r) && (!term || (r.t + ' ' + r.o + ' ' + r.c).toLowerCase().includes(term)));
+    list.innerHTML = view.slice(0, page).map((r, n) => `<li class="pv" data-k="${n}"><button type="button" class="pv-row">
+      <span class="sid">${esc(r.p.slice(5))}</span>
+      <span class="pv-main"><span class="pv-title">${esc(r.t)}${r.d === 'high_risk' ? '<span class="flag rv">Declared high-risk</span>' : ''}</span>
+      <span class="pv-co">${esc(r.o)}</span></span>
+      <span class="stamp ${esc(r.s)}">${TIER[r.s] || esc(r.s)}</span>
+      <span class="pv-arts">${esc(r.a.join(', '))}</span>
+      <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></li>`).join('')
+      || '<li class="empty">Nothing matches.</li>';
+    shown.textContent = `${view.length.toLocaleString()} of ${rows.length.toLocaleString()}`;
+    more.hidden = view.length <= page;
+  }
+  document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', String(x === c)));
+    filter = c.dataset.filter; page = 60; render();
+  }));
+  let t; q.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { page = 60; render(); }, 120); });
+  more.addEventListener('click', () => { page += 120; render(); });
+
+  const drawer = document.getElementById('drawer'), scrim = document.getElementById('scrim'), inner = document.getElementById('dr-inner');
+  let cur = -1, opener = null;
+  const sentences = s => s.split(/(?<=[.!?])\\s+/).filter(Boolean);
+  const norm = s => s.toLowerCase().split(/\\s+/).join(' ');
+  function body(r) {
+    const quotes = r.f.map(f => norm(f[2]));
+    const text = sentences(r.x).map(s => {
+      const hit = quotes.some(qq => qq && norm(s).includes(qq));
+      const facts = r.f.filter(f => norm(s).includes(norm(f[2]))).map(f => `<span class="fchip">${esc(f[0] === 'annex_iii' ? 'Annex III ' + f[1] : f[0] === 'role' ? f[1] : f[0].replace(/_/g, ' '))}</span>`);
+      return hit ? `<mark>${esc(s)}</mark><span class="fchips">${[...new Set(facts)].join('')}</span>` : `<span class="dim">${esc(s)}</span>`;
+    }).join(' ');
+    const agree = sev(r.s) === (r.d === 'high_risk');
+    return `<div class="dr-head"><span class="sid">${esc(r.p)} · ${esc(r.st)}</span><h2 id="dr-title">${esc(r.t)}</h2>
+      <span class="co">${esc(r.o)}</span><span><span class="stamp ${esc(r.s)}">${TIER[r.s]}</span> <span class="decl ${r.d === 'high_risk' ? 'hr' : ''}">${DECL[r.d]}</span></span>
+      <button type="button" class="x" data-close aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+      <div class="dr-body">
+      <div class="${agree ? 'agree' : 'review'}"><b>${agree ? 'Screener and register agree' : 'Screener and register disagree'}</b>
+      <p>${agree ? 'The body\\'s own category and the screener point the same way.' : (sev(r.s) ? 'The screener reads this as high-risk; the body did not declare it so. Worth reading, not a finding.' : 'The body declared this high-risk; the screener did not find an Annex III use in the text.')}</p></div>
+      ${r.w.length ? `<p class="label">Open questions</p><ul class="trace">${r.w.map(w => `<li>${esc(w)}</li>`).join('')}</ul>` : ''}
+      <p class="label">Register text (Dutch)</p><p class="proposal">${text}</p>
+      <p class="label">Articles</p><p class="arts">${r.a.map(a => `<span class="fchip">${esc(a)}</span>`).join('') || '<span class="muted small">None</span>'}</p>
+      <p><a class="more" href="${esc(r.u)}" target="_blank" rel="noopener">Read the entry on algoritmes.overheid.nl</a></p></div>`;
+  }
+  const cache = {};
+  async function open(k) {
+    const base = view[k]; if (!base) return;
+    cur = k;
+    if (!cache[base.i]) {
+      try { cache[base.i] = await (await fetch(`data/r/${encodeURIComponent(base.i)}.json`)).json(); }
+      catch (e) { cache[base.i] = { u: '#', st: '', x: '', f: [], w: ['Could not load this entry.'] }; }
+    }
+    if (cur !== k) return;
+    const r = { ...base, ...cache[base.i] };
+    inner.innerHTML = body(r);
+    drawer.setAttribute('data-open', ''); scrim.setAttribute('data-open', ''); drawer.setAttribute('aria-hidden', 'false');
+    document.documentElement.style.overflow = 'hidden';
+    inner.querySelector('[data-close]').focus({ preventScroll: true });
+    document.getElementById('prev').disabled = k <= 0; document.getElementById('next').disabled = k >= view.length - 1;
+  }
+  function close() {
+    drawer.removeAttribute('data-open'); scrim.removeAttribute('data-open'); drawer.setAttribute('aria-hidden', 'true');
+    document.documentElement.style.overflow = ''; cur = -1; if (opener) opener.focus({ preventScroll: true });
+  }
+  list.addEventListener('click', e => { const b = e.target.closest('.pv-row'); if (!b) return; opener = b; open(+b.parentElement.dataset.k); });
+  scrim.addEventListener('click', close);
+  drawer.addEventListener('click', e => { if (e.target.closest('[data-close]')) close(); });
+  document.getElementById('prev').addEventListener('click', () => open(cur - 1));
+  document.getElementById('next').addEventListener('click', () => open(cur + 1));
+  document.addEventListener('keydown', e => {
+    if (cur < 0) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowDown' || e.key === 'j') { e.preventDefault(); open(Math.min(cur + 1, view.length - 1)); }
+    if (e.key === 'ArrowUp' || e.key === 'k') { e.preventDefault(); open(Math.max(cur - 1, 0)); }
+  });
+  render();
+})();
+</script>"""
+
+
+def _when(iso: str) -> str:
+    from datetime import datetime as _dt
+    try:
+        return _dt.strptime(iso[:16], "%Y-%m-%dT%H:%M").strftime("%d %b %Y, %H:%M UTC")
+    except ValueError:
+        return iso
+
+
+def register_page(reg: dict) -> str:
+    c = reg["comparison"]
+    rows = reg["results"]
+    flagged = c["screened_high_risk_or_prohibited"]
+    disagree = c["flagged_not_declared"] + (c["declared_high_risk"] - c["agree_on_declared"])
+    review = sum(r["needs_review"] for r in rows)
+    chips = [("all", "All", len(rows)), ("declared", "Declared high-risk", c["declared_high_risk"]),
+             ("flagged", "Screener high-risk", flagged), ("disagree", "Disagree", disagree), ("review", "Needs review", review)]
+    filters = "".join(
+        f'<button type="button" class="chip" data-filter="{k}" aria-pressed="{"true" if k == "all" else "false"}">'
+        f'{e(label)}<span class="n">{n:,}</span></button>' for k, label, n in chips)
+    # declared x screened matrix
+    tiers = ["prohibited", "high_risk", "transparency", "minimal"]
+    from collections import Counter as _C
+    m = _C((r["declared"], r["tier"]) for r in rows)
+    head = "".join(f"<th>{TIER[t]}</th>" for t in tiers)
+    body_rows = "".join(
+        f"<tr><td><b>{DECL[d]}</b></td>" + "".join(
+            f"<td class='cell{' hot' if (d == 'high_risk') == (t in ('high_risk', 'prohibited')) and m[(d, t)] else ''}'>{m[(d, t)]:,}</td>"
+            for t in tiers) + "</tr>" for d in ("high_risk", "impactful", "other"))
+    areas = c["by_area"]
+    amax = max(areas.values()) if areas else 1
+    from src.screener.law import ANNEX_III as _A3
+    bars = "".join(
+        f"<li><span class='ar'>{e(k.replace('Annex III ', ''))}</span><span class='an'>{e(_A3.get(k.replace('Annex III ', ''), ''))}</span>"
+        f"<span class='ab'><i style='width:{v / amax * 100:.1f}%'></i></span><span class='av mono'>{v}</span></li>"
+        for k, v in areas.items())
+    body = f"""
+<section class="hero"><div class="page-head"><div>
+<p class="kicker"><span class="pulse" aria-hidden="true"></span> Live · synced {_when(reg['synced'])}</p>
+<h1>Dutch public algorithm register</h1>
+<p class="lede">Every algorithm a Dutch public body has published on <a href="https://algoritmes.overheid.nl">algoritmes.overheid.nl</a>,
+screened every morning. Each body also states its own category; {c['declared_high_risk']} call their system a high-risk AI system.
+Here is where the screener agrees, and where it does not.</p></div>
+<div class="actions"><a class="btn ghost" href="https://algoritmes.overheid.nl" target="_blank" rel="noopener">Open the register</a></div></div>
+<div class="facts">
+<div class="fact"><b>{c['entries']:,}</b><span>entries screened</span></div>
+<div class="fact"><b>{c['agree_on_declared']} <small>of {c['declared_high_risk']}</small></b><span>declared high-risk the screener also flags</span></div>
+<div class="fact"><b>{c['flagged_not_declared']:,}</b><span>flagged but not declared: worth a read</span></div>
+<div class="fact"><b>{review:,}</b><span>open questions for a person</span></div>
+</div></section>
+<div class="two">
+{sec("", "Declared against screened", "Rows: the body's own category. Columns: the screener. Shaded cells are where the two agree on high-risk or not.",
+     f"<div class='table-wrap'><table class='matrix'><thead><tr><th></th>{head}</tr></thead><tbody>{body_rows}</tbody></table></div>")}
+{sec("", "Where the screener sees high-risk uses", "Annex III areas behind the high-risk calls.", f"<ol class='areas'>{bars}</ol>")}
+</div>
+<section><div class="sec-body">
+  <div class="toolbar"><div class="filters" role="group" aria-label="Filter entries">{filters}</div>
+  <input id="rg-q" class="search" type="search" placeholder="Search name, body or theme" aria-label="Search the register">
+  <p class="shown mono" id="shown" aria-live="polite"></p></div>
+  <div class="pvs-head" aria-hidden="true"><span>Published</span><span>Algorithm</span><span>Screener</span><span>Articles</span><span></span></div>
+  <ol class="pvs" id="rg-list"><li class="empty">Loading the register...</li></ol>
+  <p class="actions" style="margin-top:12px"><button type="button" class="btn ghost" id="rg-more" hidden>Show more</button></p>
+</div></section>
+{sec("", "Read these numbers with care", "", f'''<div class="prose"><ul>
+<li><b>Not every entry is an AI system.</b> The register lists rule-based algorithms too; the AI Act covers AI systems only
+(Art 3(1)), and the screener does not decide that question.</li>
+<li><b>A declaration is not a ruling.</b> A disagreement is a case to read. Some go the screener's way: one municipality declares a
+face <i>match</i> against an ID document as high-risk, but Annex III 1(a) excludes 1:1 verification.</li>
+<li><b>Read by: {e(reg.get('reader', ''))}.</b> The keyword reader cannot handle negation ("no facial recognition is used")
+or paraphrase; see the <a href="stress.html">stress test</a>. With a model reader configured, the daily run re-reads every entry.</li>
+</ul></div>''')}
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dr-title" aria-hidden="true">
+  <div id="dr-inner" class="dr-inner"></div>
+  <div class="dr-nav"><button type="button" class="btn ghost" id="prev">Previous</button>
+  <button type="button" class="btn ghost" id="next">Next</button></div>
+</aside>
+{REGISTER_JS}"""
+    return page("register.html", f"Live register · {PRODUCT}", body,
+                "The Dutch public algorithm register, screened against the EU AI Act every day and compared with each body's own category.",
+                counts={"register.html": f"{c['entries']:,}"})
+
+
+def stress_page(st: dict) -> str:
+    styles = [("plain", "Plain wording", "the words a reviewer expects"), ("disguised", "Disguised wording", "the same practice in product language"),
+              ("rewritten", "Model-rewritten", "a model's paraphrase of the plain text")]
+    bars = "".join(
+        f"<li><span class='sl'><b>{e(lbl)}</b><span>{e(note)} · {st['by_style'][k]['n']} proposals</span></span>"
+        f"<span class='sb'><i style='width:{st['by_style'][k]['accuracy'] * 100:.1f}%'></i></span>"
+        f"<span class='sv'>{st['by_style'][k]['accuracy']:.0%}</span></li>"
+        for k, lbl, note in styles if k in st["by_style"])
+    tiers = ["prohibited", "high_risk", "transparency", "minimal"]
+    cm = {(x["expected"], x["got"]): x["n"] for x in st["confusion"]}
+    cmax = max(cm.values()) if cm else 1
+    head = "".join(f"<th>{TIER[t]}</th>" for t in tiers)
+    rows = "".join(
+        f"<tr><td><b>{TIER[a]}</b></td>" + "".join(
+            f"<td class='cell heat{' ok' if a == b else (' bad' if tiers.index(b) > tiers.index(a) else '')}' "
+            f"style='--h:{cm.get((a, b), 0) / cmax:.2f}'>{cm.get((a, b), 0) or ''}</td>" for b in tiers) + "</tr>"
+        for a in tiers)
+    misses = "".join(
+        f"<li><span class='stamp {m['expected']}'>{TIER[m['expected']]}</span><span class='arrow' aria-hidden='true'>&rarr;</span>"
+        f"<span class='stamp {m['got']}'>{TIER[m['got']]}</span><span class='ms'>{e(m['style'])} · {e(m['role'])}</span>"
+        f"<p>{e(m['proposal'].split('. ', 1)[1] if '. ' in m['proposal'] else m['proposal'])}</p></li>"
+        for m in st["misses"][:24])
+    body = f"""
+<section class="hero"><div class="page-head"><div>
+<p class="kicker">Measured {_when(st['run'])} · {e(st['reader'])}</p>
+<h1>Stress test</h1>
+<p class="lede">{st['n']} generated proposals across {st['scenarios']} scenarios, each answer written by hand. The same practice is
+phrased plainly and in disguise, so the score shows how much the reader leans on keywords.</p></div>
+<div class="actions"><a class="btn ghost" href="downloads/generated_proposals.csv">Download the test set</a></div></div>
+<div class="facts">
+<div class="fact"><b>{st['accuracy']:.0%}</b><span>correct overall</span></div>
+<div class="fact"><b>{st['by_style'].get('plain', {}).get('accuracy', 0):.0%}</b><span>plain wording</span></div>
+<div class="fact alert"><b>{st['by_style'].get('disguised', {}).get('accuracy', 0):.0%}</b><span>disguised wording</span></div>
+<div class="fact alert"><b>{st['under_called_severe']}</b><span>prohibited or high-risk called milder</span></div>
+</div></section>
+{sec("", "Accuracy by wording", "Same scenarios, same answers; only the words change.", f"<ol class='styles'>{bars}</ol>")}
+<div class="two">
+{sec("", "What it said, against the right answer", "Rows: the correct tier. Columns: the screener. Red cells are the costly mistake: calling something milder than it is.",
+     f"<div class='table-wrap'><table class='matrix'><thead><tr><th></th>{head}</tr></thead><tbody>{rows}</tbody></table></div>")}
+{sec("", "Why the score matters", "", '''<div class="prose"><p>The keyword reader finds a practice when the proposal names it.
+When the same practice is described in product language ("a wellbeing layer", "surfaces the best fits"), it misses most of them,
+and every miss on a prohibited or high-risk system is the dangerous kind.</p><p>That is the case for a model reader, and the quote
+check is what makes one safe to use: whatever it reads, it has to point at the sentence.</p><p class="small muted">Labels are written
+per scenario by hand, never computed by the classifier, so the test does not grade the code against itself.</p></div>''')}
+</div>
+{sec("", "Misses", "The first two dozen, with the sentence that should have been caught.", f"<ul class='misses'>{misses}</ul>")}
+"""
+    return page("stress.html", f"Stress test · {PRODUCT}", body,
+                "Generated proposals with hand-written answers, phrased plainly and in disguise, to measure the screener's reader.")
+
+
+def demo_html(examples: list[dict], texts: dict) -> str:
+    """The animated walk-through: sentences light up, facts appear, the law runs, the verdict lands."""
+    from src.screener.readers import sentences
+    norm = lambda s: " ".join(s.lower().split())  # noqa: E731
+    blocks = []
+    for n, r in enumerate(examples):
+        sents, facts = [], []
+        k = 0
+        for s in sentences(texts.get(r["id"], "")):
+            tags = list(dict.fromkeys(fact_label(ev["fact"], ev["value"]) for ev in r["evidence"]
+                                      if norm(ev["quote"]) and norm(ev["quote"]) in norm(s)))
+            if tags:
+                sents.append(f'<span class="ds q" data-k="{k}">{e(s)}</span>')
+                facts += [f'<li data-k="{k}"><span class="fchip">{e(t)}</span></li>' for t in tags]
+                k += 1
+            else:
+                sents.append(f'<span class="ds">{e(s)}</span>')
+        arts = " · ".join(r["articles"][:3]) or "no article"
+        blocks.append(f"""<div class="demo-ex" data-n="{k}"{"" if n == 0 else " hidden"}>
+<div class="demo-col"><p class="label">1 · An agent reads</p><p class="demo-text">{" ".join(sents)}</p>
+<p class="demo-co">{e(r['title'])} · {e(r['company'].replace(' (fictional)', ''))}</p></div>
+<div class="demo-col"><p class="label">2 · Facts, each with a quote</p><ul class="demo-facts">{"".join(facts)}</ul>
+<div class="demo-law"><span class="mono">law.py</span><span class="run"><i></i></span><span class="mono small">{e(arts)}</span></div></div>
+<div class="demo-col"><p class="label">3 · Code decides</p><div class="demo-verdict"><span class="stamp {r['tier']}">{TIER[r['tier']]}</span>
+<p>{e(r['memo'].split('. ')[0].rstrip('.'))}.</p>{'<span class="flag rv">Sent to a person</span>' if r['needs_review'] else ''}</div></div>
+</div>""")
+    current = ' aria-current="true"'
+    dots = "".join(f'<button type="button" class="dot" aria-label="Example {i + 1}"{current if i == 0 else ""}></button>'
+                   for i in range(len(examples)))
+    return f'<div class="demo" data-demo>{"".join(blocks)}<div class="demo-dots">{dots}</div></div>'
+
+
+DEMO_JS = """<script>
+(() => {
+  const root = document.querySelector('[data-demo]'); if (!root) return;
+  const exs = [...root.querySelectorAll('.demo-ex')], dots = [...root.querySelectorAll('.dot')];
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let i = 0, timers = [], visible = true, hover = false;
+  const later = (f, ms) => timers.push(setTimeout(f, ms));
+  const clear = () => { timers.forEach(clearTimeout); timers = []; };
+  function play(n) {
+    clear(); i = n;
+    exs.forEach((x, k) => { x.hidden = k !== n; x.classList.remove('law', 'done'); x.querySelectorAll('.lit').forEach(el => el.classList.remove('lit')); });
+    dots.forEach((d, k) => d.toggleAttribute('aria-current', k === n));
+    const ex = exs[n], count = +ex.dataset.n;
+    const light = k => ex.querySelectorAll(`[data-k="${k}"]`).forEach(el => el.classList.add('lit'));
+    if (still) { for (let k = 0; k < count; k++) light(k); ex.classList.add('law', 'done'); return; }
+    for (let k = 0; k < count; k++) later(() => light(k), 500 + k * 750);
+    const t = 500 + count * 750;
+    later(() => ex.classList.add('law'), t);
+    later(() => ex.classList.add('done'), t + 700);
+    later(() => { if (visible && !hover) play((i + 1) % exs.length); else later(() => play((i + 1) % exs.length), 1500); }, t + 4200);
+  }
+  dots.forEach((d, k) => d.addEventListener('click', () => play(k)));
+  root.addEventListener('pointerenter', () => hover = true);
+  root.addEventListener('pointerleave', () => hover = false);
+  new IntersectionObserver(es => { visible = es[0].isIntersecting; }, { threshold: 0.3 }).observe(root);
+  play(0);
+})();
+</script>"""
+
+
+def measured_html(reg: dict | None, st: dict | None, n_samples: int) -> str:
+    cards = [f"""<a class="m" href="proposals.html"><span class="mk">Sample proposals</span><b>{n_samples} / {n_samples}</b>
+<p>agree with their labels. A pipeline check only: the keyword reader was tuned on them.</p></a>"""]
+    if st:
+        p, d = st["by_style"].get("plain", {}).get("accuracy", 0), st["by_style"].get("disguised", {}).get("accuracy", 0)
+        cards.append(f"""<a class="m" href="stress.html"><span class="mk">Stress test · {st['n']} generated</span>
+<div class="mbars"><span><em>Plain wording</em><i><s style="width:{p * 100:.0f}%"></s></i><b>{p:.0%}</b></span>
+<span><em>Disguised</em><i><s class="hot" style="width:{d * 100:.0f}%"></s></i><b>{d:.0%}</b></span></div>
+<p>Hand-labelled scenarios, phrased plainly and in disguise. Disguise is where a keyword reader breaks.</p></a>""")
+    if reg:
+        c = reg["comparison"]
+        cards.append(f"""<a class="m" href="register.html"><span class="mk"><span class="pulse" aria-hidden="true"></span> Live register</span>
+<b>{c['agree_on_declared']} <small>of {c['declared_high_risk']}</small></b>
+<p>self-declared high-risk AI systems the screener also flags, across {c['entries']:,} Dutch public algorithms. Re-screened daily.</p></a>""")
+    return f"""<section class="sblock" id="measured"><h2>Measured, not claimed.</h2>
+<p class="ssub">Every number below is recomputed by the daily run, including the ones that make the free reader look bad.</p>
+<div class="meas">{"".join(cards)}</div></section>"""
 
 
 def main() -> int:
@@ -900,8 +1244,16 @@ def main() -> int:
         "roadmap.html": roadmap_page(rows),
         "proposals.html": proposals_page(),
         "documents.html": documents_page(),
+        **({"register.html": register_page(live_data()[0])} if live_data()[0] else {}),
+        **({"stress.html": stress_page(live_data()[1])} if live_data()[1] else {}),
     }
     (OUT / "downloads").mkdir()
+    (OUT / "data").mkdir()
+    if live_data()[0]:
+        (OUT / "data" / "register.json").write_text(register_json(live_data()[0]), encoding="utf-8")
+        register_details(live_data()[0], OUT / "data" / "r")
+    if (ROOT / "data" / "generated_proposals.csv").exists():
+        shutil.copy(ROOT / "data" / "generated_proposals.csv", OUT / "downloads" / "generated_proposals.csv")
     shutil.copy(ROOT / "results" / "proposals" / "screening.xlsx", OUT / "downloads" / "screening.xlsx")
     shutil.copy(ROOT / "data" / "proposals_sample.csv", OUT / "downloads" / "proposals_sample.csv")
     for md, title, desc in DOCS:
