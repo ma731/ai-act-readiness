@@ -74,12 +74,16 @@ NAV = [(h, label) for _, items in APP_NAV for h, label, _ in items]
 
 # ---------------------------------------------------------------- brand ---------------- #
 LOGO_SVG = ('<svg class="{cls}" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#003399"/>'
-            '<path d="M8.6 10.6 15 23" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/>'
-            '<path d="M15 23 24.4 7.6" fill="none" stroke="#FFCC00" stroke-width="3.4" stroke-linecap="round"/></svg>')
+            '<rect x="7" y="7.6" width="18" height="2.8" rx="1.4" fill="#fff" fill-opacity=".5"/>'
+            '<rect x="5.6" y="12.4" width="20.8" height="6.2" rx="2.2" fill="#FFCC00"/>'
+            '<rect x="8" y="14.1" width="12.5" height="2.8" rx="1.4" fill="#003399"/>'
+            '<rect x="7" y="20.8" width="8.5" height="2.8" rx="1.4" fill="#fff" fill-opacity=".5"/>'
+            '<path d="M18.4 22.4l2.5 2.5 4.9-5.6" fill="none" stroke="#fff" stroke-width="2.8" '
+            'stroke-linecap="round" stroke-linejoin="round"/></svg>')
 
 
 def logo(cls: str = "mark") -> str:
-    """Veredicto's mark: a V whose right arm is a check."""
+    """Veredicto's mark: lines of a proposal, the quoted one highlighted, and a verdict."""
     return LOGO_SVG.format(cls=cls)
 
 
@@ -157,6 +161,7 @@ def page(path: str, title: str, body: str, description: str, counts: dict | None
 <aside class="side">
   <a class="org" href="{up}index.html" title="{PRODUCT} home">{logo()}
     <span><b>Cierzo Seguros</b><span>{PRODUCT} workspace</span></span></a>
+  <span class="eu-badge side-badge" title="Screens against the EU AI Act, Regulation (EU) 2024/1689">{eu_flag()}EU AI Act</span>
   <nav aria-label="Workspace" style="display:contents">{"".join(groups)}</nav>
   <div class="side-foot">
     <span>Law as of {LEGAL_BASIS_DATE:%d %b %Y}</span>
@@ -873,7 +878,7 @@ def landing() -> str:
 })();
 </script>"""
     body = f"""<div class="site">
-<header class="snav"><a class="sbrand" href="index.html">{logo()}{PRODUCT}</a>
+<header class="snav"><a class="sbrand" href="index.html">{logo()}{PRODUCT}</a><span class="eu-badge" title="Screens against the EU AI Act, Regulation (EU) 2024/1689">{eu_flag()}EU AI Act</span>
 <nav aria-label="Main"><a href="#how">How it works</a><a href="#examples">Examples</a><a href="inventory.html">Case study</a><a href="documents.html">Docs</a></nav>
 <span class="snav-cta"><a class="btn ghost sm" href="{REPO}">GitHub</a><a class="btn sm" href="proposals.html">Open the app</a></span></header>
 
