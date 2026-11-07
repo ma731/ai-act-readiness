@@ -1,0 +1,588 @@
+{
+ "reader": "offline keyword reader",
+ "run": "2026-11-07T11:45Z",
+ "scenarios": 20,
+ "n": 160,
+ "accuracy": 0.644,
+ "by_style": {
+  "plain": {
+   "accuracy": 0.963,
+   "n": 80
+  },
+  "disguised": {
+   "accuracy": 0.325,
+   "n": 80
+  }
+ },
+ "by_tier": {
+  "prohibited": {
+   "accuracy": 0.5,
+   "n": 32
+  },
+  "high_risk": {
+   "accuracy": 0.5,
+   "n": 64
+  },
+  "transparency": {
+   "accuracy": 0.55,
+   "n": 20
+  },
+  "minimal": {
+   "accuracy": 1.0,
+   "n": 44
+  }
+ },
+ "confusion": [
+  {
+   "expected": "high_risk",
+   "got": "high_risk",
+   "n": 32
+  },
+  {
+   "expected": "high_risk",
+   "got": "minimal",
+   "n": 32
+  },
+  {
+   "expected": "minimal",
+   "got": "minimal",
+   "n": 44
+  },
+  {
+   "expected": "prohibited",
+   "got": "minimal",
+   "n": 16
+  },
+  {
+   "expected": "prohibited",
+   "got": "prohibited",
+   "n": 16
+  },
+  {
+   "expected": "transparency",
+   "got": "minimal",
+   "n": 9
+  },
+  {
+   "expected": "transparency",
+   "got": "transparency",
+   "n": 11
+  }
+ ],
+ "under_called_severe": 48,
+ "misses": [
+  {
+   "id": "G005",
+   "scenario": "emotion_at_work",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "prohibited",
+   "got": "minimal",
+   "proposal": "Norte Retail wants to use AI in its operations. A camera-based wellbeing layer picks up how our agents are feeling minute by minute so supervisors can step in. We will build it in-house with our own data team. Success is measured against last year's numbers."
+  },
+  {
+   "id": "G006",
+   "scenario": "emotion_at_work",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "prohibited",
+   "got": "minimal",
+   "proposal": "Norte Retail wants to use AI in its operations. A camera-based wellbeing layer picks up how our agents are feeling minute by minute so supervisors can step in. We will license an off-the-shelf vendor tool for this. Success is measured against last year's numbers."
+  },
+  {
+   "id": "G007",
+   "scenario": "emotion_at_work",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "prohibited",
+   "got": "minimal",
+   "proposal": "Ebro Logistics wants to use AI in its operations. Team leads get a live read on how energised or drained each person on shift seems. We will build it in-house with our own data team. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G008",
+   "scenario": "emotion_at_work",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "prohibited",
+   "got": "minimal",
+   "proposal": "Ebro Logistics wants to use AI in its operations. Team leads get a live read on how energised or drained each person on shift seems. We will license an off-the-shelf vendor tool for this. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G013",
+   "scenario": "social_scoring",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "prohibited",
+   "got": "minimal",
+   "proposal": "Ebro Logistics wants to use AI in its operations. Residents get a civic reliability rating, built from their payment and complaint history, that sets their queue priority. We will build it in-house with our own data team. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G014",
+   "scenario": "social_scoring",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "prohibited",
+   "got": "minimal",
+   "proposal": "Ebro Logistics wants to use AI in its operations. Residents get a civic reliability rating, built from their payment and complaint history, that sets their queue priority. We will license an off-the-shelf vendor tool for this. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G015",
+   "scenario": "social_scoring",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "prohibited",
+   "got": "minimal",
+   "proposal": "Moncayo Health wants to use AI in its operations. People who have been good neighbours move faster through every council queue. We will build it in-house with our own data team. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G016",
+   "scenario": "social_scoring",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "prohibited",
+   "got": "minimal",
+   "proposal": "Moncayo Health wants to use AI in its operations. People who have been good neighbours move faster through every council queue. We will license an off-the-shelf vendor tool for this. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G021",
+   "scenario": "child_nudging",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "prohibited",
+   "got": "minimal",
+   "proposal": "Moncayo Health wants to use AI in its operations. Younger players see timed offers tuned to the moment they are most likely to tap buy. We will build it in-house with our own data team. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G022",
+   "scenario": "child_nudging",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "prohibited",
+   "got": "minimal",
+   "proposal": "Moncayo Health wants to use AI in its operations. Younger players see timed offers tuned to the moment they are most likely to tap buy. We will license an off-the-shelf vendor tool for this. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G023",
+   "scenario": "child_nudging",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "prohibited",
+   "got": "minimal",
+   "proposal": "Aragon Bank wants to use AI in its operations. Our engagement engine learns when each young user is most impulsive and shows the shop then. We will build it in-house with our own data team. Success is measured against last year's numbers."
+  },
+  {
+   "id": "G024",
+   "scenario": "child_nudging",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "prohibited",
+   "got": "minimal",
+   "proposal": "Aragon Bank wants to use AI in its operations. Our engagement engine learns when each young user is most impulsive and shows the shop then. We will license an off-the-shelf vendor tool for this. Success is measured against last year's numbers."
+  },
+  {
+   "id": "G029",
+   "scenario": "face_scraping",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "prohibited",
+   "got": "minimal",
+   "proposal": "Aragon Bank wants to use AI in its operations. We will collect public profile pictures at scale to grow our identity-matching index. We will build it in-house with our own data team. Success is measured against last year's numbers."
+  },
+  {
+   "id": "G030",
+   "scenario": "face_scraping",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "prohibited",
+   "got": "minimal",
+   "proposal": "Aragon Bank wants to use AI in its operations. We will collect public profile pictures at scale to grow our identity-matching index. We will license an off-the-shelf vendor tool for this. Success is measured against last year's numbers."
+  },
+  {
+   "id": "G031",
+   "scenario": "face_scraping",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "prohibited",
+   "got": "minimal",
+   "proposal": "Pirineo Insurance wants to use AI in its operations. A crawler gathers every portrait it can find online so the matcher knows more people. We will build it in-house with our own data team. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G032",
+   "scenario": "face_scraping",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "prohibited",
+   "got": "minimal",
+   "proposal": "Pirineo Insurance wants to use AI in its operations. A crawler gathers every portrait it can find online so the matcher knows more people. We will license an off-the-shelf vendor tool for this. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G037",
+   "scenario": "cv_screening",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Pirineo Insurance wants to use AI in its operations. It reads incoming applications and surfaces the best fits for each opening. We will build it in-house with our own data team. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G038",
+   "scenario": "cv_screening",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Pirineo Insurance wants to use AI in its operations. It reads incoming applications and surfaces the best fits for each opening. We will license an off-the-shelf vendor tool for this. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G045",
+   "scenario": "worker_monitoring",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Huesca Council wants to use AI in its operations. Each picker's pace feeds tomorrow's rota automatically. We will build it in-house with our own data team. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G046",
+   "scenario": "worker_monitoring",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Huesca Council wants to use AI in its operations. Each picker's pace feeds tomorrow's rota automatically. We will license an off-the-shelf vendor tool for this. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G047",
+   "scenario": "worker_monitoring",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Teruel Learning wants to use AI in its operations. Drivers' on-time records quietly shape who gets the better routes next quarter. We will build it in-house with our own data team. Success is measured against last year's numbers."
+  },
+  {
+   "id": "G048",
+   "scenario": "worker_monitoring",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Teruel Learning wants to use AI in its operations. Drivers' on-time records quietly shape who gets the better routes next quarter. We will license an off-the-shelf vendor tool for this. Success is measured against last year's numbers."
+  },
+  {
+   "id": "G053",
+   "scenario": "credit_scoring",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Teruel Learning wants to use AI in its operations. It decides who qualifies for our buy-now-pay-later option and how much they can spend. We will build it in-house with our own data team. Success is measured against last year's numbers."
+  },
+  {
+   "id": "G054",
+   "scenario": "credit_scoring",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Teruel Learning wants to use AI in its operations. It decides who qualifies for our buy-now-pay-later option and how much they can spend. We will license an off-the-shelf vendor tool for this. Success is measured against last year's numbers."
+  },
+  {
+   "id": "G055",
+   "scenario": "credit_scoring",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Cinca Energy wants to use AI in its operations. Shoppers see an instant spending allowance at checkout, sized to how reliably we think they will repay. We will build it in-house with our own data team. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G056",
+   "scenario": "credit_scoring",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Cinca Energy wants to use AI in its operations. Shoppers see an instant spending allowance at checkout, sized to how reliably we think they will repay. We will license an off-the-shelf vendor tool for this. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G061",
+   "scenario": "life_insurance_pricing",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Cinca Energy wants to use AI in its operations. Cover prices adjust to each customer's medical profile when they sign up for our protection plan. We will build it in-house with our own data team. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G062",
+   "scenario": "life_insurance_pricing",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Cinca Energy wants to use AI in its operations. Cover prices adjust to each customer's medical profile when they sign up for our protection plan. We will license an off-the-shelf vendor tool for this. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G063",
+   "scenario": "life_insurance_pricing",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Jalon Media wants to use AI in its operations. The quote a member sees for their family cover reflects what their medical history suggests. We will build it in-house with our own data team. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G064",
+   "scenario": "life_insurance_pricing",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Jalon Media wants to use AI in its operations. The quote a member sees for their family cover reflects what their medical history suggests. We will license an off-the-shelf vendor tool for this. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G065",
+   "scenario": "benefits_eligibility",
+   "style": "plain",
+   "role": "provider",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Jalon Media wants to use AI in its operations. The council uses it to check eligibility for social assistance benefits. We will build it in-house with our own data team. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G066",
+   "scenario": "benefits_eligibility",
+   "style": "plain",
+   "role": "deployer",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Jalon Media wants to use AI in its operations. The council uses it to check eligibility for social assistance benefits. We will license an off-the-shelf vendor tool for this. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G069",
+   "scenario": "benefits_eligibility",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Jalon Media wants to use AI in its operations. It flags which households should keep receiving housing support. We will build it in-house with our own data team. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G070",
+   "scenario": "benefits_eligibility",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Jalon Media wants to use AI in its operations. It flags which households should keep receiving housing support. We will license an off-the-shelf vendor tool for this. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G071",
+   "scenario": "benefits_eligibility",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Gallego Telecom wants to use AI in its operations. Caseworkers get a list of families whose support the system thinks should be reviewed first. We will build it in-house with our own data team. Success is measured against last year's numbers."
+  },
+  {
+   "id": "G072",
+   "scenario": "benefits_eligibility",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Gallego Telecom wants to use AI in its operations. Caseworkers get a list of families whose support the system thinks should be reviewed first. We will license an off-the-shelf vendor tool for this. Success is measured against last year's numbers."
+  },
+  {
+   "id": "G077",
+   "scenario": "exam_proctoring",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Gallego Telecom wants to use AI in its operations. During remote tests it watches for anything that looks like outside help. We will build it in-house with our own data team. Success is measured against last year's numbers."
+  },
+  {
+   "id": "G078",
+   "scenario": "exam_proctoring",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Gallego Telecom wants to use AI in its operations. During remote tests it watches for anything that looks like outside help. We will license an off-the-shelf vendor tool for this. Success is measured against last year's numbers."
+  },
+  {
+   "id": "G079",
+   "scenario": "exam_proctoring",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Norte Retail wants to use AI in its operations. If a student's eyes wander off screen during the final, a teacher is told. We will build it in-house with our own data team. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G080",
+   "scenario": "exam_proctoring",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Norte Retail wants to use AI in its operations. If a student's eyes wander off screen during the final, a teacher is told. We will license an off-the-shelf vendor tool for this. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G085",
+   "scenario": "admissions",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Norte Retail wants to use AI in its operations. It decides which applicants get an offer for next year's intake. We will build it in-house with our own data team. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G086",
+   "scenario": "admissions",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Norte Retail wants to use AI in its operations. It decides which applicants get an offer for next year's intake. We will license an off-the-shelf vendor tool for this. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G087",
+   "scenario": "admissions",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Ebro Logistics wants to use AI in its operations. The model sorts this year's hopefuls so the committee knows whom to invite. We will build it in-house with our own data team. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G088",
+   "scenario": "admissions",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Ebro Logistics wants to use AI in its operations. The model sorts this year's hopefuls so the committee knows whom to invite. We will license an off-the-shelf vendor tool for this. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G093",
+   "scenario": "emergency_triage",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Ebro Logistics wants to use AI in its operations. When someone dials for help it decides which ambulance goes first. We will build it in-house with our own data team. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G094",
+   "scenario": "emergency_triage",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Ebro Logistics wants to use AI in its operations. When someone dials for help it decides which ambulance goes first. We will license an off-the-shelf vendor tool for this. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G095",
+   "scenario": "emergency_triage",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Moncayo Health wants to use AI in its operations. Incoming distress lines are ordered by how urgent the caller sounds. We will build it in-house with our own data team. Success is measured against last year's numbers."
+  },
+  {
+   "id": "G096",
+   "scenario": "emergency_triage",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "high_risk",
+   "got": "minimal",
+   "proposal": "Moncayo Health wants to use AI in its operations. Incoming distress lines are ordered by how urgent the caller sounds. We will license an off-the-shelf vendor tool for this. Success is measured against last year's numbers."
+  },
+  {
+   "id": "G103",
+   "scenario": "chatbot",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "transparency",
+   "got": "minimal",
+   "proposal": "Aragon Bank wants to use AI in its operations. Customers type their question and get an instant, friendly reply in the app. We will build it in-house with our own data team. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G104",
+   "scenario": "chatbot",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "transparency",
+   "got": "minimal",
+   "proposal": "Aragon Bank wants to use AI in its operations. Customers type their question and get an instant, friendly reply in the app. We will license an off-the-shelf vendor tool for this. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G109",
+   "scenario": "deepfake_campaign",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "transparency",
+   "got": "minimal",
+   "proposal": "Aragon Bank wants to use AI in its operations. Our CEO's likeness will front the campaign without her needing to film anything. We will build it in-house with our own data team. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G110",
+   "scenario": "deepfake_campaign",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "transparency",
+   "got": "minimal",
+   "proposal": "Aragon Bank wants to use AI in its operations. Our CEO's likeness will front the campaign without her needing to film anything. We will license an off-the-shelf vendor tool for this. The pilot starts next quarter in one region."
+  },
+  {
+   "id": "G111",
+   "scenario": "deepfake_campaign",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "transparency",
+   "got": "minimal",
+   "proposal": "Pirineo Insurance wants to use AI in its operations. We will clone our spokesperson's face and voice for this year's adverts. We will build it in-house with our own data team. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G112",
+   "scenario": "deepfake_campaign",
+   "style": "disguised",
+   "role": "deployer",
+   "expected": "transparency",
+   "got": "minimal",
+   "proposal": "Pirineo Insurance wants to use AI in its operations. We will clone our spokesperson's face and voice for this year's adverts. We will license an off-the-shelf vendor tool for this. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G115",
+   "scenario": "ad_generation",
+   "style": "plain",
+   "role": "provider",
+   "expected": "transparency",
+   "got": "minimal",
+   "proposal": "Huesca Council wants to use AI in its operations. It generates marketing copy and visuals for every campaign. We will build it in-house with our own data team. Success is measured against last year's numbers."
+  },
+  {
+   "id": "G117",
+   "scenario": "ad_generation",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "transparency",
+   "got": "minimal",
+   "proposal": "Pirineo Insurance wants to use AI in its operations. The studio model produces campaign visuals on demand. We will build it in-house with our own data team. A project lead owns it and reports to the steering committee."
+  },
+  {
+   "id": "G119",
+   "scenario": "ad_generation",
+   "style": "disguised",
+   "role": "provider",
+   "expected": "transparency",
+   "got": "minimal",
+   "proposal": "Huesca Council wants to use AI in its operations. Every banner and caption in the campaign comes straight out of the model. We will build it in-house with our own data team. Success is measured against last year's numbers."
+  }
+ ]
+}
