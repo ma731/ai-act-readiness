@@ -15,5 +15,6 @@
   "aiact": "The EU AI Act, Regulation 2024/1689, sorts AI by risk. A few practices are banned outright, high-risk uses carry heavy duties, some systems only need to tell people they are AI, and the rest are left alone. The Digital Omnibus moved some of its dates.",
   "data": "The case study uses two official Spanish sources: the national health survey from INE, and the Osakidetza tariff to price care. The live page uses the European Commission's Public Sector Tech Watch catalogue, checked every morning.",
   "runs": "It runs on Azure OpenAI, Claude on Azure Foundry, or the Claude API. It also runs fully offline with a keyword reader and no key, which is what the free daily run uses.",
+  "idea": "Describe the idea in a sentence or two: what the AI does, and who it affects. I'll check it against the AI Act, show which of your words decided it, and ask a follow-up when an answer could change the verdict.",
   "fallback": "I can explain this page, the case study, the fairness evidence, the live EU data, how the screening works, or what high-risk means. Try one of the suggestions below."
 }

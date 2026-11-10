@@ -1,4 +1,5 @@
-// Numbers that count up once, and a small voice guide. Pre-recorded lines play as mp3
+// Numbers that count up once, and a small voice guide that can also check an idea against
+// the AI Act by running the site's own Python screener in the browser (Pyodide). Pre-recorded lines play as mp3
 // (same voice in every browser, works on Pages); anything else, like live numbers,
 // uses the best voice this browser has.
 (() => {
@@ -117,7 +118,7 @@
       <div class="g-log" aria-live="polite"></div>
       <div class="g-chips"></div>
       <form class="g-form"><label class="sr" for="g-q">Ask a question</label>
-        <input id="g-q" type="text" autocomplete="off" placeholder="Ask a question" maxlength="200">
+        <input id="g-q" type="text" autocomplete="off" placeholder="Ask a question or describe an AI idea" maxlength="600">
         <button type="button" class="g-icon g-mic" data-mic aria-label="Ask by voice" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
         <button type="submit" class="g-send">Ask</button></form>
     </div>
@@ -136,6 +137,87 @@
     const text = key === 'live' ? await liveAnswer() : (lines[key] || lines.fallback || '');
     add('bot', text); say(text, key === 'live' ? null : key);
   };
+  // ---- idea check: the real screener, in the browser ----
+  const PYODIDE = 'https://cdn.jsdelivr.net/pyodide/v0.27.2/full/';
+  const PY_FILES = ['src/__init__.py', 'src/rules.py', 'src/screener/__init__.py', 'src/screener/law.py',
+    'src/screener/readers.py', 'src/screener/pipeline.py', 'src/screener/ask.py'];
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const TIERS = { prohibited: 'Prohibited', high_risk: 'High-risk', transparency: 'Transparency', minimal: 'Minimal' };
+  let py = null, mode = 'ask', idea = null;
+  const engine = () => py || (py = (async () => {
+    await new Promise((res, rej) => {
+      const s = document.createElement('script'); s.src = PYODIDE + 'pyodide.js'; s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+    const pyo = await window.loadPyodide({ indexURL: PYODIDE });
+    pyo.FS.mkdirTree('/app/src/screener');
+    const texts = await Promise.all(PY_FILES.map(f => fetch(up + 'py/' + f).then(r => { if (!r.ok) throw new Error(f); return r.text(); })));
+    PY_FILES.forEach((f, i) => pyo.FS.writeFile('/app/' + f, texts[i]));
+    pyo.runPython("import sys; sys.path.insert(0, '/app')");
+    return pyo;
+  })().catch(err => { py = null; throw err; }));
+  const runCheck = async () => {
+    const pyo = await engine();
+    pyo.globals.set('_args', JSON.stringify(idea));
+    return JSON.parse(pyo.runPython('import json\nfrom src.screener.ask import check\n_a = json.loads(_args)\n'
+      + "json.dumps(check(_a['text'], _a['answers'], _a['asked']))"));
+  };
+  const day = iso => new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  const factLabel = x => x.fact === 'annex_iii' ? `Annex III ${x.value}${x.area ? ': ' + x.area.split(':')[0] : ''}`
+    : x.fact === 'prohibited' ? 'Art 5: ' + x.value.replace(/_/g, ' ') : x.fact === 'role' ? 'you are the ' + x.value : x.fact.replace(/_/g, ' ');
+  const card = (r, again) => {
+    const el = document.createElement('div');
+    el.className = 'g-card';
+    const quotes = {};
+    r.quotes.forEach(x => { (quotes[x.quote] = quotes[x.quote] || []).push(factLabel(x)); });
+    el.innerHTML = `${again ? '<p class="g-label">Updated with your answer</p>' : ''}
+      <span class="stamp ${esc(r.tier)}">${TIERS[r.tier] || esc(r.tier)}</span>
+      <p class="g-verdict">${esc(r.verdict)}.</p>
+      <p class="g-label">How I got there</p><ol class="g-steps">${r.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>
+      ${Object.keys(quotes).length ? `<p class="g-label">Your words that decided it</p><ul class="g-quotes">${Object.entries(quotes).map(([qt, fs]) =>
+        `<li><mark>${esc(qt)}</mark><span>${esc([...new Set(fs)].join(' · '))}</span></li>`).join('')}</ul>` : ''}
+      ${r.obligations.length ? `<p class="g-label">What you would have to do</p><ul class="g-obl">${r.obligations.map(o =>
+        `<li><b>${esc(o.article)}</b> ${esc(o.duty)} <span>${o.in_force ? 'applies now' : 'from ' + day(o.from)}</span></li>`).join('')}
+        ${r.more_obligations ? `<li class="g-more">and ${r.more_obligations} more</li>` : ''}</ul>` : ''}
+      ${r.review.length ? `<p class="g-flag">A person should check: ${esc(r.review.join('; '))}.</p>` : ''}
+      ${r.questions.map(qq => `<div class="g-ask"><p>${esc(qq.text)}</p><div>${qq.options.map(o =>
+        `<button type="button" data-q="${esc(qq.id)}" data-add="${esc(o.add)}">${esc(o.label)}</button>`).join('')}</div></div>`).join('')}
+      <p class="g-fine">First pass: the free keyword reader plus the law in code, the same engine as the rest of the site. Not legal advice.</p>`;
+    log.appendChild(el);
+    log.scrollTop = el.offsetTop - 8;   // show the verdict first, not the end of the card
+  };
+  const checkIdea = async again => {
+    const wait = document.createElement('p');
+    wait.className = 'g-msg bot g-wait';
+    wait.textContent = py ? 'Checking...' : 'Loading the rules engine. The first check downloads about 10 MB, then it is quick.';
+    log.appendChild(wait); log.scrollTop = log.scrollHeight;
+    try {
+      const r = await runCheck();
+      wait.remove(); card(r, again);
+      const next = r.questions[0] ? ' ' + r.questions[0].text : '';
+      say(`${TIERS[r.tier]}. ${r.verdict}.${next}`);
+    } catch (err) {
+      wait.textContent = 'I could not load the rules engine just now. Check the connection, or open the proposal intake page to see the same checks.';
+    }
+  };
+  const looksLikeIdea = text => text.split(/\s+/).length >= 6 && !/\?\s*$/.test(text)
+    && !/^(what|how|why|who|is|are|can|could|does|do|where|when|explain|tell|show)\b/i.test(text);
+  const startIdea = async () => {
+    mode = 'idea';
+    await load();
+    add('bot', lines.idea); say(lines.idea, 'idea');
+    engine().catch(() => {});   // start the download while they type
+    q.placeholder = 'For example: rank job applicants from their CVs';
+    q.focus({ preventScroll: true });
+  };
+  log.addEventListener('click', e => {
+    const b = e.target.closest('.g-ask button'); if (!b || !idea) return;
+    b.closest('.g-card').querySelectorAll('.g-ask button').forEach(x => { x.disabled = true; });
+    b.classList.add('picked');
+    idea.answers.push(b.dataset.add); idea.asked.push(b.dataset.q);
+    add('you', b.textContent); checkIdea(true);
+  });
+
   const route = text => {
     const t = text.toLowerCase();
     if (/this page|explain|here|what am i/.test(t)) return here;
@@ -143,7 +225,7 @@
     return hit ? hit[0] : 'fallback';
   };
   const setChips = () => {
-    chips.innerHTML = [['here', 'Explain this page'], ...(CHIPS[here] || CHIPS.intro).map(k => [k, LABEL[k]]), ['why', LABEL.why]]
+    chips.innerHTML = [['idea', 'Check an idea'], ['here', 'Explain this page'], ...(CHIPS[here] || CHIPS.intro).map(k => [k, LABEL[k]]), ['why', LABEL.why]]
       .map(([k, l]) => `<button type="button" data-k="${k}">${l}</button>`).join('');
   };
   const open = async () => {
@@ -157,12 +239,24 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) close(); });
   chips.addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
-    add('you', b.textContent); answer(b.dataset.k === 'here' ? here : b.dataset.k);
+    add('you', b.textContent);
+    if (b.dataset.k === 'idea') return startIdea();
+    mode = 'ask'; answer(b.dataset.k === 'here' ? here : b.dataset.k);
   });
   form.addEventListener('submit', e => {
     e.preventDefault();
     const text = q.value.trim(); if (!text) return;
-    q.value = ''; add('you', text); answer(route(text));
+    q.value = ''; add('you', text);
+    if (mode === 'idea' || looksLikeIdea(text)) {
+      mode = 'ask'; q.placeholder = 'Ask a question or describe an AI idea';
+      idea = { text: text.replace(/^(check|screen)( my idea)?:?\s*/i, ''), answers: [], asked: [] };
+      checkIdea(false);
+    } else answer(route(text));
+  });
+  document.addEventListener('click', async e => {
+    if (!e.target.closest('[data-guide="idea"]')) return;
+    if (panel.hidden) await open();
+    add('you', 'Check an idea'); startIdea();
   });
   const mute = wrap.querySelector('[data-mute]');
   mute.addEventListener('click', () => {
@@ -178,7 +272,7 @@
       stop();
       const r = new SR(); r.lang = 'en-US'; r.interimResults = false;
       mic.classList.add('on');
-      r.onresult = ev => { const text = ev.results[0][0].transcript; add('you', text); answer(route(text)); };
+      r.onresult = ev => { q.value = ev.results[0][0].transcript; form.requestSubmit(); };
       r.onend = r.onerror = () => mic.classList.remove('on');
       try { r.start(); } catch (e) { mic.classList.remove('on'); }
     });
