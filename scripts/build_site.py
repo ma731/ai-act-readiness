@@ -28,7 +28,7 @@ REPO = "https://github.com/ma731/ai-act-readiness"
 WORDS = {0: "No", 1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six"}
 TIER = {"prohibited": "Prohibited", "high_risk": "High-risk",
         "transparency": "Transparency", "minimal": "Minimal"}
-FONTS = ("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700"
+FONTS = ("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600"
          "&family=IBM+Plex+Mono:wght@400;500;600&display=swap")
 DOCS = [
     ("docs/01_classification.md", "Classification", "Which systems the Act catches, and why"),
@@ -62,7 +62,7 @@ ICONS = {
     "back": '<path d="M19 12H5M12 19l-7-7 7-7"/>',
 }
 APP_NAV = [
-    ("Screening", [("proposals.html", "Proposal intake", "inbox"), ("register.html", "Live register", "radio"),
+    ("Screening", [("proposals.html", "Proposal intake", "inbox"), ("cases.html", "EU public sector", "radio"),
                    ("stress.html", "Stress test", "flask")]),
     ("Cierzo assessment", [("inventory.html", "AI inventory", "grid"),
                            ("evidence.html", "Fairness evidence", "chart"),
@@ -104,12 +104,6 @@ def eu_flag(cls: str = "flag-eu") -> str:
         for i in range(12))
     return (f'<svg class="{cls}" viewBox="0 0 {w} {h}" role="img" aria-label="Flag of the European Union">'
             f'<rect width="{w}" height="{h}" fill="#003399"/><g fill="#FFCC00">{stars}</g></svg>')
-
-
-def nl_flag(cls: str = "flag-eu") -> str:
-    return (f'<svg class="{cls}" viewBox="0 0 9 6" role="img" aria-label="Flag of the Netherlands">'
-            '<rect width="9" height="2" fill="#AE1C28"/><rect y="2" width="9" height="2" fill="#fff"/>'
-            '<rect y="4" width="9" height="2" fill="#21468B"/></svg>')
 
 
 FAVICON = "data:image/svg+xml," + quote(LOGO_SVG.format(cls="f").replace('class="f" ', 'xmlns="http://www.w3.org/2000/svg" '))
@@ -156,7 +150,7 @@ def page(path: str, title: str, body: str, description: str, counts: dict | None
             links.append(f'<a href="{up}{href}"{cur}>{icon(ic)}<span>{e(name)}</span>{n}</a>')
         groups.append(f'<div class="navgroup"><span>{e(label)}</span>{"".join(links)}</div>')
     return f"""{head(title, description, up)}
-<body>
+<body data-page="{path}">
 <div class="app">
 <aside class="side">
   <a class="org" href="{up}index.html" title="{PRODUCT} home">{logo()}
@@ -183,6 +177,7 @@ def page(path: str, title: str, body: str, description: str, counts: dict | None
 </div>
 </div>
 <script>try {{ document.querySelector('.navgroup a[aria-current]').scrollIntoView({{ inline: 'center', block: 'nearest' }}); }} catch (e) {{}}</script>
+<script src="{up}site.js" data-up="{up}"></script>
 </body>
 </html>
 """
@@ -890,7 +885,7 @@ def landing() -> str:
   gets the same answer.</p>
   <p class="actions center"><a class="btn gold lg" href="proposals.html">Open the app</a>
   <a class="btn light lg" href="downloads/screening.xlsx">See a sample result</a></p>
-  {f'<a class="live" href="register.html"><span class="pulse" aria-hidden="true"></span><b>Live</b> Screening the Dutch public algorithm register · {reg["comparison"]["entries"]:,} entries · synced {_when(reg["synced"])}</a>' if reg else ""}
+  {f'<a class="live" href="cases.html"><span class="pulse" aria-hidden="true"></span><b>Live</b> {reg["summary"]["in_use"]:,} AI systems in EU public bodies, screened daily · checked {_day(reg["synced"])}</a>' if reg else ""}
   <p class="fine">Portfolio project. The companies are fictional; the law is current to {LEGAL_BASIS_DATE:%d %B %Y}. Not legal advice.</p>
 </section>
 
@@ -940,64 +935,63 @@ def landing() -> str:
 {js}
 {DEMO_JS}"""
     return f"""{head(f"{PRODUCT}: check AI ideas against the EU AI Act", "Screen AI use-case proposals against the EU AI Act: a model reads, code applies the law, people review the hard cases.", "")}
-<body class="landing">
+<body class="landing" data-page="index.html">
 {body}
+<script src="site.js" data-up=""></script>
 </body>
 </html>
 """
 
 
 def live_data() -> tuple[dict | None, dict | None]:
-    """The live register and stress-test results, if they exist."""
-    reg, st = ROOT / "results" / "live" / "nl_register.json", ROOT / "results" / "generated" / "stress_test.json"
-    return (json.loads(reg.read_text("utf-8")) if reg.exists() else None,
+    """The live EU cases and stress-test results, if they exist."""
+    cs, st = ROOT / "results" / "live" / "eu_cases.json", ROOT / "results" / "generated" / "stress_test.json"
+    return (json.loads(cs.read_text("utf-8")) if cs.exists() else None,
             json.loads(st.read_text("utf-8")) if st.exists() else None)
 
 
-def register_json(reg: dict) -> str:
-    """The register list the page loads; details live in data/r/<id>.json."""
-    rows = [{"i": r["id"], "t": r["title"], "o": r["company"], "d": r["declared"], "s": r["tier"],
-             "a": r["articles"][:4], "v": int(r["needs_review"]), "p": r["published"], "c": r.get("category", "")}
-            for r in reg["results"]]
-    return json.dumps({"synced": reg["synced"], "reader": reg.get("reader", ""), "rows": rows},
+def cases_json(cs: dict) -> str:
+    """The list the cases page loads; details live in data/c/<id>.json."""
+    rows = [{"i": r["id"], "t": r["title"], "o": r["company"], "c": r["country"], "s": r["tier"],
+             "a": r["articles"][:4], "v": int(r["needs_review"]), "p": r["updated"], "st": r["status"],
+             "f": r.get("area", "")} for r in cs["results"]]
+    return json.dumps({"synced": cs["synced"], "reader": cs.get("reader", ""), "rows": rows},
                       ensure_ascii=False, separators=(",", ":"))
 
 
-def register_details(reg: dict, out: Path) -> None:
+def cases_details(cs: dict, out: Path) -> None:
     out.mkdir(parents=True, exist_ok=True)
-    for r in reg["results"]:
-        d = {"u": r["url"], "st": r.get("status", ""), "x": r["proposal"],
+    for r in cs["results"]:
+        d = {"u": r["url"], "k": r.get("kind", ""), "y": r.get("start", ""), "x": r["proposal"],
              "f": [[ev["fact"], str(ev["value"]), ev["quote"]] for ev in r["evidence"]], "w": r["review_reasons"]}
         (out / f"{r['id']}.json").write_text(json.dumps(d, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
 
-DECL = {"high_risk": "Declared high-risk", "impactful": "Impactful", "other": "Other"}
-
-REGISTER_JS = """<script>
+CASES_JS = """<script>
 (async () => {
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const TIER = {prohibited:'Prohibited', high_risk:'High-risk', transparency:'Transparency', minimal:'Minimal'};
-  const DECL = {high_risk:'Declared high-risk', impactful:'Impactful', other:'Other'};
   const list = document.getElementById('rg-list'), more = document.getElementById('rg-more');
-  const shown = document.getElementById('shown'), q = document.getElementById('rg-q');
+  const shown = document.getElementById('shown'), q = document.getElementById('rg-q'), ctry = document.getElementById('rg-c');
   let data;
-  try { data = await (await fetch('data/register.json')).json(); }
-  catch (e) { list.innerHTML = '<li class="empty">Could not load the register data.</li>'; return; }
-  const rows = data.rows; let filter = 'all', page = 60, view = rows;
+  try { data = await (await fetch('data/cases.json')).json(); }
+  catch (e) { list.innerHTML = '<li class="empty">Could not load the case data. Try reloading the page.</li>'; return; }
+  const rows = data.rows; let filter = 'use', page = 60, view = rows;
   const sev = s => s === 'high_risk' || s === 'prohibited';
-  const match = r => filter === 'all' || (filter === 'declared' && r.d === 'high_risk') || (filter === 'flagged' && sev(r.s))
-    || (filter === 'disagree' && (sev(r.s) !== (r.d === 'high_risk'))) || (filter === 'review' && r.v);
+  const inUse = r => r.st === 'Implemented' || r.st === 'Pilot';
+  const match = r => filter === 'all' || (filter === 'use' && inUse(r)) || (filter === 'flagged' && inUse(r) && sev(r.s))
+    || (filter === 'transparency' && inUse(r) && r.s === 'transparency') || (filter === 'review' && inUse(r) && r.v);
   function render() {
-    const term = q.value.trim().toLowerCase();
-    view = rows.filter(r => match(r) && (!term || (r.t + ' ' + r.o + ' ' + r.c).toLowerCase().includes(term)));
+    const term = q.value.trim().toLowerCase(), c = ctry.value;
+    view = rows.filter(r => match(r) && (!c || r.c === c) && (!term || (r.t + ' ' + r.o + ' ' + r.f).toLowerCase().includes(term)));
     list.innerHTML = view.slice(0, page).map((r, n) => `<li class="pv" data-k="${n}"><button type="button" class="pv-row">
-      <span class="sid">${esc(r.p.slice(5))}</span>
-      <span class="pv-main"><span class="pv-title">${esc(r.t)}${r.d === 'high_risk' ? '<span class="flag rv">Declared high-risk</span>' : ''}</span>
-      <span class="pv-co">${esc(r.o)}</span></span>
+      <span class="sid">${esc(r.c)}</span>
+      <span class="pv-main"><span class="pv-title">${esc(r.t)}</span>
+      <span class="pv-co">${esc(r.o)}${r.st ? ' · ' + esc(r.st) : ''}</span></span>
       <span class="stamp ${esc(r.s)}">${TIER[r.s] || esc(r.s)}</span>
       <span class="pv-arts">${esc(r.a.join(', '))}</span>
       <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></li>`).join('')
-      || '<li class="empty">Nothing matches.</li>';
+      || '<li class="empty">No case matches. Clear the search or pick another filter.</li>';
     shown.textContent = `${view.length.toLocaleString()} of ${rows.length.toLocaleString()}`;
     more.hidden = view.length <= page;
   }
@@ -1006,6 +1000,7 @@ REGISTER_JS = """<script>
     filter = c.dataset.filter; page = 60; render();
   }));
   let t; q.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { page = 60; render(); }, 120); });
+  ctry.addEventListener('change', () => { page = 60; render(); });
   more.addEventListener('click', () => { page += 120; render(); });
 
   const drawer = document.getElementById('drawer'), scrim = document.getElementById('scrim'), inner = document.getElementById('dr-inner');
@@ -1019,25 +1014,23 @@ REGISTER_JS = """<script>
       const facts = r.f.filter(f => norm(s).includes(norm(f[2]))).map(f => `<span class="fchip">${esc(f[0] === 'annex_iii' ? 'Annex III ' + f[1] : f[0] === 'role' ? f[1] : f[0].replace(/_/g, ' '))}</span>`);
       return hit ? `<mark>${esc(s)}</mark><span class="fchips">${[...new Set(facts)].join('')}</span>` : `<span class="dim">${esc(s)}</span>`;
     }).join(' ');
-    const agree = sev(r.s) === (r.d === 'high_risk');
-    return `<div class="dr-head"><span class="sid">${esc(r.p)} · ${esc(r.st)}</span><h2 id="dr-title">${esc(r.t)}</h2>
-      <span class="co">${esc(r.o)}</span><span><span class="stamp ${esc(r.s)}">${TIER[r.s]}</span> <span class="decl ${r.d === 'high_risk' ? 'hr' : ''}">${DECL[r.d]}</span></span>
+    return `<div class="dr-head"><span class="sid">${esc(r.c)} · ${esc(r.st)}${r.y ? ' · since ' + esc(r.y) : ''}</span><h2 id="dr-title">${esc(r.t)}</h2>
+      <span class="co">${esc(r.o)}${r.k ? ' · ' + esc(r.k) : ''}</span><span><span class="stamp ${esc(r.s)}">${TIER[r.s]}</span></span>
       <button type="button" class="x" data-close aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
       <div class="dr-body">
-      <div class="${agree ? 'agree' : 'review'}"><b>${agree ? 'Screener and register agree' : 'Screener and register disagree'}</b>
-      <p>${agree ? 'The body\\'s own category and the screener point the same way.' : (sev(r.s) ? 'The screener reads this as high-risk; the body did not declare it so. Worth reading, not a finding.' : 'The body declared this high-risk; the screener did not find an Annex III use in the text.')}</p></div>
-      ${r.w.length ? `<p class="label">Open questions</p><ul class="trace">${r.w.map(w => `<li>${esc(w)}</li>`).join('')}</ul>` : ''}
-      <p class="label">Register text (Dutch)</p><p class="proposal">${text}</p>
+      ${r.w.length ? `<p class="label">Open questions for a person</p><ul class="trace">${r.w.map(w => `<li>${esc(w)}</li>`).join('')}</ul>` : ''}
+      <p class="label">Case description (European Commission catalogue)</p><p class="proposal">${text}</p>
       <p class="label">Articles</p><p class="arts">${r.a.map(a => `<span class="fchip">${esc(a)}</span>`).join('') || '<span class="muted small">None</span>'}</p>
-      <p><a class="more" href="${esc(r.u)}" target="_blank" rel="noopener">Read the entry on algoritmes.overheid.nl</a></p></div>`;
+      <p class="small muted">Catalogue entry updated ${esc(r.p)}.</p>
+      ${r.u ? `<p><a class="more" href="${esc(r.u)}" target="_blank" rel="noopener">Read about it at the source</a></p>` : ''}</div>`;
   }
   const cache = {};
   async function open(k) {
     const base = view[k]; if (!base) return;
     cur = k;
     if (!cache[base.i]) {
-      try { cache[base.i] = await (await fetch(`data/r/${encodeURIComponent(base.i)}.json`)).json(); }
-      catch (e) { cache[base.i] = { u: '#', st: '', x: '', f: [], w: ['Could not load this entry.'] }; }
+      try { cache[base.i] = await (await fetch(`data/c/${encodeURIComponent(base.i)}.json`)).json(); }
+      catch (e) { cache[base.i] = { u: '', k: '', y: '', x: '', f: [], w: ['Could not load this case.'] }; }
     }
     if (cur !== k) return;
     const r = { ...base, ...cache[base.i] };
@@ -1075,67 +1068,83 @@ def _when(iso: str) -> str:
         return iso
 
 
-def register_page(reg: dict) -> str:
-    c = reg["comparison"]
-    rows = reg["results"]
-    flagged = c["screened_high_risk_or_prohibited"]
-    disagree = c["flagged_not_declared"] + (c["declared_high_risk"] - c["agree_on_declared"])
-    review = sum(r["needs_review"] for r in rows)
-    chips = [("all", "All", len(rows)), ("declared", "Declared high-risk", c["declared_high_risk"]),
-             ("flagged", "Screener high-risk", flagged), ("disagree", "Disagree", disagree), ("review", "Needs review", review)]
+def _day(ymd: str) -> str:
+    from datetime import datetime as _dt
+    try:
+        return _dt.strptime(ymd[:10], "%Y-%m-%d").strftime("%d %b %Y")
+    except ValueError:
+        return ymd
+
+
+def count(n: int | float, fmt: str = "{:,}") -> str:
+    """A number that counts up when it scrolls into view (site.js); the text is the real value."""
+    return f'<span class="num" data-count="{n}">{fmt.format(n)}</span>'
+
+
+def cases_page(cs: dict) -> str:
+    s = cs["summary"]
+    rows = cs["results"]
+    tiers = s["tiers"]
+    hr = s["high_risk_or_prohibited"]
+    in_use = [r for r in rows if r["status"] in ("Implemented", "Pilot")]
+    chips = [("use", "In use or piloted", s["in_use"]), ("flagged", "Looks high-risk", hr),
+             ("transparency", "Transparency only", tiers.get("transparency", 0)),
+             ("review", "Needs a person", sum(r["needs_review"] for r in in_use)), ("all", "All, incl. retired", len(rows))]
     filters = "".join(
-        f'<button type="button" class="chip" data-filter="{k}" aria-pressed="{"true" if k == "all" else "false"}">'
+        f'<button type="button" class="chip" data-filter="{k}" aria-pressed="{"true" if k == "use" else "false"}">'
         f'{e(label)}<span class="n">{n:,}</span></button>' for k, label, n in chips)
-    # declared x screened matrix
-    tiers = ["prohibited", "high_risk", "transparency", "minimal"]
-    from collections import Counter as _C
-    m = _C((r["declared"], r["tier"]) for r in rows)
-    head = "".join(f"<th>{TIER[t]}</th>" for t in tiers)
-    body_rows = "".join(
-        f"<tr><td><b>{DECL[d]}</b></td>" + "".join(
-            f"<td class='cell{' hot' if (d == 'high_risk') == (t in ('high_risk', 'prohibited')) and m[(d, t)] else ''}'>{m[(d, t)]:,}</td>"
-            for t in tiers) + "</tr>" for d in ("high_risk", "impactful", "other"))
-    areas = c["by_area"]
-    amax = max(areas.values()) if areas else 1
+    countries = sorted({r["country"] for r in rows})
+    opts = '<option value="">All countries</option>' + "".join(f'<option>{e(c)}</option>' for c in countries)
+    amax = max((n for _, n, _ in s["by_area"]), default=1)
+    areas = "".join(
+        f"<li><span class='fa'>{e(a)}</span><span class='fb' role='img' aria-label='{n} in use, {h} look high-risk'>"
+        f"<i style='width:{n / amax * 100:.1f}%'></i><b style='width:{h / amax * 100:.1f}%'></b></span>"
+        f"<span class='fv mono'>{h}<small> / {n}</small></span></li>" for a, n, h in s["by_area"])
     from src.screener.law import ANNEX_III as _A3
+    annex = s["by_annex"]
+    xmax = max(annex.values()) if annex else 1
     bars = "".join(
         f"<li><span class='ar'>{e(k.replace('Annex III ', ''))}</span><span class='an'>{e(_A3.get(k.replace('Annex III ', ''), ''))}</span>"
-        f"<span class='ab'><i style='width:{v / amax * 100:.1f}%'></i></span><span class='av mono'>{v}</span></li>"
-        for k, v in areas.items())
+        f"<span class='ab'><i style='width:{v / xmax * 100:.1f}%'></i></span><span class='av mono'>{v}</span></li>"
+        for k, v in annex.items())
+    share = hr / s["in_use"] if s["in_use"] else 0
     body = f"""
 <section class="hero"><div class="page-head"><div>
-<p class="kicker">{nl_flag()} <span class="pulse" aria-hidden="true"></span> Live · synced {_when(reg['synced'])}</p>
-<h1>Dutch public algorithm register</h1>
-<p class="lede">Every algorithm a Dutch public body has published on <a href="https://algoritmes.overheid.nl">algoritmes.overheid.nl</a>,
-screened every morning. Each body also states its own category; {c['declared_high_risk']} call their system a high-risk AI system.
-Here is where the screener agrees, and where it does not.</p></div>
-<div class="actions"><a class="btn ghost" href="https://algoritmes.overheid.nl" target="_blank" rel="noopener">Open the register</a></div></div>
+<p class="kicker">{eu_flag()} <span class="pulse" aria-hidden="true"></span> Live · Commission file of {_day(s['newest'])} · checked {_when(cs['synced'])}</p>
+<h1>AI already at work in Europe's public sector</h1>
+<p class="lede why">These are real AI systems that public bodies across the EU run today, as catalogued by the European Commission.
+Screening each one shows a company getting ready for the AI Act which everyday uses the law treats as high-risk, which only need
+a notice to users, and which it leaves alone.</p></div>
+<div class="actions"><a class="btn ghost" href="{e(cs.get('page', ''))}" target="_blank" rel="noopener">Open the dataset</a></div></div>
 <div class="facts">
-<div class="fact"><b>{c['entries']:,}</b><span>entries screened</span></div>
-<div class="fact"><b>{c['agree_on_declared']} <small>of {c['declared_high_risk']}</small></b><span>declared high-risk the screener also flags</span></div>
-<div class="fact"><b>{c['flagged_not_declared']:,}</b><span>flagged but not declared: worth a read</span></div>
-<div class="fact"><b>{review:,}</b><span>open questions for a person</span></div>
+<div class="fact"><b>{count(s['in_use'])}</b><span>cases in use or piloted, in {s['countries'] - 1} member states and EU bodies</span></div>
+<div class="fact alert"><b>{count(hr)}</b><span>look high-risk or worse on a first pass ({share:.0%})</span></div>
+<div class="fact"><b>{count(tiers.get('transparency', 0))}</b><span>only need to tell people they are talking to AI</span></div>
+<div class="fact"><b>{count(tiers.get('minimal', 0))}</b><span>fall outside the AI Act's duties</span></div>
 </div></section>
 <div class="two">
-{sec("", "Declared against screened", "Rows: the body's own category. Columns: the screener. Shaded cells are where the two agree on high-risk or not.",
-     f"<div class='table-wrap'><table class='matrix'><thead><tr><th></th>{head}</tr></thead><tbody>{body_rows}</tbody></table></div>")}
-{sec("", "Where the screener sees high-risk uses", "Annex III areas behind the high-risk calls.", f"<ol class='areas'>{bars}</ol>")}
+{sec("", "Where the high-risk uses sit", "By government function. The bright part of each bar is the share that looks high-risk.",
+     f"<ol class='funcs'>{areas}</ol>")}
+{sec("", "Which part of Annex III", "The high-risk areas behind those calls.", f"<ol class='areas'>{bars}</ol>")}
 </div>
 <section><div class="sec-body">
-  <div class="toolbar"><div class="filters" role="group" aria-label="Filter entries">{filters}</div>
-  <input id="rg-q" class="search" type="search" placeholder="Search name, body or theme" aria-label="Search the register">
+  <div class="toolbar"><div class="filters" role="group" aria-label="Filter cases">{filters}</div>
+  <label class="sr" for="rg-c">Country</label><select id="rg-c" class="search sel">{opts}</select>
+  <input id="rg-q" class="search" type="search" placeholder="Search name, body or function" aria-label="Search the cases">
   <p class="shown mono" id="shown" aria-live="polite"></p></div>
-  <div class="pvs-head" aria-hidden="true"><span>Published</span><span>Algorithm</span><span>Screener</span><span>Articles</span><span></span></div>
-  <ol class="pvs" id="rg-list"><li class="empty">Loading the register...</li></ol>
+  <div class="pvs-head" aria-hidden="true"><span>Country</span><span>Case</span><span>Screener</span><span>Articles</span><span></span></div>
+  <ol class="pvs" id="rg-list"><li class="empty">Loading the cases...</li></ol>
   <p class="actions" style="margin-top:12px"><button type="button" class="btn ghost" id="rg-more" hidden>Show more</button></p>
 </div></section>
 {sec("", "Read these numbers with care", "", f'''<div class="prose"><ul>
-<li><b>Not every entry is an AI system.</b> The register lists rule-based algorithms too; the AI Act covers AI systems only
-(Art 3(1)), and the screener does not decide that question.</li>
-<li><b>A declaration is not a ruling.</b> A disagreement is a case to read. Some go the screener's way: one municipality declares a
-face <i>match</i> against an ID document as high-risk, but Annex III 1(a) excludes 1:1 verification.</li>
-<li><b>Read by: {e(reg.get('reader', ''))}.</b> The keyword reader cannot handle negation ("no facial recognition is used")
-or paraphrase; see the <a href="stress.html">stress test</a>. With a model reader configured, the daily run re-reads every entry.</li>
+<li><b>Source.</b> <a href="{e(cs.get('page', ''))}">Public Sector Tech Watch</a>, the European Commission's catalogue of AI in
+public administrations (DIGIT and the Joint Research Centre). Only AI cases in EU member states and EU bodies are kept. The Commission
+publishes a new file about once a month; this page checks for one every morning and only re-reads cases that changed.</li>
+<li><b>A summary is not a system.</b> Each case is a description written for the catalogue, so the tier is a first pass that a
+person should confirm, not a finding about the body that runs it.</li>
+<li><b>Read by: {e(cs.get('reader', ''))}.</b> The keyword reader over-calls some cases (a call-centre tool that routes by
+"sentiment" reads as emotion recognition) and misses paraphrase; see the <a href="stress.html">stress test</a>. With a model
+reader configured, the daily run re-reads every case.</li>
 </ul></div>''')}
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dr-title" aria-hidden="true">
@@ -1143,10 +1152,10 @@ or paraphrase; see the <a href="stress.html">stress test</a>. With a model reade
   <div class="dr-nav"><button type="button" class="btn ghost" id="prev">Previous</button>
   <button type="button" class="btn ghost" id="next">Next</button></div>
 </aside>
-{REGISTER_JS}"""
-    return page("register.html", f"Live register · {PRODUCT}", body,
-                "The Dutch public algorithm register, screened against the EU AI Act every day and compared with each body's own category.",
-                counts={"register.html": f"{c['entries']:,}"})
+{CASES_JS}"""
+    return page("cases.html", f"EU public-sector AI · {PRODUCT}", body,
+                "Real AI systems run by public bodies across the EU, from the European Commission's catalogue, screened against the AI Act every day.",
+                counts={"cases.html": f"{s['in_use']:,}"})
 
 
 def stress_page(st: dict) -> str:
@@ -1272,13 +1281,15 @@ def measured_html(reg: dict | None, st: dict | None, n_samples: int) -> str:
 <span><em>Disguised</em><i><s class="hot" style="width:{d * 100:.0f}%"></s></i><b>{d:.0%}</b></span></div>
 <p>Hand-labelled scenarios, phrased plainly and in disguise. Disguise is where a keyword reader breaks.</p></a>""")
     if reg:
-        c = reg["comparison"]
-        cards.append(f"""<a class="m" href="register.html"><span class="mk"><span class="pulse" aria-hidden="true"></span> Live register</span>
-<b>{c['agree_on_declared']} <small>of {c['declared_high_risk']}</small></b>
-<p>self-declared high-risk AI systems the screener also flags, across {c['entries']:,} Dutch public algorithms. Re-screened daily.</p></a>""")
+        s = reg["summary"]
+        cards.append(f"""<a class="m live-card" href="cases.html"><span class="mk"><span class="pulse" aria-hidden="true"></span> EU public sector, live</span>
+<b>{count(s['high_risk_or_prohibited'])} <small>of {s['in_use']:,}</small></b>
+<p>AI systems that EU public bodies run today look high-risk on a first pass. Data: European Commission, file of {_day(s['newest'])}.</p></a>""")
     return f"""<section class="sblock" id="measured"><h2>Measured, not claimed.</h2>
 <p class="ssub">Every number below is recomputed by the daily run, including the ones that make the free reader look bad.</p>
-<div class="meas">{"".join(cards)}</div></section>"""
+<div class="meas">{"".join(cards)}</div>
+<p class="why-now">Why now: Accenture's <i>Future of Work Trends 2026</i> finds that jobs asking for AI governance skills roughly
+tripled between 2022 and 2025 (p. 35). Checking AI ideas early is becoming a routine business task, not a one-off legal review.</p></section>"""
 
 
 def main() -> int:
@@ -1287,6 +1298,8 @@ def main() -> int:
         shutil.rmtree(OUT)
     OUT.mkdir()
     shutil.copy(ROOT / "site_src" / "style.css", OUT / "style.css")
+    shutil.copy(ROOT / "site_src" / "site.js", OUT / "site.js")
+    shutil.copytree(ROOT / "site_src" / "guide", OUT / "guide")
     pages = {
         "index.html": landing(),
         "inventory.html": inventory(systems, results, rows, ev),
@@ -1294,14 +1307,14 @@ def main() -> int:
         "roadmap.html": roadmap_page(rows),
         "proposals.html": proposals_page(),
         "documents.html": documents_page(),
-        **({"register.html": register_page(live_data()[0])} if live_data()[0] else {}),
+        **({"cases.html": cases_page(live_data()[0])} if live_data()[0] else {}),
         **({"stress.html": stress_page(live_data()[1])} if live_data()[1] else {}),
     }
     (OUT / "downloads").mkdir()
     (OUT / "data").mkdir()
     if live_data()[0]:
-        (OUT / "data" / "register.json").write_text(register_json(live_data()[0]), encoding="utf-8")
-        register_details(live_data()[0], OUT / "data" / "r")
+        (OUT / "data" / "cases.json").write_text(cases_json(live_data()[0]), encoding="utf-8")
+        cases_details(live_data()[0], OUT / "data" / "c")
     if (ROOT / "data" / "generated_proposals.csv").exists():
         shutil.copy(ROOT / "data" / "generated_proposals.csv", OUT / "downloads" / "generated_proposals.csv")
     shutil.copy(ROOT / "results" / "proposals" / "screening.xlsx", OUT / "downloads" / "screening.xlsx")

@@ -99,24 +99,30 @@ Sixteen hand-written samples cannot show whether the screener reads well. Two mo
 
 | | What | Measured |
 |---|---|---|
-| [Live register](https://ma731.github.io/ai-act-readiness/register.html) | Every algorithm Dutch public bodies publish on [algoritmes.overheid.nl](https://algoritmes.overheid.nl), screened and compared with the category each body chose itself (44 call theirs a high-risk AI system) | <!-- BEGIN:live --> 1,633 entries; the keyword reader also flags 18 of the 44 declared high-risk systems <!-- END:live --> |
+| [EU public sector](https://ma731.github.io/ai-act-readiness/cases.html) | Every AI case in the European Commission's [Public Sector Tech Watch](https://data.europa.eu/data/datasets/e8e7bddd-8510-4936-9fa6-7e1b399cbd92) catalogue from EU member states and EU bodies: real systems public bodies run today, each with an English description | 1,360 cases in use or piloted (file of 2026-09-24); the keyword reader calls 250 of them high-risk or worse on a first pass |
 | [Stress test](https://ma731.github.io/ai-act-readiness/stress.html) | 160 generated proposals over 20 scenarios with hand-written answers, each phrased plainly and in disguise ("a wellbeing layer" for emotion recognition) | keyword reader: 96% on plain wording, 32% on disguised; 48 prohibited or high-risk proposals called milder |
 
-That gap is the case for a model reader, and the quote check is what makes one safe to use.
-Two caveats travel with the register numbers: it lists rule-based algorithms that are not AI
-systems under Art 3(1), and a body's own category is a declaration, not a ruling.
+The EU cases show a company which everyday uses the AI Act treats as high-risk, which only need a
+notice to users, and which it leaves alone. A case is a summary written for the catalogue, so the
+tier is a first pass for a person to confirm, not a finding about the body that runs it. The
+stress-test gap is the case for a model reader, and the quote check is what makes one safe to use.
 
 ```bash
-python -m scripts.live_register          # download the register, screen what is new or changed
+python -m scripts.live_cases             # download the newest catalogue file, screen what is new or changed
 python -m scripts.stress_test            # generate the test set and score the reader
 python -m scripts.stress_test --rewrite 20   # plus 20 model-rewritten proposals (needs a model)
 ```
 
-**Auto-update.** The `pages` workflow runs every morning: it pulls the register, screens only
-entries that are new, changed, or were read by an older reader, re-runs the stress test, keeps the
-results on the `live-data` branch (so no bot writes to `main`), and redeploys the site. Add the
-Azure OpenAI or Foundry variables from the table above as repository secrets and the daily run
-uses that model instead of the keyword reader.
+**Auto-update.** The `pages` workflow runs every morning: it asks data.europa.eu for the newest
+catalogue file, screens only cases that are new, edited, or were read by an older reader, re-runs
+the stress test, keeps the results on the `live-data` branch (so no bot writes to `main`), and
+redeploys the site. Add the Azure OpenAI or Foundry variables from the table above as repository
+secrets and the daily run uses that model instead of the keyword reader.
+
+**Voice guide.** Every page has a guide (bottom right) that explains the page, the case study and
+the live data, and takes typed or spoken questions. Its lines are pre-recorded with a free neural
+voice (`python scripts/build_voice.py`, edge-tts, en-US-AvaNeural) and committed, so it works on
+GitHub Pages; answers with live numbers use the browser's own voice.
 
 ## Where the data comes from
 
