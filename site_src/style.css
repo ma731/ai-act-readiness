@@ -906,3 +906,42 @@ body.landing .snav { background: color-mix(in srgb, var(--bg) 82%, transparent);
   .g-panel, .orb { transition: none; }
 }
 @media print { .guide { display: none; } }
+
+/* ---------- guide: idea check result ---------- */
+.g-panel { width: min(420px, calc(100vw - 32px)); max-height: min(640px, calc(100dvh - 110px)); }
+.g-card { border: 1px solid #22302c; background: #0f1513; border-radius: 12px; padding: 12px 14px; font-size: 13.5px; line-height: 1.5;
+  color: #dfe7e3; animation: card-in 240ms var(--ease-out); }
+@keyframes card-in { from { opacity: 0; transform: translateY(6px); } }
+.g-card .stamp { font-size: 12.5px; }
+.g-verdict { margin: 8px 0 4px; font: 600 15px/1.35 var(--display); color: #fff; }
+.g-label { margin: 12px 0 4px; font-size: 12px; font-weight: 600; color: #8fa39b; }
+.g-steps, .g-quotes, .g-obl { margin: 0; padding: 0 0 0 18px; display: grid; gap: 4px; }
+.g-quotes, .g-obl { list-style: none; padding: 0; }
+.g-quotes li { display: grid; gap: 2px; }
+.g-quotes mark { background: rgba(255, 212, 59, 0.2); color: #fff3c4; border-radius: 3px; padding: 0 2px;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.g-quotes span { font: 12px var(--mono); color: #a3e635; }
+.g-obl li { padding-left: 0; }
+.g-obl b { font: 600 12px var(--mono); color: #2dd4bf; margin-right: 4px; }
+.g-obl span { display: block; font-size: 12px; color: #8b9893; }
+.g-more { font-size: 12px; color: #8b9893; }
+.g-flag { margin: 12px 0 0; padding: 8px 10px; border-radius: 8px; background: rgba(245, 177, 76, 0.1); color: #f5c77e; font-size: 13px; }
+.g-ask { margin-top: 12px; padding-top: 10px; border-top: 1px solid #1f2a27; }
+.g-ask p { margin: 0 0 8px; font-weight: 600; color: #fff; }
+.g-ask div { display: flex; flex-wrap: wrap; gap: 6px; }
+.g-ask button { border: 1px solid rgba(52, 211, 153, 0.45); background: rgba(52, 211, 153, 0.08); color: #c9f5e2; border-radius: 999px;
+  padding: 6px 12px; font: 500 13px var(--sans); cursor: pointer; transition: background-color 150ms ease, transform 160ms var(--ease-out); }
+@media (hover: hover) and (pointer: fine) { .g-ask button:not(:disabled):hover { background: rgba(52, 211, 153, 0.18); } }
+.g-ask button:active:not(:disabled) { transform: scale(0.97); }
+.g-ask button:disabled { opacity: 0.45; cursor: default; }
+.g-ask button.picked { opacity: 1; background: #34d399; color: #04120c; border-color: #34d399; }
+.g-fine { margin: 12px 0 0; font-size: 11.5px; color: #75837e; }
+.g-wait { color: #8fa39b; }
+.try { margin-top: 18px; }
+@media (prefers-reduced-motion: reduce) { .g-card { animation: none; } }
+@media (max-width: 640px) {
+  .g-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .g-chips button { flex: none; }
+}
+.g-head, .g-chips, .g-form { flex: none; }
+.g-log { position: relative; }

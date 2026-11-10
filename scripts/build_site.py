@@ -905,6 +905,7 @@ def landing() -> str:
   <p class="ssub">Highlighted sentences are the ones the reader quoted. A fact with no real quote never reaches the law.</p>
   <div class="seg" role="tablist" aria-label="Example proposals"><span class="seg-ind" aria-hidden="true"></span>{tabs}</div>
   <div class="ex-wrap">{panels}</div>
+  <p class="actions center try"><button type="button" class="btn lg" data-guide="idea">Check your own idea</button></p>
 </section>
 
 <section class="sblock" id="how">
@@ -1300,6 +1301,11 @@ def main() -> int:
     shutil.copy(ROOT / "site_src" / "style.css", OUT / "style.css")
     shutil.copy(ROOT / "site_src" / "site.js", OUT / "site.js")
     shutil.copytree(ROOT / "site_src" / "guide", OUT / "guide")
+    # the screener itself, so the guide can check a typed idea in the browser (Pyodide)
+    for f in ("src/__init__.py", "src/rules.py", "src/screener/__init__.py", "src/screener/law.py",
+              "src/screener/readers.py", "src/screener/pipeline.py", "src/screener/ask.py"):
+        (OUT / "py" / f).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(ROOT / f, OUT / "py" / f)
     pages = {
         "index.html": landing(),
         "inventory.html": inventory(systems, results, rows, ev),
