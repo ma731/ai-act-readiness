@@ -1,7 +1,8 @@
 name: pages
 
-# Rebuild and publish the site. Every day it also pulls the Dutch public algorithm register,
-# screens what is new or changed, re-runs the stress test, and keeps the results on the
+# Rebuild and publish the site. Every day it also pulls the European Commission's catalogue of
+# AI in the EU public sector (Public Sector Tech Watch), screens what is new or changed,
+# re-runs the stress test, and keeps the results on the
 # `live-data` branch so main is never written to by a bot.
 #
 # Optional repository secrets turn on a model reader (otherwise the keyword reader runs):
@@ -47,12 +48,13 @@ jobs:
             git fetch -q origin live-data
             git checkout origin/live-data -- results/live results/generated || true
             git reset -q
+            rm -f results/live/nl_register.json   # retired source
           fi
 
-      - name: Screen the Dutch algorithm register
+      - name: Screen the EU public-sector AI cases
         if: github.event_name != 'push'
         continue-on-error: true
-        run: python -m scripts.live_register ${{ vars.SCREENER_DAILY_LIMIT && format('--limit {0}', vars.SCREENER_DAILY_LIMIT) || '' }}
+        run: python -m scripts.live_cases ${{ vars.SCREENER_DAILY_LIMIT && format('--limit {0}', vars.SCREENER_DAILY_LIMIT) || '' }}
 
       - name: Stress test on generated proposals
         if: github.event_name != 'push'

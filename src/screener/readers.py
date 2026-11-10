@@ -84,7 +84,7 @@ RULES: list[tuple[str, object, str]] = [
     ("annex_iii", "1a", r"(facial recognition|face recognition).{0,80}(identif|crowd|public)"),
     ("annex_iii", "1c", r"(emotion|stress|mood|sentiment).{0,60}(voice|face|facial|camera|webcam)|(voice|face|facial|camera|webcam).{0,60}(emotion|stress|mood)"),
     ("annex_iii", "7", r"(asylum|visa|border control|migrant)"),
-    ("annex_iii", "8a", r"(judge|court|sentenc)"),
+    ("annex_iii", "8a", r"(\bjudges?\b|\bcourts?\b|sentencing|judicial)"),
     ("annex_iii", "8b", r"(voter|election|electoral)"),
     ("annex_i_safety_component", True, r"(medical device|braking|machinery|lift safety|toy safety|insulin pump)"),
     ("interacts_with_people", True, r"(chatbot|virtual assistant|voice assistant|talks? (to|with) (customers|users|children)|conversational)"),
