@@ -63,7 +63,8 @@ ICONS = {
 }
 APP_NAV = [
     ("Screening", [("proposals.html", "Proposal intake", "inbox"), ("cases.html", "EU public sector", "radio"),
-                   ("stress.html", "Stress test", "flask")]),
+                   ("stress.html", "Stress test", "flask"),
+                   ("supply.html", "Supply chain", "grid")]),
     ("Cierzo assessment", [("inventory.html", "AI inventory", "grid"),
                            ("evidence.html", "Fairness evidence", "chart"),
                            ("roadmap.html", "Obligations", "calendar"),
@@ -1159,6 +1160,67 @@ reader configured, the daily run re-reads every case.</li>
                 counts={"cases.html": f"{s['in_use']:,}"})
 
 
+def supply_page() -> str:
+    """Supply-chain AI ideas, each with a hand-written answer, the screener's call, a redesign and what is at stake."""
+    import csv as _csv
+
+    from src.screener.pipeline import screen_one
+    from src.screener.redesign import options
+    from src.screener.value import SOURCE, at_stake
+    rows = list(_csv.DictReader((ROOT / "data" / "supply_chain_ideas.csv").open(encoding="utf-8")))
+    order = ["prohibited", "high_risk", "transparency", "minimal"]
+    items, agree = [], 0
+    for r in rows:
+        s = screen_one({"id": r["id"], "title": r["title"], "proposal": r["proposal"]})
+        got, want = s.assessment.tier, r["expected_tier"]
+        agree += got == want
+        fixes = options(s.facts) if want != "minimal" else []
+        stake = at_stake(want, s.facts.get("role"))
+        items.append((order.index(want), r, got, fixes, stake))
+    items.sort(key=lambda x: (x[0], x[1]["id"]))
+    counts = {t: sum(1 for x in items if x[1]["expected_tier"] == t) for t in order}
+    cards = []
+    for _, r, got, fixes, stake in items:
+        want = r["expected_tier"]
+        miss = "" if got == want else (
+            f"<p class='sc-miss'><b>The keyword reader says {TIER[got]}.</b> It cannot tell a company from a person, "
+            f"which is exactly what decides this one. A person or a model reader catches it.</p>")
+        fix = "".join(f"<li><span class='stamp {e(f['to'])}'>{TIER[f['to']]}</span> <b>{e(f['change'])}</b> "
+                      f"<span>{e(f['why'])}</span></li>" for f in fixes)
+        fine = f"<p class='sc-stake'>{e(stake['fine']['text'])}</p>" if stake["fine"] else ""
+        cards.append(f"""<li class="sc">
+<div class="sc-head"><span class="sid">{e(r['id'])}</span><h3>{e(r['title'])}</h3><span class="stamp {e(want)}">{TIER[want]}</span></div>
+<p class="sc-text">{e(r['proposal'])}</p>
+<p class="sc-why">{e(r['why'])}</p>{miss}
+{f'<p class="label">What would make it lighter</p><ul class="sc-fix">{fix}</ul>' if fix else ''}{fine}
+</li>""")
+    facts = "".join(
+        f'<div class="fact{" alert" if t in ("prohibited", "high_risk") else ""}"><b>{count(counts[t])}</b>'
+        f'<span>{label}</span></div>'
+        for t, label in [("prohibited", "banned outright"), ("high_risk", "high-risk, all about people at work"),
+                         ("transparency", "only need an AI notice"), ("minimal", "no AI Act duties")])
+    body = f"""
+<section class="hero"><div class="page-head"><div>
+<p class="kicker">{len(rows)} ideas · answers written by hand from the law · screened by the same engine</p>
+<h1>Supply-chain AI: where the AI Act bites</h1>
+<p class="lede why">Most supply-chain AI forecasts, routes and inspects things, and the AI Act leaves it alone. It bites where
+the AI judges people: allocating tasks to workers, ranking their productivity, hiring, or reading their emotions. Each idea
+below shows the answer, the reason, the smallest change that lowers the tier, and the fine ceiling.</p></div>
+<div class="actions"><a class="btn ghost" href="downloads/supply_chain_ideas.csv">Download the ideas</a>
+<button type="button" class="btn" data-guide="idea">Check your own idea</button></div></div>
+<div class="facts">{facts}</div>
+<p class="small muted" style="margin-top:12px">The free keyword reader agrees with {agree} of {len(rows)} hand-written answers.</p></section>
+{sec("", "The ideas, worst first", "", f"<ol class='sc-list'>{''.join(cards)}</ol>")}
+{sec("", "Where the numbers come from", "", f'''<div class="prose"><ul>
+<li><b>Answers.</b> Written by hand from the AI Act (Art 5, Annex III, Art 50 and Recital 18 on fatigue), never by the classifier.</li>
+<li><b>Fines.</b> Art 99(3) for prohibited practices, Art 99(4) for other breaches; for SMEs the lower of the two amounts applies (Art 99(6)).</li>
+<li><b>Compliance costs</b> (shown in the guide for high-risk ideas). {e(SOURCE)}. Estimates for the 2021 draft, per system of
+EUR 170,000 development cost: an order of magnitude, not a quote.</li>
+</ul></div>''')}"""
+    return page("supply.html", f"Supply-chain AI · {PRODUCT}", body,
+                "Supply-chain AI ideas checked against the EU AI Act: which are banned, high-risk or free, why, and what would make them lighter.")
+
+
 def stress_page(st: dict) -> str:
     styles = [("plain", "Plain wording", "the words a reviewer expects"), ("disguised", "Disguised wording", "the same practice in product language"),
               ("rewritten", "Model-rewritten", "a model's paraphrase of the plain text")]
@@ -1303,7 +1365,8 @@ def main() -> int:
     shutil.copytree(ROOT / "site_src" / "guide", OUT / "guide")
     # the screener itself, so the guide can check a typed idea in the browser (Pyodide)
     for f in ("src/__init__.py", "src/rules.py", "src/screener/__init__.py", "src/screener/law.py",
-              "src/screener/readers.py", "src/screener/pipeline.py", "src/screener/ask.py"):
+              "src/screener/readers.py", "src/screener/pipeline.py", "src/screener/redesign.py",
+              "src/screener/value.py", "src/screener/ask.py"):
         (OUT / "py" / f).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(ROOT / f, OUT / "py" / f)
     pages = {
@@ -1313,6 +1376,7 @@ def main() -> int:
         "roadmap.html": roadmap_page(rows),
         "proposals.html": proposals_page(),
         "documents.html": documents_page(),
+        "supply.html": supply_page(),
         **({"cases.html": cases_page(live_data()[0])} if live_data()[0] else {}),
         **({"stress.html": stress_page(live_data()[1])} if live_data()[1] else {}),
     }
@@ -1325,6 +1389,7 @@ def main() -> int:
         shutil.copy(ROOT / "data" / "generated_proposals.csv", OUT / "downloads" / "generated_proposals.csv")
     shutil.copy(ROOT / "results" / "proposals" / "screening.xlsx", OUT / "downloads" / "screening.xlsx")
     shutil.copy(ROOT / "data" / "proposals_sample.csv", OUT / "downloads" / "proposals_sample.csv")
+    shutil.copy(ROOT / "data" / "supply_chain_ideas.csv", OUT / "downloads" / "supply_chain_ideas.csv")
     for md, title, desc in DOCS:
         out, text = render_doc(md, title, desc)
         pages[out] = text

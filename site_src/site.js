@@ -27,7 +27,7 @@
   }
 
   // ---- guide ----
-  const PAGE_LINE = { 'index.html': 'intro', 'proposals.html': 'intake', 'cases.html': 'eu', 'stress.html': 'stress',
+  const PAGE_LINE = { 'index.html': 'intro', 'supply.html': 'supply', 'proposals.html': 'intake', 'cases.html': 'eu', 'stress.html': 'stress',
     'inventory.html': 'case', 'evidence.html': 'fairness', 'roadmap.html': 'obligations', 'documents.html': 'documents' };
   const here = PAGE_LINE[page] || (page.startsWith('docs/') ? 'documents' : 'intro');
   const ASK = [
@@ -48,7 +48,7 @@
   ];
   const CHIPS = { intro: ['how', 'case', 'eu'], eu: ['live', 'highrisk', 'how'], case: ['fairness', 'obligations', 'how'],
     fairness: ['case', 'data', 'legal'], obligations: ['case', 'highrisk', 'legal'], stress: ['how', 'runs', 'eu'],
-    intake: ['how', 'highrisk', 'case'], documents: ['case', 'fairness', 'obligations'] };
+    intake: ['how', 'highrisk', 'case'], supply: ['highrisk', 'how', 'case'], documents: ['case', 'fairness', 'obligations'] };
   const LABEL = { how: 'How does it work?', case: 'The case study', eu: 'The live EU data', live: 'Live numbers',
     fairness: 'Fairness findings', obligations: 'What is due when?', highrisk: 'What is high-risk?', data: 'Where is the data from?',
     legal: 'Is this legal advice?', runs: 'What does it run on?', why: 'Why now?', who: 'Who built this?' };
@@ -140,7 +140,8 @@
   // ---- idea check: the real screener, in the browser ----
   const PYODIDE = 'https://cdn.jsdelivr.net/pyodide/v0.27.2/full/';
   const PY_FILES = ['src/__init__.py', 'src/rules.py', 'src/screener/__init__.py', 'src/screener/law.py',
-    'src/screener/readers.py', 'src/screener/pipeline.py', 'src/screener/ask.py'];
+    'src/screener/readers.py', 'src/screener/pipeline.py', 'src/screener/redesign.py', 'src/screener/value.py',
+    'src/screener/ask.py'];
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const TIERS = { prohibited: 'Prohibited', high_risk: 'High-risk', transparency: 'Transparency', minimal: 'Minimal' };
   let py = null, mode = 'ask', idea = null;
@@ -179,6 +180,13 @@
       ${r.obligations.length ? `<p class="g-label">What you would have to do</p><ul class="g-obl">${r.obligations.map(o =>
         `<li><b>${esc(o.article)}</b> ${esc(o.duty)} <span>${o.in_force ? 'applies now' : 'from ' + day(o.from)}</span></li>`).join('')}
         ${r.more_obligations ? `<li class="g-more">and ${r.more_obligations} more</li>` : ''}</ul>` : ''}
+      ${r.redesign.length ? `<p class="g-label">What would make it ${r.redesign[0].to === 'minimal' ? 'allowed with no AI Act duties' : 'lighter'}</p>
+        <ul class="g-fix">${r.redesign.map(x => `<li><span class="stamp ${esc(x.to)}">${TIERS[x.to]}</span>
+        <b>${esc(x.change)}</b><span>${esc(x.why)}</span></li>`).join('')}</ul>` : ''}
+      ${r.stake ? `<p class="g-label">What is at stake</p><div class="g-stake">
+        ${r.stake.fine ? `<p><b>Fine ceiling.</b> ${esc(r.stake.fine.text)}</p>` : ''}
+        ${r.stake.costs.map(c => `<p>${esc(c)}</p>`).join('')}
+        ${r.tier === 'high_risk' ? `<p class="g-src">Costs: ${esc(r.stake.source)}. Estimates for the 2021 draft, an order of magnitude.</p>` : ''}</div>` : ''}
       ${r.review.length ? `<p class="g-flag">A person should check: ${esc(r.review.join('; '))}.</p>` : ''}
       ${r.questions.map(qq => `<div class="g-ask"><p>${esc(qq.text)}</p><div>${qq.options.map(o =>
         `<button type="button" data-q="${esc(qq.id)}" data-add="${esc(o.add)}">${esc(o.label)}</button>`).join('')}</div></div>`).join('')}
@@ -194,7 +202,8 @@
     try {
       const r = await runCheck();
       wait.remove(); card(r, again);
-      const next = r.questions[0] ? ' ' + r.questions[0].text : '';
+      const fix = r.redesign[0] ? ` One way to change that: ${r.redesign[0].change}` : '';
+      const next = fix || (r.questions[0] ? ' ' + r.questions[0].text : '');
       say(`${TIERS[r.tier]}. ${r.verdict}.${next}`);
     } catch (err) {
       wait.textContent = 'I could not load the rules engine just now. Check the connection, or open the proposal intake page to see the same checks.';

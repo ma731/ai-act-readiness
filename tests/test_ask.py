@@ -2,6 +2,7 @@
 from src.screener.ask import check
 
 HIRING = "We want to use AI to rank job applicants from their CVs"
+SUMMARY = "We want AI to summarise CVs for our recruiters"
 PREP = "The tool only prepares the case and the final decision remains with a person."
 SCORES = "It scores each person on their personal characteristics."
 INVOICES = "A model that sorts incoming invoices by supplier"
@@ -14,12 +15,16 @@ def test_hiring_idea_is_high_risk_and_asks_what_could_change_it():
     assert r["quotes"] and r["steps"][-1].startswith("Verdict:")
 
 
+def test_ranking_people_is_profiling_so_a_person_deciding_does_not_help():
+    assert check(HIRING, [PREP], ["final_call"])["tier"] == "high_risk"
+
+
 def test_a_person_deciding_opens_art_6_3_and_profiling_closes_it():
-    prep = check(HIRING, [PREP], ["final_call"])
+    prep = check(SUMMARY, [PREP], ["final_call"])
     assert prep["tier"] == "minimal" and "Art 6(3)" in prep["articles"]
     assert any("Art 49(2)" in s for s in prep["steps"])
     assert [q["id"] for q in prep["questions"]] == ["profiling"]
-    scored = check(HIRING, [PREP, SCORES], ["final_call", "profiling"])
+    scored = check(SUMMARY, [PREP, SCORES], ["final_call", "profiling"])
     assert scored["tier"] == "high_risk"
 
 
