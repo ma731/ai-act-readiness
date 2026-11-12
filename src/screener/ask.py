@@ -10,6 +10,8 @@ from __future__ import annotations
 from .law import ANNEX_III
 from .pipeline import screen_one, to_dict
 from .readers import OfflineReader
+from .redesign import options
+from .value import at_stake
 
 # id -> (question, [(label, sentence added to the idea)])
 QUESTIONS = {
@@ -68,5 +70,7 @@ def check(text: str, answers: list[str] | None = None, asked: list[str] | None =
         "more_obligations": max(0, len(obligations) - 5),
         "next_deadline": d["next_deadline"], "review": d["review_reasons"],
         "questions": _questions(d["facts"], d["tier"], set(asked or [])),
+        "redesign": options(d["facts"]),
+        "stake": at_stake(d["tier"], d["facts"].get("role")),
         "text": full,
     }

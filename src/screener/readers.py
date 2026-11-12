@@ -61,7 +61,7 @@ def facts_from_evidence(evidence: list[dict]) -> dict:
 # (fact, value, pattern): a pattern matches inside one sentence; its sentence is the quote.
 RULES: list[tuple[str, object, str]] = [
     ("prohibited", "emotion_recognition_work_education",
-     r"(emotion|stress|mood|frustrat|sentiment|fatigue).{0,80}(employee|staff|worker|cashier|agent|student|pupil|class)|"
+     r"(emotion|stress|mood|frustrat|sentiment).{0,80}(employee|staff|worker|cashier|agent|student|pupil|class)|"
      r"(employee|staff|worker|cashier|agent|student|pupil|class).{0,80}(emotion|stress|mood|frustrat|sentiment)"),
     ("prohibited", "social_scoring", r"(trust|citizen|social|reliability)\w* score|score (residents|citizens)|rate (residents|citizens)"),
     ("prohibited", "facial_scraping", r"scrap\w+.{0,80}(face|photo|image)|(face|photo|image)\w*.{0,80}scrap"),
@@ -70,7 +70,9 @@ RULES: list[tuple[str, object, str]] = [
     ("prohibited", "biometric_categorisation_sensitive", r"(infer|deduce|detect)\w*.{0,60}(ethnic|race|religio|political|sexual orientation|union)"),
     ("prohibited", "realtime_rbi_law_enforcement", r"real.time.{0,60}(facial recognition|biometric).{0,80}(police|law enforcement)"),
     ("annex_iii", "4a", r"\b(cvs?|résumé|resume|candidates?|recruit\w*|hiring|shortlist\w*|job applicants?)\b"),
-    ("annex_iii", "4b", r"(allocat\w+ (tasks|shifts)|task allocation|performance (monitor|scor|rank)|productivity (track|scor|monitor)|promotion|dismiss)"),
+    ("annex_iii", "4b", r"(allocat\w+ (\w+ )?(tasks|shifts)|task allocation|"
+                        r"(performance|productivity) (monitor|scor|rank|track)|(monitor|track|rank|scor)\w*.{0,40}(productivity|performance)|"
+                        r"promot\w+ (staff|employees|workers)|promotion decisions?|dismiss)"),
     ("annex_iii", "5b", r"(credit\s?worth|credit scor|loan|lending|credit limit)"),
     ("fraud_detection_only", True, r"(fraud|suspicious transaction)"),
     ("annex_iii", "5c", r"(life|health) insurance.{0,80}(pric|premium|underwrit|risk)|(pric|premium|underwrit).{0,80}(life|health) insurance"),
@@ -91,7 +93,9 @@ RULES: list[tuple[str, object, str]] = [
     ("generates_synthetic_content", True, r"generat\w+ (images|videos|audio|text|copy|visuals|ad creatives)"),
     ("deepfake", True, r"(deepfake|deep fake|synthetic video of|digital twin of (our|the) (ceo|presenter))"),
     ("emotion_or_biometric_categorisation", True, r"(emotion|mood|stress).{0,60}(voice|face|camera|webcam)"),
-    ("profiling", True, r"(profil|score each|scores each|rank\w* (candidates|workers|employees|applicants|residents)|personal characteristics|behaviour data|behavior data)"),
+    ("profiling", True, r"(profil|score each|scores each|shortlist\w*|rank\w* (\w+ )?(candidates|workers|employees|applicants|residents|pickers|drivers)|"
+                        r"(each|individual) (worker|employee|picker|driver|candidate|applicant)'?s?'? (pick|performance|productivity|error|history|record)|"
+                        r"personal characteristics|behaviour data|behavior data)"),
     ("uses_personal_data", True, r"(customer|employee|patient|applicant|citizen|resident|student|personal) (data|records|history|photos)|(cv|cvs|transaction history|call recordings|exam footage)"),
     ("uses_special_category_data", True, r"(health|medical|biometric|face|facial|religio|ethnic)"),
     ("automated_decision", True, r"automatic\w* (approve|reject|decline|decide|allocat|flag)|without (a )?human (review|check)|no human"),
