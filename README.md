@@ -68,6 +68,10 @@ reader runs instead, so the demo always works for free.
 - It also screens the **1,360 real AI systems** the EU public sector runs today
   ([live page](https://ma731.github.io/ai-act-readiness/cases.html)), refreshed every morning.
 
+**It watches the law, too.** Every morning it reads the official text of the AI Act, article by
+article. If any article changes, it opens an issue that names the article and the exact part
+of the screener that relies on it, so the rules never quietly go out of date.
+
 ### Supply chain: where the AI Act actually bites
 
 **[Open the page](https://ma731.github.io/ai-act-readiness/supply.html)**: 12 typical
@@ -216,6 +220,18 @@ catalogue file, screens only cases that are new, edited, or were read by an olde
 the stress test, keeps the results on the `live-data` branch (so no bot writes to `main`), and
 redeploys the site. Add the Azure OpenAI or Foundry variables from the table above as repository
 secrets and the daily run uses that model instead of the keyword reader.
+
+**Law watch.** The same morning run asks the EU Publications Office which consolidated versions
+and amending acts of Regulation (EU) 2024/1689 exist. When a new one appears it downloads the
+text, hashes each article and annex, and compares with the hashes on `live-data`. A change opens
+an issue labelled `law-change` that maps each article to the functions and constants in
+`src/rules.py` and `src/screener/law.py` citing it. A failed download or a page it cannot read
+is logged, never reported as a change. No model calls.
+
+```bash
+python -m scripts.law_watch                      # check now, store the hashes in results/law/
+python -m scripts.law_watch --since 32024R1689   # replay: what changed since the original 2024 text
+```
 
 **Voice guide.** Every page has a guide (bottom right) that explains the page, the case study and
 the live data, and takes typed or spoken questions. Its lines are pre-recorded with a free neural

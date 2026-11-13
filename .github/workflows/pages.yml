@@ -2,7 +2,8 @@ name: pages
 
 # Rebuild and publish the site. Every day it also pulls the European Commission's catalogue of
 # AI in the EU public sector (Public Sector Tech Watch), screens what is new or changed,
-# re-runs the stress test, and keeps the results on the
+# re-runs the stress test, checks the official AI Act text for changes (opening an issue that
+# names the affected code when it changes), and keeps the results on the
 # `live-data` branch so main is never written to by a bot.
 #
 # Optional repository secrets turn on a model reader (otherwise the keyword reader runs):
@@ -17,6 +18,7 @@ on:
 
 permissions:
   contents: write
+  issues: write     # the law watch opens an issue when the AI Act text changes
   pages: write
   id-token: write
 
@@ -47,6 +49,7 @@ jobs:
           if git ls-remote --exit-code origin live-data > /dev/null; then
             git fetch -q origin live-data
             git checkout origin/live-data -- results/live results/generated || true
+            git checkout origin/live-data -- results/law 2>/dev/null || true
             git reset -q
             rm -f results/live/nl_register.json   # retired source
           fi
@@ -61,6 +64,15 @@ jobs:
         continue-on-error: true
         run: python -m scripts.stress_test --rewrite 20
 
+      # Official text from the EU Publications Office, hashed per article. No model calls.
+      # A failed download or an unreadable page is reported here, never as a law change.
+      - name: Watch the EU AI Act text
+        if: github.event_name != 'push'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -m scripts.law_watch --issue
+
       - name: Keep the results on the live-data branch
         if: github.event_name != 'push'
         run: |
@@ -74,6 +86,7 @@ jobs:
           mkdir -p results
           rm -rf results/live results/generated
           cp -r "$GITHUB_WORKSPACE/results/live" "$GITHUB_WORKSPACE/results/generated" results/
+          if [ -d "$GITHUB_WORKSPACE/results/law" ]; then rm -rf results/law && cp -r "$GITHUB_WORKSPACE/results/law" results/; fi
           git add results
           git diff --cached --quiet || git commit -qm "Live data $(date -u +%F)"
           git push -q origin live-data

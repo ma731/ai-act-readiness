@@ -1,0 +1,5 @@
+
+{ "head": { "link": [], "vars": ["celex", "work"] },
+  "results": { "distinct": false, "ordered": true, "bindings": [
+    { "celex": { "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#string", "value": "02024R1689-20240712" }	, "work": { "type": "uri", "value": "http://publications.europa.eu/resource/cellar/b93c5306-b410-11f0-b37f-01aa75ed71a1" }},
+    { "celex": { "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#string", "value": "02024R1689-20260727" }	, "work": { "type": "uri", "value": "http://publications.europa.eu/resource/cellar/b1730fb2-8f1c-11f1-9262-01aa75ed71a1" }} ] } }
