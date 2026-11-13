@@ -1,45 +1,122 @@
-# AI Act readiness: a Spanish health insurer
+# AI Act readiness · Veredicto
 
-**Live site: [ma731.github.io/ai-act-readiness](https://ma731.github.io/ai-act-readiness/)** · the screener is
-presented as a product, *Veredicto*, with this assessment as its
-[case study](https://ma731.github.io/ai-act-readiness/inventory.html).
+**Is this AI idea legal in the EU? Type it in plain words and get an answer in seconds: which
+risk tier it falls in, the article behind it, what it would cost to comply, and the smallest
+change that makes it lighter.**
 
-This project does what a Responsible AI team does for a client: it takes an insurer's AI
-systems, works out what the EU AI Act requires of each one, tests the riskiest one for harm
-to people, and says what to fix and by when.
+**[Open the live site](https://ma731.github.io/ai-act-readiness/)** (nothing to install)
+· [Supply-chain ideas](https://ma731.github.io/ai-act-readiness/supply.html)
+· [Insurer case study](https://ma731.github.io/ai-act-readiness/inventory.html)
+· [Glossary](#glossary)
 
-The client, **Cierzo Seguros**, is a fictional mid-size health and life insurer in Zaragoza.
-It is invented on purpose: publishing a claim that a real, named insurer breaks the law
-would need that insurer's data. **Everything else is real**: the law as it stands on
-27 September 2026, the survey data and the prices.
+The project has two parts:
 
-This is a portfolio project, not legal advice.
+1. **Veredicto, the screener.** A company sends a spreadsheet of AI ideas; each comes back with
+   a verdict, the reason, the obligations and whether a person should double-check it.
+2. **A full assessment of one company.** What a Responsible AI team would hand a client: the
+   AI Act duties of a (fictional) Spanish health insurer, a fairness test of its pricing
+   model on real Spanish data, and a plan with deadlines.
 
-## The four documents
+This is a portfolio project, not legal advice. The law is as it stood on 27 September 2026.
 
-| | What it answers | |
+---
+
+## The EU AI Act in 60 seconds
+
+The AI Act sorts AI uses into four tiers by how much harm they could do to people.
+
+| Tier | What it means | Example | Worst fine |
+|---|---|---|---|
+| **Banned** | Not allowed at all | Reading employees' emotions from their voice | EUR 35M or 7% of turnover |
+| **High-risk** | Allowed, with heavy duties: risk management, human oversight, records, testing | Screening CVs, pricing health insurance, ranking workers | EUR 15M or 3% |
+| **Transparency** | Allowed, but people must be told it's AI | A customer chatbot | EUR 15M or 3% |
+| **Minimal** | No AI Act duties | Demand forecasting, route planning, spam filters | none |
+
+Bans apply since February 2025, chatbot notices since August 2026, and most high-risk duties
+from December 2027.
+
+---
+
+## Part 1 · Veredicto: check an AI idea
+
+**[Try it](https://ma731.github.io/ai-act-readiness/)**: type an idea, or upload a spreadsheet
+on the [proposals page](https://ma731.github.io/ai-act-readiness/proposals.html).
+
+How an idea gets its verdict:
+
+| Step | Done by | In plain words |
 |---|---|---|
-| 1 | Which of the insurer's six AI systems does the AI Act catch, and why? | [Classification](docs/01_classification.md) |
-| 2 | Does its health pricing model harm anyone, and who? | [Fundamental rights impact assessment](docs/02_fria_tarifa_salud.md) |
-| 3 | What is missing, and what is the deadline for each gap? | [Gap assessment and roadmap](docs/03_gap_assessment.md) |
-| 4 | The same, in one page, in Spanish | [Resumen ejecutivo](docs/resumen_ejecutivo.md) |
+| 1. Read | AI | Turns the description into facts, and must quote the sentence each fact came from |
+| 2. Check | code | Throws away any "fact" whose quote is not really in the text, so the AI cannot make one up |
+| 3. Decide | code | Applies the law, article by article, so the same idea always gets the same answer |
+| 4. Second opinion | AI | A second reader looks for anything the first one missed |
+| 5. Explain | AI + code | Writes a short memo, checked so it only cites articles the decision actually used |
+| 6. Escalate | code | Borderline cases go to a person instead of getting a confident guess |
 
-## What it found
+**Why the AI does not decide.** A legal answer has to be predictable and repeatable. So the
+AI only reads and explains; plain code applies the law. Without an AI key, a simple keyword
+reader runs instead, so the demo always works for free.
+
+**How good is it, honestly:**
+
+- On the 16 sample proposals it agrees with every expected answer, but the free reader was
+  tuned on them, so that only proves the pipeline works.
+- On a **stress test** of 160 proposals, the free reader gets **96% right when the wording is
+  plain, but only 32% when the idea is disguised** ("a wellbeing layer" instead of "emotion
+  recognition"). That gap is exactly why you would plug in an AI reader, and the quote check
+  is what makes that safe.
+- It also screens the **1,360 real AI systems** the EU public sector runs today
+  ([live page](https://ma731.github.io/ai-act-readiness/cases.html)), refreshed every morning.
+
+### Supply chain: where the AI Act actually bites
+
+**[Open the page](https://ma731.github.io/ai-act-readiness/supply.html)**: 12 typical
+supply-chain AI ideas, each with the answer, the reason, the smallest change that lowers the
+tier, and the fine ceiling.
+
+- **7 of 12 have no AI Act duties.** Forecasting, routing and inspecting *things* is left alone.
+- **3 are high-risk, and all three judge people at work:** allocating warehouse tasks by
+  each worker's pick rate, ranking pickers' productivity, screening CVs for seasonal jobs.
+- **1 is banned:** reading call-centre agents' stress from their voices.
+- **1 only needs an AI notice.**
+
+The value is in the redesign: "read sentiment from text, not voices" takes the banned idea
+to no duties at all. Changing a design before it is built is cheap; after, it is expensive.
+
+---
+
+## Part 2 · The insurer case study
+
+**Cierzo Seguros** is a fictional mid-size health and life insurer in Zaragoza. It is
+invented on purpose: claiming a real, named insurer breaks the law would need that
+insurer's data. Everything else is real: the law, the survey data and the prices.
+
+| | Question | Document |
+|---|---|---|
+| 1 | Which of its six AI systems does the AI Act catch, and why? | [Classification](docs/01_classification.md) |
+| 2 | Does its health pricing model treat any group unfairly? | [Fundamental rights impact assessment](docs/02_fria_tarifa_salud.md) |
+| 3 | What is missing, and by when must it be fixed? | [Gap assessment and roadmap](docs/03_gap_assessment.md) |
+| 4 | All of the above on one page, in Spanish | [Resumen ejecutivo](docs/resumen_ejecutivo.md) |
+
+### What it found
 
 <!-- BEGIN:gap-summary -->
 35 obligations on live systems: 5 met, 13 partial, 17 missing. **1 overdue today**, 1 prohibited use to block before purchase.
 <!-- END:gap-summary -->
 
-| System | What it does | AI Act classification | Why |
+| System | What it does | Tier | Why, in plain words |
 |---|---|---|---|
-| Tarifa Salud | Prices individual health insurance | **High-risk** | Annex III 5(c) lists health insurance pricing. The business claimed it only "prepares" a decision (Art 6(3)), but it profiles people, which rules that out |
-| Suscripcion Vida | Vendor tool that rates life insurance applicants | **High-risk** | Annex III 5(c). Cierzo only uses it, so it has the user's (deployer's) duties, plus the impact assessment |
-| Asistente Cierzo | Customer chatbot | **Transparency** | Must tell people they are talking to an AI (Art 50(1)). This has applied since 2 Aug 2026 and is not done: **overdue** |
-| Voz Calidad | Proposed tool reading emotions from call-centre voices | **Prohibited** | Reading employees' emotions is banned (Art 5(1)(f)). Reading customers' is high-risk |
-| Detector Fraude | Scores health claims for fraud | Minimal | Insurance fraud scoring is not on the Annex III list |
-| Tarifa Hogar | Prices home insurance | Minimal | Annex III 5(c) covers life and health insurance only |
+| Tarifa Salud | Prices individual health insurance | **High-risk** | Health insurance pricing is on the law's high-risk list. The business argued it only "prepares" a decision, but it profiles people, so that exception does not apply |
+| Suscripcion Vida | Vendor tool that rates life insurance applicants | **High-risk** | Same list. Cierzo only uses it, so it carries the user's duties, plus an impact assessment |
+| Asistente Cierzo | Customer chatbot | **Transparency** | Must tell people they are talking to an AI. Required since 2 Aug 2026 and not done: **overdue** |
+| Voz Calidad | Proposed tool reading emotions from call-centre voices | **Banned** | Reading employees' emotions is prohibited. Must be stopped before purchase |
+| Detector Fraude | Scores health claims for fraud | Minimal | Fraud scoring is not on the high-risk list |
+| Tarifa Hogar | Prices home insurance | Minimal | The list covers life and health insurance only |
 
-**Testing the health pricing model** on real Spanish data found:
+### Is the health pricing fair?
+
+The test asks whether **each group pays for the care it actually uses**. A ratio of 1.00 means
+a group pays exactly its share; 1.17 means 17% more per euro of care.
 
 <!-- BEGIN:evidence-headline -->
 - **People born abroad would pay 1.17x their share of care costs** (95% CI 0.96 to 1.44): a signal, not a proven breach, because the interval reaches 1.0. Country of birth is never an input.
@@ -48,13 +125,34 @@ This is a portfolio project, not legal advice.
 - **The model is calibrated and explainable**: predicted over actual cost 1.005, and the GLM ranks as well as a gradient-boosted challenger (Gini 0.597 against 0.598).
 <!-- END:evidence-headline -->
 
-## The proposal screener: agents read, code decides
+In plain words: nobody is clearly overcharged, but people born abroad are worth watching, and
+part of why they look "cheaper" is that they skip care they cannot afford.
 
-**[Open the app](https://ma731.github.io/ai-act-readiness/proposals.html)** · code in [`src/screener/`](src/screener/)
+---
 
-The assessment above goes deep on one insurer. The screener goes wide: a company sends a
-spreadsheet of AI ideas, and each comes back with a verdict, the articles behind it, the
-obligations it carries, a short memo, and whether a person should look at it.
+## Glossary
+
+| Term | Meaning |
+|---|---|
+| **AI Act** | The EU law on artificial intelligence (Regulation 2024/1689) |
+| **Annex III** | The law's list of high-risk uses: hiring, workers, credit, insurance, education and more |
+| **Art 5** | The list of banned practices |
+| **Art 6(3)** | An exception: a tool that only *prepares* a decision a person makes may not be high-risk, unless it profiles people |
+| **Art 50** | The transparency duties, such as telling people they are talking to an AI |
+| **Provider / deployer** | Who builds the AI system / who uses it. Each has different duties |
+| **FRIA** | Fundamental rights impact assessment: a check of who an AI system could harm |
+| **Profiling** | Scoring people on their personal traits or behaviour |
+| **Price-to-cost** | What a group is charged per euro of care it uses, compared with everyone else |
+| **95% interval** | The range the true value most likely lies in. If it includes 1.0, the result is not proven |
+| **GLM** | The simple, explainable statistical model used for the price |
+| **Gini, AUC** | Standard scores of how well a model ranks people (higher is better) |
+| **Stress test** | 160 test proposals, plain and disguised, with answers written in advance |
+
+---
+
+## For engineers
+
+### Running the screener
 
 ```bash
 python -m scripts.screen_proposals my_proposals.xlsx    # columns: id, company, title, proposal
@@ -124,7 +222,7 @@ the live data, and takes typed or spoken questions. Its lines are pre-recorded w
 voice (`python scripts/build_voice.py`, edge-tts, en-US-AvaNeural) and committed, so it works on
 GitHub Pages; answers with live numbers use the browser's own voice.
 
-## Where the data comes from
+### Where the data comes from
 
 The model needs, for each person, the answers they would give on an insurance application,
 and what their health care then cost. No public Spanish dataset has both: insurers keep
@@ -156,7 +254,7 @@ Prescriptions, dental, physiotherapy, psychology and childbirth are left out, ea
 stated reason. [ADR 0001](docs/decisions/0001-spanish-data-and-prices.md) lists every
 assumption and which way it pushes the cost.
 
-## How to read the fairness numbers
+### How to read the fairness numbers
 
 A fair price is not the same price for everyone: people with more health needs cost more.
 The question is whether **each group pays for the care it uses**. So the key number is
@@ -170,7 +268,7 @@ else.
   0.80 to 1.25. If the interval crosses a line, the verdict is "inconclusive": worth
   watching, not proven.
 
-## How it is built
+### How it is built
 
 ```
 inventory/cierzo_systems.yaml      facts about each AI system and the insurer's current controls
@@ -199,7 +297,7 @@ python -m scripts.run_assessment      # classify, build costs, fit, test, write 
 pytest
 ```
 
-## Where it stops
+### Where it stops
 
 - **The cost is built, not observed.** It is care people reported using, priced at one
   region's official tariff, not an insurer's claims. It is on the low side by design.
