@@ -305,6 +305,75 @@ SUMMARY = {
 }
 
 
+PICK_JS = """<script>
+(() => {
+  const btns = [...document.querySelectorAll('.ld')], panes = [...document.querySelectorAll('.ld-pane')];
+  const pick = id => { btns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === id))); panes.forEach(p => { p.hidden = p.id !== 'ld-' + id; }); };
+  btns.forEach(b => b.addEventListener('click', () => pick(b.dataset.id)));
+  if (btns[0]) pick(btns[0].dataset.id);
+})();
+</script>"""
+
+GUESS_JS = """<script>
+(() => {
+  const Q = __DATA__, box = document.getElementById('gq');
+  const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  const pos = (q, v) => Math.min(100, Math.max(0, (v - q.min) / (q.max - q.min) * 100));
+  const fmt = (q, v) => v.toFixed(q.dec) + (q.unit || '');
+  function show(i) {
+    const q = Q[i];
+    box.innerHTML = `<p class="gq-n">Question ${i + 1} of ${Q.length}</p><h3>${esc(q.q)}</h3><p class="gq-hint">${esc(q.hint)}</p>
+      <div class="gq-track"><div class="gq-band" style="left:${pos(q, q.lo ?? q.truth)}%;width:${q.lo == null ? 0 : pos(q, q.hi) - pos(q, q.lo)}%"></div>
+      <div class="gq-truth" style="left:${pos(q, q.start)}%"><b>${fmt(q, q.truth)}</b></div>
+      <input type="range" min="${q.min}" max="${q.max}" step="${q.step}" value="${q.start}" aria-label="Your guess"></div>
+      <div class="gq-scale"><span>${fmt(q, q.min)}</span><span>${fmt(q, q.max)}</span></div>
+      <p class="gq-you">Your guess: <b>${fmt(q, q.start)}</b></p>
+      <p class="actions"><button type="button" class="btn" data-go>Show me</button></p>
+      <div class="gq-after" hidden><p><b></b> ${esc(q.after)}</p>
+      <p class="actions"><button type="button" class="btn" data-next>${i + 1 < Q.length ? 'Next question' : 'Start again'}</button>
+      ${i + 1 < Q.length ? '' : '<a class="btn ghost" href="#ev-start">Read the evidence</a>'}</p></div>`;
+    const range = box.querySelector('input'), you = box.querySelector('.gq-you b'), truth = box.querySelector('.gq-truth');
+    range.addEventListener('input', () => { you.textContent = fmt(q, +range.value); if (!box.classList.contains('shown')) truth.style.left = pos(q, +range.value) + '%'; });
+    box.classList.remove('shown');
+    box.querySelector('[data-go]').addEventListener('click', ev => {
+      box.classList.add('shown'); range.disabled = true; ev.target.hidden = true;
+      truth.style.left = pos(q, q.truth) + '%';
+      const off = Math.abs(+range.value - q.truth) / (q.max - q.min);
+      box.querySelector('.gq-after b').textContent = `You said ${fmt(q, +range.value)}. The data says ${fmt(q, q.truth)}${off < 0.04 ? ': very close.' : '.'}`;
+      box.querySelector('.gq-after').hidden = false;
+    });
+    box.querySelector('[data-next]').addEventListener('click', () => show((i + 1) % Q.length));
+  }
+  show(0);
+})();
+</script>"""
+
+DATE_JS = """<script>
+(() => {
+  const D = __DATA__, day = 86400000, t0 = Date.parse(D.from), root = document.getElementById('dd');
+  const range = root.querySelector('input'), label = root.querySelector('.dd-date'), cells = [...root.querySelectorAll('.dd-cell')];
+  const nums = Object.fromEntries([...root.querySelectorAll('[data-n]')].map(el => [el.dataset.n, el]));
+  const long = ms => new Date(ms).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+  function set(ms) {
+    const n = { met: 0, partial: 0, missing: 0, later: 0 };
+    cells.forEach(c => {
+      const due = Date.parse(c.dataset.due) <= ms, st = due ? c.dataset.s : 'later';
+      c.dataset.now = st; n[st] += 1;
+    });
+    Object.entries(n).forEach(([k, v]) => { if (nums[k].textContent !== String(v)) nums[k].textContent = v; });
+    label.textContent = long(ms);
+    root.querySelectorAll('.dd-jump button').forEach(b => b.setAttribute('aria-pressed', String(Date.parse(b.dataset.d) === ms)));
+  }
+  range.addEventListener('input', () => set(t0 + range.value * day));
+  root.querySelectorAll('.dd-jump button').forEach(b => b.addEventListener('click', () => { range.value = Math.round((Date.parse(b.dataset.d) - t0) / day); set(Date.parse(b.dataset.d)); }));
+  set(t0 + range.value * day);
+})();
+</script>"""
+
+RUNGS = [("prohibited", "May not be used at all"), ("high_risk", "Allowed, with strict controls"),
+         ("transparency", "Allowed, but people must be told"), ("minimal", "Free to use")]
+
+
 def inventory(systems, results, rows, ev) -> str:
     n = len(systems)
     tiers = [c.tier for c in results]
@@ -352,12 +421,24 @@ answer is the heaviest factor in the price.</p><span class="ci">age-standardised
 
     urgent = [r for r in sorted(rows, key=report._priority) if r["state"] in
               {"Block before purchase", "OVERDUE"}]
-    urgent_html = "".join(
-        f"<tr><td><b>{e(r['name'])}</b></td><td class='mono'>{e(r['article'])}</td>"
-        f"<td>{e(r['duty'])}</td><td><span class='flag' style='margin:0'>"
-        f"{'BLOCK' if r['state'].startswith('Block') else 'OVERDUE'}</span></td></tr>"
-        for r in urgent)
 
+    strip = "".join(
+        f"<li><span class='flag'>{'BLOCK' if r['state'].startswith('Block') else 'OVERDUE'}</span><b>{e(r['name'])}</b>"
+        f"<span>{e(r['duty'])}</span><span class='mono'>{e(r['article'])}</span></li>" for r in urgent)
+    rungs, panes = [], []
+    for tier, means in RUNGS:
+        here = [(s, c) for s, c in zip(systems, results, strict=True) if c.tier == tier]
+        btns = "".join(f'<button type="button" class="ld" data-id="{s["id"]}" aria-pressed="false">{e(s["name"])}</button>' for s, _ in here)
+        rungs.append(f'<li class="rung {tier}"><div class="rung-label">{tile(tier)}<span><b>{TIER[tier]}</b>{means}</span></div>'
+                     f'<div class="rung-items">{btns or "<i>none</i>"}</div></li>')
+        for s, c in here:
+            why = c.basis[0] if c.basis else "Not listed in Annex III, no Article 5 or 50 trigger."
+            panes.append(f'<div class="ld-pane" id="ld-{s["id"]}" hidden><p class="ld-top"><span class="sid">{s["id"]}</span><b>{e(s["name"])}</b>'
+                         f'<span class="stamp {tier}">{TIER[tier]}</span></p><p>{e(SUMMARY[s["id"]])}'
+                         f'{" (proposed, not bought yet)" if s.get("status") == "proposed" else ""}.</p><p class="ld-why">{e(why)}</p></div>')
+    ladder = f"""<section class="ladder-sec"><h2>Where Cierzo's {WORDS.get(n, n).lower()} systems stand</h2>
+<p>The AI Act sorts AI into four levels. Each system sits on its step. Pick one to see why.</p>
+<div class="ladder-wrap"><ol class="ladder">{"".join(rungs)}</ol><div class="ld-panes" aria-live="polite">{"".join(panes)}</div></div></section>{PICK_JS}"""
     body = f"""
 <section class="hero"><div class="page-head"><div>
 <h1>{title}</h1>
@@ -372,8 +453,9 @@ article behind each call. Its health pricing model was tested for harm on offici
 <div class="fact alert"><b>{overdue}</b><span>obligation overdue</span></div>
 <div class="fact"><b>{d['people']:,}</b><span>people behind the fairness tests</span></div>
 </div></section>
+<ul class="urgent" aria-label="Needs action now">{strip}</ul>
+{ladder}
 {sec("01", "Systems", "Each system is described by facts; the tier is what the rules engine concludes from them.", '<ul class="register">' + "".join(reg) + "</ul>")}
-{sec("02", "Needs action now", "Prohibited uses and obligations already past their deadline.", '<div class="table-wrap"><table><thead><tr><th>System</th><th>Article</th><th>Duty</th><th></th></tr></thead><tbody>' + urgent_html + "</tbody></table></div>")}
 {sec("03", "Fairness findings: Tarifa Salud", "The health pricing model rebuilt on official Spanish data and tested group by group. <a href='evidence.html'>All the evidence</a>.", findings)}
 {sec("04", "Documents", "", doclist())}
 """
@@ -412,6 +494,32 @@ def evidence_page(ev, tariffs) -> str:
                f"Hospital    3 nights           × €{t['hospital_night']['eur']:,} = €{3*t['hospital_night']['eur']:,}\n"
                f"                                        total €{2*13*t['gp_visit']['eur'] + t['emergency_hospital']['eur'] + 3*t['hospital_night']['eur']:,}")
 
+    ba = {g["group"]: g for g in born}["Born abroad"]
+    unm = {(u["group"], u["measure"]): u["rate"] * 100 for u in un}
+    cls = ev["self_rated_health_by_class"]
+    top, bottom = cls[0]["fair_or_worse_age_standardised"] * 100, cls[-1]["fair_or_worse_age_standardised"] * 100
+    ua, us = unm[("Born abroad", "unmet_cost")], unm[("Born in Spain", "unmet_cost")]
+    lo, hi = ba["price_to_cost_ci"]
+    questions = [
+        {"q": "For each euro of care they use, how much would people born abroad pay?",
+         "hint": "1.00 means a group pays exactly for the care it uses.", "min": 0.7, "max": 1.6, "step": 0.01, "start": 1.0,
+         "truth": round(ba["price_to_cost"], 2), "lo": round(lo, 2), "hi": round(hi, 2), "dec": 2, "unit": "",
+         "after": f"The shaded band is the plausible range, {lo:.2f} to {hi:.2f}. It includes 1.00, so this is a signal to watch, "
+                  "not proof. Country of birth is never an input to the price."},
+        {"q": "Out of 100 people born abroad, how many went without medical care because of cost?",
+         "hint": f"Among people born in Spain it is {us:.1f}.", "min": 0, "max": 12, "step": 0.1, "start": round(us, 1),
+         "truth": round(ua, 1), "dec": 1, "unit": "",
+         "after": f"Against {us:.1f} in 100 for people born in Spain. Part of their lower use of care is lower access, and a price "
+                  "built on past use would charge them for care they did not get."},
+        {"q": "At the same age, how many in 100 unskilled workers rate their health fair or worse?",
+         "hint": f"Among managers and professionals it is {top:.1f}.", "min": 5, "max": 50, "step": 0.5, "start": round(top * 2) / 2,
+         "truth": round(bottom, 1), "dec": 1, "unit": "",
+         "after": f"About twice the {top:.1f} of the top class. That answer moves the price more than any diagnosis, "
+                  "so the price follows social class."},
+    ]
+    guess = f"""<section class="guess"><h2>Guess first</h2>
+<p>Three questions before the evidence. Move the handle to your guess, then see what the data says.</p>
+<div id="gq"></div></section>{GUESS_JS.replace("__DATA__", blob(questions))}<span id="ev-start"></span>"""
     body = f"""
 <div class="hero">
 <p class="kicker">Article 27 evidence · Tarifa Salud</p>
@@ -419,6 +527,7 @@ def evidence_page(ev, tariffs) -> str:
 <p class="lede">A fair price is not the same price for everyone: people with more health
 needs cost more. The test is whether each group is charged in line with the care it
 actually uses. Everything below is built from official Spanish sources.</p></div>
+{guess}
 
 {sec("01", "Where the numbers come from", "No public Spanish dataset links an insurance application to what the person later costs, so two official sources are joined.", f'''
 <div class="sources">
@@ -444,7 +553,7 @@ for a stated reason.</p></div>
 <aside class="note"><b>AVERAGE ADULT</b>€{d['mean_annual_cost_eur']:,.0f} a year; median
 €{d['median_annual_cost_eur']:,.0f}; {pct(d['share_with_no_care'])} used no care at all. A
 few people cost a lot, as in any health book.</aside></div>
-{table_from_md(report.cost_build(tariffs, None))}
+<details class="fold"><summary>Show every price, with its page in the tariff</summary>{table_from_md(report.cost_build(tariffs, None))}</details>
 ''')}
 
 {sec("02", "Born abroad: a signal, not proof", "Price-to-cost: what a group pays per euro of care it uses, against 1.00 for everyone. The shaded zone is the tolerance band (0.80 to 1.25); a verdict needs the whole interval outside it.", f'''
@@ -560,6 +669,25 @@ def roadmap_page(rows) -> str:
                     "</span>" for k in counts)
     legend = "".join(f'<span><i style="background:{colors[k]}"></i>{counts[k]} {k}</span>'
                      for k in counts)
+    start, end = date(2025, 1, 1), date(2028, 1, 1)
+    by_sys: dict[str, list[dict]] = {}
+    for r in sorted(live, key=lambda r: r["applies_from"]):
+        by_sys.setdefault(r["name"], []).append(r)
+    board = "".join(
+        f'<li><b>{e(name)}</b><span class="dd-cells">' + "".join(
+            f'<i class="dd-cell" data-due="{r["applies_from"].isoformat()}" data-s="{r["status"]}" '
+            f'title="{e(r["article"])}: {e(r["duty"])} ({r["status"]}, from {r["applies_from"]:%d %b %Y})"></i>' for r in rs) + "</span></li>"
+        for name, rs in by_sys.items())
+    jumps = "".join(f'<button type="button" data-d="{when.isoformat()}" aria-pressed="false">{when:%d %b %Y}<span>{e(label)}</span></button>'
+                    for when, label, _ in milestones)
+    dd = f"""<section class="dd" id="dd"><h2>Drag the date</h2>
+<p>Each square is one obligation on a system Cierzo runs. Move the date and watch what falls due.</p>
+<p class="dd-date" aria-live="polite"></p>
+<input type="range" min="0" max="{(end - start).days}" value="{(today - start).days}" aria-label="Date">
+<div class="dd-jump" role="group" aria-label="Jump to a deadline">{jumps}</div>
+<div class="dd-nums"><div class="met"><b data-n="met">0</b>due and met</div><div class="partial"><b data-n="partial">0</b>due, only partly met</div>
+<div class="missing"><b data-n="missing">0</b>due and missing</div><div class="later"><b data-n="later">0</b>not due yet</div></div>
+<ol class="dd-board">{board}</ol></section>{DATE_JS.replace("__DATA__", blob({"from": start.isoformat()}))}"""
     body = f"""
 <div class="hero">
 <p class="kicker">Gap assessment · dated against the Digital Omnibus</p>
@@ -568,6 +696,7 @@ def roadmap_page(rows) -> str:
 controls. The Omnibus moved stand-alone high-risk duties to 2 December 2027; chatbot
 transparency did not move.</p>
 <div class="stack" aria-hidden="true">{stack}</div><div class="legend">{legend}</div></div>
+{dd}
 {sec("01", "Timeline", "", '<div class="timeline">' + "".join(rows_html) + "</div>")}
 {sec("02", "Why plan for December 2027 at all", "", '''<div class="prose"><p>Both high-risk
 systems were in service before the rules apply. Under Article 111(2) their duties bite only
@@ -616,11 +745,31 @@ def render_doc(md_path: str, title: str, desc: str) -> tuple[str, str]:
                      desc)
 
 
+SHELF = [("Start here", "gold", ["docs/resumen_ejecutivo.md", "docs/01_classification.md"]),
+         ("The evidence", "blue", ["docs/02_fria_tarifa_salud.md", "docs/03_gap_assessment.md"]),
+         ("The decisions", "green", [md for md, _, _ in DOCS if "/decisions/" in md])]
+
+
+TABS = {"docs/resumen_ejecutivo.md": "En español", "docs/01_classification.md": "Part 1",
+        "docs/02_fria_tarifa_salud.md": "Part 2", "docs/03_gap_assessment.md": "Part 3"}
+
+
 def documents_page() -> str:
+    info = {md: (t, desc) for md, t, desc in DOCS}
+    shelves = ""
+    for label, colour, mds in SHELF:
+        cards = ""
+        for md in mds:
+            t, desc = info[md]
+            mins = max(1, round(len((ROOT / md).read_text(encoding="utf-8").split()) / 220))
+            tab, _, name = t.partition(": ") if t.startswith("ADR") else (TABS.get(md, label), "", t)
+            cards += (f'<a class="folder {colour}" href="{md.replace(".md", ".html")}"><span class="tab">{e(tab)}</span>'
+                      f'<b>{e(name)}</b><span>{e(desc)}</span><i>{mins} min read</i></a>')
+        shelves += f'<div class="shelf"><h2>{e(label)}</h2><div class="folders">{cards}</div></div>'
     body = f"""<div class="hero"><h1>Documents</h1>
 <p class="lede">The repository's own documents, rendered. Prose is written by hand; every
 table and number in them is generated from the results.</p></div>
-<section><div class="sec-body">{doclist()}</div></section>"""
+<section class="shelves">{shelves}</section>"""
     return page("documents.html", f"Documents · Cierzo Seguros · {PRODUCT}", body,
                 "The classification, FRIA, gap assessment, Spanish summary and decision records.")
 

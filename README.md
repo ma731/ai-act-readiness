@@ -250,7 +250,9 @@ The sample file plays from results made at build time.
 turns over to its verdict. The same tile, as a small picture, marks the four tiers across the app. The
 EU public sector page draws every case in use as one square; the supply-chain page is a board of tiles
 where the smallest change that lowers a tier can be applied; the stress test shows each practice said
-plainly and in disguise, side by side. Shared 3D helpers are in `site_src/kit3d.js`, the engine loader
+plainly and in disguise, side by side. On the Cierzo pages, the six systems sit on a four-step risk ladder, the
+fairness evidence opens with three guess-then-reveal questions, the obligations page has a date you can
+drag to see what falls due, and the documents are folders on a shelf. Shared 3D helpers are in `site_src/kit3d.js`, the engine loader
 in `site_src/engine.js`.
 
 **Voice guide.** Every page has a guide (bottom right) that explains the page, the case study and
