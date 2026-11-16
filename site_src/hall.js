@@ -2,6 +2,7 @@
 // The people are a picture of the screening steps. The answers come from the real engine.
 import * as THREE from 'three';
 import { GOLD, TIER, bar, check, clamp, disc, engineStarted, knock, mat, plastic, smooth, spring, squircle, thick, waveMaterial } from './kit3d.js';
+import { setSound, sfx, soundOn } from './sfx.js';
 
 const $ = (s) => document.querySelector(s);
 const DATA = JSON.parse($('#hall-data').textContent);
@@ -108,6 +109,11 @@ function start(r, speed = 1) {
   lines = speeches(r);
   focus = null;
   run = { r, t: calm || !scene3d ? TOTAL : 0, speed, done: false, said: -1 };
+  // sounds, on the same clock as the picture: the folder lands, each person gives an opinion, the tile turns and clicks home
+  run.cues = EMBED ? [] : [
+    ...DESKS.flatMap((_, i) => [[i * (WALK + DESK) + WALK + 0.16 * DESK, () => sfx.paper()], [eventAt(i), () => sfx.opinion(lines[i].op)]]),
+    [T_FINAL + FLIP - 0.05, () => sfx.whoosh()], [eventAt(N), () => sfx.verdict(r.tier)],
+  ].sort((a, b) => a[0] - b[0]);
   ui.intro.hidden = true; ui.verdict.hidden = true; ui.walk.hidden = false; ui.say.hidden = true; ui.skip.hidden = false;
   ui.steps.forEach((b) => { b.disabled = true; b.classList.remove('on', 'done'); b.dataset.op = ''; });
   scene3d?.prepare(r, lines);
@@ -118,6 +124,7 @@ function tick(dt) {
   if (!run) return null;
   if (!run.done) {
     run.t = Math.min(TOTAL, run.t + dt * run.speed);
+    while (run.cues.length && run.cues[0][0] <= run.t) { const [at, fire] = run.cues.shift(); if (run.t - at < 0.3) fire(); }   // skipped ahead: stay quiet
     for (let i = 0; i < N; i++) if (deskProg(i, run.t) > 0 && deskProg(i, run.t) < 1 && run.said !== i) { run.said = i; say(i); }
     mark(run.t);
     if (run.t >= TOTAL) { run.done = true; if (EMBED) embedDone(run.r); else showVerdict(run.r); }
@@ -150,6 +157,10 @@ async function ask(speed = 1) {
 
 ui.form.addEventListener('submit', (ev) => { ev.preventDefault(); const t = ui.text.value.trim(); if (t.length > 8) submit(t); else ui.note.textContent = 'Describe the idea in a sentence or two.'; });
 document.querySelectorAll('.h-ex button').forEach((b, i) => b.addEventListener('click', () => { ui.text.value = DATA.examples[i].text; submit(DATA.examples[i].text, DATA.examples[i].result); }));
+const soundBtn = $('#h-sound');
+const showSound = () => { soundBtn.textContent = soundOn() ? 'Sound on' : 'Sound off'; soundBtn.setAttribute('aria-pressed', String(soundOn())); };
+soundBtn.addEventListener('click', () => { setSound(!soundOn()); showSound(); sfx.opinion('ok'); });
+showSound();
 ui.skip.addEventListener('click', () => { if (run && !run.done) run.t = Math.max(run.t, T_FINAL); });
 ui.steps.forEach((b, i) => b.addEventListener('click', () => pick(i)));
 function pick(i) {
@@ -374,7 +385,9 @@ function createHall(canvas) {
       if (at === N) { const p = clamp((t - N * (WALK + DESK)) / FINAL); x = standX(N - 1) + (END_X - standX(N - 1)) * smooth(p); walking = p < 1; }
     }
     visitor.g.position.x = x;
+    const foot = Math.floor(walkPhase / Math.PI);
     walkPhase += walking ? dt * 9.5 : 0;
+    if (walking && !EMBED && Math.floor(walkPhase / Math.PI) !== foot) sfx.step(foot % 2 === 0);
     const sw = walking ? Math.sin(walkPhase) * 0.6 : 0;
     visitor.legL.rotation.x += (sw - visitor.legL.rotation.x) * k(18);
     visitor.legR.rotation.x += (-sw - visitor.legR.rotation.x) * k(18);

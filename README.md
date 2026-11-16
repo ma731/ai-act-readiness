@@ -239,7 +239,8 @@ python -m scripts.law_watch --since 32024R1689   # replay: what changed since th
 one per screening step (read, check, law, challenge, write, review), in a 3D scene (three.js). Each
 says what it did with your idea and gives an opinion, and a tile turns over to show the tier. The
 people are a picture of the steps; the answers come from the same engine as the rest of the site,
-running in the browser.
+running in the browser. It has synthesized sound (footsteps, each opinion, the verdict), off until
+the visitor turns it on.
 
 **Screen your file.** [screen.html](https://ma731.github.io/ai-act-readiness/screen.html) takes a CSV of
 proposals (one column called `proposal`; `title`, `id` and `company` are optional), screens each row with
