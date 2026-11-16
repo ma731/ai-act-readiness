@@ -1,21 +1,16 @@
 // The hall: one AI idea walks past six desks and leaves with a verdict.
 // The people are a picture of the screening steps. The answers come from the real engine.
 import * as THREE from 'three';
+import { GOLD, TIER, bar, check, clamp, disc, engineStarted, knock, mat, plastic, smooth, spring, squircle, thick, waveMaterial } from './kit3d.js';
 
 const $ = (s) => document.querySelector(s);
 const DATA = JSON.parse($('#hall-data').textContent);
 const calm = !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+const EMBED = new URLSearchParams(location.search).has('embed');   // playing by itself inside the home page
+if (EMBED) document.body.classList.add('embed');
+let paused = false, example = 0;
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const short = (s, n) => (s.length > n ? s.slice(0, n - 1).trimEnd() + '…' : s);
-const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
-const smooth = (x) => { x = clamp(x); return x * x * (3 - 2 * x); };
-
-const TIER = {
-  prohibited: { name: 'Prohibited', color: '#f97a6d' },
-  high_risk: { name: 'High-risk', color: '#f5b14c' },
-  transparency: { name: 'Transparency', color: '#7fb2f5' },
-  minimal: { name: 'Minimal', color: '#7ddf9a' },
-};
 const DESKS = [
   { name: 'Reader', does: 'in the software, a model reads', coat: '#3b5bdb', skin: '#e8b996', hair: '#3a2a20' },
   { name: 'Checker', does: 'in the software, code', coat: '#0f766e', skin: '#c68e6a', hair: '#15110f' },
@@ -31,35 +26,6 @@ const stopX = (i) => i * GAP, SIDE = 1.1;          // the visitor stands a step 
 const deskProg = (i, t) => clamp((t - (i * (WALK + DESK) + WALK)) / DESK);
 const OPINION = 0.62;                                   // how far into a desk's time its person gives an opinion
 const eventAt = (i) => (i < N ? i * (WALK + DESK) + WALK + OPINION * DESK : T_FINAL + FLIP + LAND);
-// a damped spring from 0 to 1 (a little past, then back) and the shudder after a knock
-const spring = (t, f = 3, d = 0.5) => { if (t <= 0) return 0; const w = 2 * Math.PI * f, wd = w * Math.sqrt(1 - d * d); return 1 - Math.exp(-d * w * t) * (Math.cos(wd * t) + ((d * w) / wd) * Math.sin(wd * t)); };
-const knock = (u) => (u <= 0 ? 0 : Math.exp(-u * 9) * Math.sin(u * 22));
-
-// ------------------------------------------------------------------ the engine --------- //
-const PYODIDE = 'https://cdn.jsdelivr.net/pyodide/v0.27.2/full/';
-const PY_FILES = ['src/__init__.py', 'src/rules.py', 'src/screener/__init__.py', 'src/screener/law.py',
-  'src/screener/readers.py', 'src/screener/pipeline.py', 'src/screener/redesign.py', 'src/screener/value.py',
-  'src/screener/ask.py'];
-let py = null;
-const engine = () => py || (py = (async () => {
-  await new Promise((res, rej) => {
-    const s = document.createElement('script'); s.src = PYODIDE + 'pyodide.js'; s.onload = res; s.onerror = rej;
-    document.head.appendChild(s);
-  });
-  const pyo = await window.loadPyodide({ indexURL: PYODIDE });
-  pyo.FS.mkdirTree('/app/src/screener');
-  const texts = await Promise.all(PY_FILES.map((f) => fetch('py/' + f).then((r) => { if (!r.ok) throw new Error(f); return r.text(); })));
-  PY_FILES.forEach((f, i) => pyo.FS.writeFile('/app/' + f, texts[i]));
-  pyo.runPython("import sys; sys.path.insert(0, '/app')");
-  return pyo;
-})().catch((err) => { py = null; throw err; }));
-const check = async (idea) => {
-  const pyo = await engine();
-  pyo.globals.set('_args', JSON.stringify(idea));
-  return JSON.parse(pyo.runPython('import json\nfrom src.screener.ask import check\n_a = json.loads(_args)\n'
-    + "json.dumps(check(_a['text'], _a['answers'], _a['asked']))"));
-};
-
 // ------------------------------------------------------------ what each desk says ------ //
 const factLabel = (x) => (x.fact === 'annex_iii' ? `Annex III ${x.value}${x.area ? ': ' + x.area.split(':')[0] : ''}`
   : x.fact === 'prohibited' ? 'Art 5: ' + x.value.replace(/_/g, ' ') : x.fact === 'role' ? 'you are the ' + x.value : x.fact.replace(/_/g, ' '));
@@ -154,10 +120,20 @@ function tick(dt) {
     run.t = Math.min(TOTAL, run.t + dt * run.speed);
     for (let i = 0; i < N; i++) if (deskProg(i, run.t) > 0 && deskProg(i, run.t) < 1 && run.said !== i) { run.said = i; say(i); }
     mark(run.t);
-    if (run.t >= TOTAL) { run.done = true; showVerdict(run.r); }
+    if (run.t >= TOTAL) { run.done = true; if (EMBED) embedDone(run.r); else showVerdict(run.r); }
   }
   return run;
 }
+// inside the home page: say the verdict, wait, then play the next example
+function embedDone(r) {
+  ui.who.innerHTML = `<b>Verdict</b><span>${esc(TIER[r.tier].name)}</span>`;
+  ui.line.textContent = r.verdict + '.';
+  ui.more.innerHTML = ''; ui.say.hidden = false; ui.skip.hidden = true;
+  ui.steps.forEach((b, k) => b.classList.toggle('on', k === N));
+  if (!calm) setTimeout(playNext, 3600);
+}
+function playNext() { start(DATA.examples[example % DATA.examples.length].result); ui.skip.hidden = true; example += 1; }
+
 async function submit(text, preset) {
   idea = { text, answers: [], asked: [] };
   if (preset) return start(preset);
@@ -165,7 +141,7 @@ async function submit(text, preset) {
 }
 async function ask(speed = 1) {
   ui.go.disabled = true;
-  ui.note.textContent = py ? 'Checking…' : 'Loading the rules engine. The first check downloads about 10 MB, then it is quick.';
+  ui.note.textContent = engineStarted() ? 'Checking…' : 'Loading the rules engine. The first check downloads about 10 MB, then it is quick.';
   try { start(await check(idea), speed); ui.note.textContent = ''; } catch {
     ui.note.textContent = 'The rules engine could not load. Check your connection, or pick one of the examples.';
   }
@@ -196,18 +172,6 @@ function canvasTex(w, h, draw) {
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
   return t;
 }
-const mat = (color, o = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.78, ...o });
-const plastic = (color, o = {}) => new THREE.MeshPhysicalMaterial({ color, roughness: 0.42, clearcoat: 1, clearcoatRoughness: 0.08, ...o });   // glossy, like a toy
-const GOLD = () => new THREE.MeshPhysicalMaterial({ color: '#f2bf2e', metalness: 0.45, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.1 });
-// thick pieces with rounded-over edges, centred on z = 0
-const thick = (shape, depth, bevel = 0.05) => {
-  const g = new THREE.ExtrudeGeometry(shape, { depth: depth - 2 * bevel, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelOffset: -bevel, bevelSegments: 6, curveSegments: 24 });
-  g.translate(0, 0, -depth / 2 + bevel); return g;
-};
-const squircle = (r, n = 4.4) => new THREE.Shape(Array.from({ length: 120 }, (_, i) => { const a = (i / 120) * Math.PI * 2, c = Math.cos(a), q = Math.sin(a); return new THREE.Vector2(r * Math.sign(c) * Math.abs(c) ** (2 / n), r * Math.sign(q) * Math.abs(q) ** (2 / n)); }));
-const bar = (w, h) => { const r = h / 2, sh = new THREE.Shape(); sh.absarc(w / 2 - r, 0, r, -Math.PI / 2, Math.PI / 2); sh.absarc(-w / 2 + r, 0, r, Math.PI / 2, Math.PI * 1.5); sh.closePath(); return sh; };
-const disc = (r) => new THREE.Shape().absarc(0, 0, r, 0, Math.PI * 2);
-
 function person(p, walker) {
   const g = new THREE.Group();
   const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.3, 0.62, 6, 16), plastic(p.coat)); body.position.y = 1.22; g.add(body);
@@ -258,16 +222,10 @@ function createHall(canvas) {
   floor.rotation.x = -Math.PI / 2; floor.position.set(18, 0, 0); scene.add(floor);
   const lane = new THREE.Mesh(new THREE.PlaneGeometry(N * GAP + 12, 1.5), mat('#1d3484', { roughness: 0.5 }));
   lane.rotation.x = -Math.PI / 2; lane.position.set((N * GAP) / 2 - 3, 0.005, 0.9); scene.add(lane);
-  // the back wall changes colour as a wave that spreads from behind whoever just gave an opinion
+  // the back wall stays blue; each opinion sends a ring of its colour across and leaves a glow behind whoever gave it
   const WALL = new THREE.Color('#14276a');
-  const wave = { uOld: { value: WALL.clone() }, uNew: { value: WALL.clone() }, uCentre: { value: new THREE.Vector3() }, uRadius: { value: 0 } };
-  const wallMat = mat('#ffffff', { roughness: 0.95 });
-  wallMat.onBeforeCompile = (sh) => {
-    Object.assign(sh.uniforms, wave);
-    sh.vertexShader = 'varying vec3 vWorld;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nvWorld = (modelMatrix * vec4(transformed, 1.0)).xyz;');
-    sh.fragmentShader = 'uniform vec3 uOld, uNew, uCentre; uniform float uRadius; varying vec3 vWorld;\n' + sh.fragmentShader.replace('#include <color_fragment>',
-      '#include <color_fragment>\nfloat edge = smoothstep(uRadius - 1.4, uRadius, distance(vWorld, uCentre));\ndiffuseColor.rgb = mix(uNew, uOld, edge) + 0.14 * (1.0 - abs(2.0 * edge - 1.0));');
-  };
+  const { material: wallMat, wave } = waveMaterial(WALL);
+  wave.uSpread.value = 4.5;
   const wall = new THREE.Mesh(new THREE.PlaneGeometry(160, 16), wallMat);
   wall.position.set(18, 8, -7.2); scene.add(wall);
   const colGeo = new THREE.CylinderGeometry(0.42, 0.48, 11, 20), colMat = mat('#2a3f8f', { roughness: 0.6 });
@@ -367,7 +325,7 @@ function createHall(canvas) {
   [floor, lane, wall].forEach((m) => { m.castShadow = false; });
   desks.forEach((d) => { d.hit.castShadow = false; d.sign.castShadow = false; });
   let r = null, sp = [], nTabs = 0, last = 0, raf = 0, walkPhase = 0, w = 1, h = 1, shift = 0;
-  const evCol = [...Array(N + 1)].map(() => WALL.clone()), tierCol = new THREE.Color('#ffffff'), tint = new THREE.Color();
+  const evCol = [...Array(N + 1)].map(() => WALL.clone()), tierCol = new THREE.Color('#ffffff');
   const camPos = new THREE.Vector3(17, 7, 30), camLook = new THREE.Vector3(17, 1.6, -2), look = camLook.clone();
   const v = new THREE.Vector3(), q = new THREE.Quaternion(), flat = new THREE.Quaternion();
   camera.position.copy(camPos);
@@ -378,8 +336,8 @@ function createHall(canvas) {
     if (r) {
       const col = TIER[r.tier].color;
       band.material.color.set(col); wash.color.set(col); tierCol.set(col);
-      DESKS.forEach((d, i) => evCol[i].copy(WALL).lerp(tint.set(i === 2 ? col : d.coat), 0.5));
-      evCol[N].copy(WALL).lerp(tierCol, 0.72);
+      DESKS.forEach((d, i) => evCol[i].set(i === 2 ? col : d.coat));
+      evCol[N].copy(tierCol);
       Object.entries(faces).forEach(([name, g]) => { g.userData.on = name === r.tier; });
       stamp.material.map?.dispose();
       stamp.material.map = canvasTex(520, 200, (c, cw, ch) => {
@@ -395,6 +353,7 @@ function createHall(canvas) {
 
   function frame(now) {
     raf = requestAnimationFrame(frame);
+    if (paused) { last = now; return; }
     const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
     const k = (rate) => 1 - Math.exp(-dt * rate);
     const state = tick(dt);
@@ -461,7 +420,7 @@ function createHall(canvas) {
     folder.quaternion.slerp(flat, k(rate));
     const big = u > 0 && focus === null ? 1.45 : 1;
     folder.scale.setScalar(folder.scale.x + (big - folder.scale.x) * k(5));
-    wash.intensity += ((landed > 0 ? 70 : 0) - wash.intensity) * k(4);
+    wash.intensity += ((landed > 0 ? 18 : 0) - wash.intensity) * k(4);
 
     // the verdict tile: it leans back, turns over a little past the mark and clicks home in the colour of the answer
     const wind = sFlip < 0 ? smooth((sFlip + 0.3) / 0.3) : Math.max(0, 1 - sFlip / 0.1);
@@ -472,13 +431,14 @@ function createHall(canvas) {
     waiting.visible = angle < Math.PI / 2;
     Object.values(faces).forEach((g) => { g.visible = !waiting.visible && !!g.userData.on; });
 
-    // the wall: each opinion sends its colour across from behind whoever gave it
+    // the wall: each opinion sends a ring of its colour across and leaves a glow behind whoever gave it
     let ev = -1;
     if (state) for (let i = 0; i <= N; i++) if (t >= eventAt(i)) ev = i;
-    wave.uOld.value.copy(ev > 0 ? evCol[ev - 1] : WALL);
-    wave.uNew.value.copy(ev >= 0 ? evCol[ev] : WALL);
+    const since = ev >= 0 ? t - eventAt(ev) : -1;
+    if (ev >= 0) wave.uTint.value.copy(evCol[ev]);
     wave.uCentre.value.set(ev < N ? stopX(Math.max(ev, 0)) : ARCH_X, 3, -7.2);
-    wave.uRadius.value = ev >= 0 ? (t - eventAt(ev)) * 46 : 999;
+    wave.uRadius.value = ev >= 0 ? since * 26 : -99;
+    wave.uHalo.value = ev >= 0 ? (ev === N ? 0.12 : 0.1) * smooth(since / 0.5) : 0;
 
     // the camera
     if (!state) {
@@ -524,4 +484,15 @@ const start3d = () => {
   try { scene3d = createHall($('#hall-canvas')); document.body.classList.add('has-3d'); } catch { scene3d = null; }
   window.HALL_READY = true;
 };
-(document.fonts?.ready || Promise.resolve()).then(start3d, start3d);
+(document.fonts?.ready || Promise.resolve()).then(start3d, start3d).then(() => {
+  if (EMBED) {
+    addEventListener('message', (ev) => { if (ev.origin === location.origin && ev.data && 'hallVisible' in ev.data) paused = !ev.data.hallVisible; });
+    parent.postMessage({ hallReady: true }, location.origin);
+    playNext();
+    return;
+  }
+  const sent = new URLSearchParams(location.search).get('idea')?.trim().slice(0, 600);
+  if (!sent) return;
+  ui.text.value = sent;
+  submit(sent, DATA.examples.find((x) => x.text === sent)?.result);
+});
