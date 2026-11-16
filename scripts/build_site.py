@@ -1755,6 +1755,7 @@ def hall_page() -> str:
 <link rel="stylesheet" href="hall.css">
 <canvas id="hall-canvas" aria-hidden="true"></canvas>
 <header class="h-bar"><a class="sbrand" href="index.html">{logo()}{PRODUCT}</a><span>The hall</span>
+<button type="button" class="h-btn ghost" id="h-sound" aria-pressed="false">Sound off</button>
 <a class="h-btn ghost" href="proposals.html">Open the app</a></header>
 <main>
 <section class="h-panel" id="h-intro">
@@ -1790,7 +1791,7 @@ def main() -> int:
     OUT.mkdir()
     shutil.copy(ROOT / "site_src" / "style.css", OUT / "style.css")
     shutil.copy(ROOT / "site_src" / "site.js", OUT / "site.js")
-    for f in ("hall.js", "hall.css", "hero.js", "home.css", "kit3d.js", "engine.js", "screen.js", "screen.css"):
+    for f in ("hall.js", "hall.css", "hero.js", "home.css", "kit3d.js", "engine.js", "screen.js", "screen.css", "sfx.js"):
         shutil.copy(ROOT / "site_src" / f, OUT / f)
     shutil.copytree(ROOT / "site_src" / "guide", OUT / "guide")
     # the screener itself, so the guide can check a typed idea in the browser (Pyodide)
