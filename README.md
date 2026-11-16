@@ -5,6 +5,7 @@ risk tier it falls in, the article behind it, what it would cost to comply, and 
 change that makes it lighter.**
 
 **[Open the live site](https://ma731.github.io/ai-act-readiness/)** (nothing to install)
+· [The hall](https://ma731.github.io/ai-act-readiness/hall.html)
 · [Supply-chain ideas](https://ma731.github.io/ai-act-readiness/supply.html)
 · [Insurer case study](https://ma731.github.io/ai-act-readiness/inventory.html)
 · [Glossary](#glossary)
@@ -232,6 +233,12 @@ is logged, never reported as a change. No model calls.
 python -m scripts.law_watch                      # check now, store the hashes in results/law/
 python -m scripts.law_watch --since 32024R1689   # replay: what changed since the original 2024 text
 ```
+
+**The hall.** [hall.html](https://ma731.github.io/ai-act-readiness/hall.html) walks one idea past six people,
+one per screening step (read, check, law, challenge, write, review), in a 3D scene (three.js). Each
+says what it did with your idea and gives an opinion, and a tile turns over to show the tier. The
+people are a picture of the steps; the answers come from the same engine as the rest of the site,
+running in the browser.
 
 **Voice guide.** Every page has a guide (bottom right) that explains the page, the case study and
 the live data, and takes typed or spoken questions. Its lines are pre-recorded with a free neural

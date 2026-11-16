@@ -38,3 +38,8 @@ def test_answers_are_never_asked_twice():
 def test_prohibited_ideas_get_no_follow_ups():
     r = check("Score citizens on their trustworthiness")
     assert r["tier"] == "prohibited" and r["questions"] == []
+
+
+def test_the_hall_gets_a_memo_that_states_the_verdict():
+    r = check(HIRING)
+    assert r["verdict"] in r["memo"]

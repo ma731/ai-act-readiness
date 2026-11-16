@@ -875,7 +875,7 @@ def landing() -> str:
 </script>"""
     body = f"""<div class="site">
 <header class="snav"><a class="sbrand" href="index.html">{logo()}{PRODUCT}</a><span class="eu-badge" title="Screens against the EU AI Act, Regulation (EU) 2024/1689">{eu_flag()}EU AI Act</span>
-<nav aria-label="Main"><a href="#how">How it works</a><a href="#examples">Examples</a><a href="inventory.html">Case study</a><a href="documents.html">Docs</a></nav>
+<nav aria-label="Main"><a href="hall.html">The hall</a><a href="#how">How it works</a><a href="#examples">Examples</a><a href="inventory.html">Case study</a><a href="documents.html">Docs</a></nav>
 <span class="snav-cta"><a class="btn ghost sm" href="{REPO}">GitHub</a><a class="btn sm" href="proposals.html">Open the app</a></span></header>
 
 <section class="shero">
@@ -885,7 +885,7 @@ def landing() -> str:
   its obligations and a short memo. A model reads; the law is applied in code, so the same proposal always
   gets the same answer.</p>
   <p class="actions center"><a class="btn gold lg" href="proposals.html">Open the app</a>
-  <a class="btn light lg" href="downloads/screening.xlsx">See a sample result</a></p>
+  <a class="btn light lg" href="hall.html">Walk an idea through the hall</a></p>
   {f'<a class="live" href="cases.html"><span class="pulse" aria-hidden="true"></span><b>Live</b> {reg["summary"]["in_use"]:,} AI systems in EU public bodies, screened daily · checked {_day(reg["synced"])}</a>' if reg else ""}
   <p class="fine">Portfolio project. The companies are fictional; the law is current to {LEGAL_BASIS_DATE:%d %B %Y}. Not legal advice.</p>
 </section>
@@ -1355,6 +1355,59 @@ def measured_html(reg: dict | None, st: dict | None, n_samples: int) -> str:
 tripled between 2022 and 2025 (p. 35). Checking AI ideas early is becoming a routine business task, not a one-off legal review.</p></section>"""
 
 
+HALL_IDEAS = [
+    ("Emotion reading at work", "A tool that reads the emotions of our call-centre staff from their voice to coach them."),
+    ("CV ranking", "A model that scores job applicants from their CVs and ranks them for recruiters. We develop it ourselves."),
+    ("Customer chatbot", "A chatbot that answers customer questions about their insurance policy."),
+    ("Demand forecast", "A model that forecasts spare-part demand for our warehouse."),
+]
+
+
+def hall_page() -> str:
+    """One idea walks past six desks and leaves with a verdict. The 3D scene is site_src/hall.js."""
+    from src.screener.ask import check
+    st = live_data()[1]
+    data = {"examples": [{"label": lab, "text": text, "result": check(text)} for lab, text in HALL_IDEAS],
+            "stress": ({"plain": round(st["by_style"]["plain"]["accuracy"] * 100),
+                        "disguised": round(st["by_style"]["disguised"]["accuracy"] * 100)}
+                       if st and {"plain", "disguised"} <= set(st["by_style"]) else None)}
+    names = ["Reader", "Checker", "Law clerk", "Challenger", "Writer", "Reviewer", "Verdict"]
+    steps = "".join(f'<li><button type="button" class="h-step" disabled>{n}</button></li>' for n in names)
+    chips = "".join(f'<button type="button">{e(lab)}</button>' for lab, _ in HALL_IDEAS)
+    blob = json.dumps(data, ensure_ascii=False).replace("</", "<" + chr(92) + "/")
+    return f"""{head(f"The hall: walk an AI idea to its verdict | {PRODUCT}", "Type an AI idea and watch it pass six desks, each giving an opinion, before it is stamped with its EU AI Act risk tier.", "")}
+<body class="hall" data-page="hall.html">
+<link rel="stylesheet" href="hall.css">
+<canvas id="hall-canvas" aria-hidden="true"></canvas>
+<header class="h-bar"><a class="sbrand" href="index.html">{logo()}{PRODUCT}</a><span>The hall</span>
+<a class="h-btn ghost" href="proposals.html">Open the app</a></header>
+<main>
+<section class="h-panel" id="h-intro">
+  <h1>Walk an AI idea to its verdict.</h1>
+  <p>Six people sit between an idea and its answer under the EU AI Act. Each gives an opinion. The last one is the only one who can stop it for a closer look.</p>
+  <form id="h-form"><label class="sr" for="h-idea">Your AI idea</label>
+  <textarea id="h-idea" placeholder="For example: a tool that decides which loan applications to reject"></textarea>
+  <button class="h-btn" id="h-go">Send it in</button><p id="h-note" role="status"></p></form>
+  <p class="h-or">Or send one of these:</p>
+  <div class="h-ex">{chips}</div>
+  <p class="h-fine">The people are a picture of the steps: in the software some are a model, some are code, and one is a real person.
+  The verdict is a risk tier, not an approval: under the Act a company classifies its own system. Not legal advice. {NOT_EU}</p>
+</section>
+<section class="h-walk" id="h-walk" hidden>
+  <ol class="h-steps">{steps}</ol>
+  <div class="h-bottom"><div class="h-say" id="h-say" role="status" aria-live="polite" hidden><p id="h-who"></p><p id="h-line"></p><ul id="h-more"></ul></div>
+  <button type="button" id="h-skip">Skip to the verdict</button></div>
+</section>
+<section class="h-panel" id="h-verdict" aria-live="polite" hidden><div id="h-out"></div></section>
+</main>
+<script type="application/json" id="hall-data">{blob}</script>
+<script type="importmap">{{ "imports": {{ "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" }} }}</script>
+<script type="module" src="hall.js"></script>
+</body>
+</html>
+"""
+
+
 def main() -> int:
     systems, results, rows, ev, tariffs = load()
     if OUT.exists():
@@ -1362,6 +1415,8 @@ def main() -> int:
     OUT.mkdir()
     shutil.copy(ROOT / "site_src" / "style.css", OUT / "style.css")
     shutil.copy(ROOT / "site_src" / "site.js", OUT / "site.js")
+    shutil.copy(ROOT / "site_src" / "hall.js", OUT / "hall.js")
+    shutil.copy(ROOT / "site_src" / "hall.css", OUT / "hall.css")
     shutil.copytree(ROOT / "site_src" / "guide", OUT / "guide")
     # the screener itself, so the guide can check a typed idea in the browser (Pyodide)
     for f in ("src/__init__.py", "src/rules.py", "src/screener/__init__.py", "src/screener/law.py",
@@ -1377,6 +1432,7 @@ def main() -> int:
         "proposals.html": proposals_page(),
         "documents.html": documents_page(),
         "supply.html": supply_page(),
+        "hall.html": hall_page(),
         **({"cases.html": cases_page(live_data()[0])} if live_data()[0] else {}),
         **({"stress.html": stress_page(live_data()[1])} if live_data()[1] else {}),
     }

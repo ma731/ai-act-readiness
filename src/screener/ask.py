@@ -72,5 +72,6 @@ def check(text: str, answers: list[str] | None = None, asked: list[str] | None =
         "questions": _questions(d["facts"], d["tier"], set(asked or [])),
         "redesign": options(d["facts"]),
         "stake": at_stake(d["tier"], d["facts"].get("role")),
+        "memo": d["memo"],
         "text": full,
     }
