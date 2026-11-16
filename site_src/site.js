@@ -27,11 +27,13 @@
   }
 
   // ---- guide ----
-  const PAGE_LINE = { 'index.html': 'intro', 'supply.html': 'supply', 'proposals.html': 'intake', 'cases.html': 'eu', 'stress.html': 'stress',
+  const PAGE_LINE = { 'index.html': 'intro', 'supply.html': 'supply', 'proposals.html': 'intake', 'screen.html': 'screen', 'cases.html': 'eu', 'stress.html': 'stress',
     'inventory.html': 'case', 'evidence.html': 'fairness', 'roadmap.html': 'obligations', 'documents.html': 'documents' };
   const here = PAGE_LINE[page] || (page.startsWith('docs/') ? 'documents' : 'intro');
   const ASK = [
     ['live', /how many|numbers?|count|right now|today|stats/],
+    ['hall', /hall|six people|people|story|animation|desk|walk|reader|checker|clerk|challenger|writer|reviewer/],
+    ['screen', /upload|file|csv|spreadsheet|excel|drop/],
     ['how', /how (does|do|is)|work|model|code|quote|decid/],
     ['case', /cierzo|case stud|insur|six|inventor/],
     ['fairness', /fair|bias|born|abroad|price|pricing|health|evidence|survey/],
@@ -46,10 +48,10 @@
     ['data', /data|source|ine|osakidetza/],
     ['runs', /azure|claude|openai|key|offline|run/],
   ];
-  const CHIPS = { intro: ['how', 'case', 'eu'], eu: ['live', 'highrisk', 'how'], case: ['fairness', 'obligations', 'how'],
+  const CHIPS = { intro: ['hall', 'how', 'case'], screen: ['hall', 'how', 'legal'], eu: ['live', 'highrisk', 'how'], case: ['fairness', 'obligations', 'how'],
     fairness: ['case', 'data', 'legal'], obligations: ['case', 'highrisk', 'legal'], stress: ['how', 'runs', 'eu'],
-    intake: ['how', 'highrisk', 'case'], supply: ['highrisk', 'how', 'case'], documents: ['case', 'fairness', 'obligations'] };
-  const LABEL = { how: 'How does it work?', case: 'The case study', eu: 'The live EU data', live: 'Live numbers',
+    intake: ['screen', 'how', 'highrisk'], supply: ['highrisk', 'how', 'case'], documents: ['case', 'fairness', 'obligations'] };
+  const LABEL = { hall: 'The six people', screen: 'Screen a file', how: 'How does it work?', case: 'The case study', eu: 'The live EU data', live: 'Live numbers',
     fairness: 'Fairness findings', obligations: 'What is due when?', highrisk: 'What is high-risk?', data: 'Where is the data from?',
     legal: 'Is this legal advice?', runs: 'What does it run on?', why: 'Why now?', who: 'Who built this?' };
 
