@@ -6,6 +6,7 @@ change that makes it lighter.**
 
 **[Open the live site](https://ma731.github.io/ai-act-readiness/)** (nothing to install)
 · [The hall](https://ma731.github.io/ai-act-readiness/hall.html)
+· [Screen your file](https://ma731.github.io/ai-act-readiness/screen.html)
 · [Supply-chain ideas](https://ma731.github.io/ai-act-readiness/supply.html)
 · [Insurer case study](https://ma731.github.io/ai-act-readiness/inventory.html)
 · [Glossary](#glossary)
@@ -239,6 +240,18 @@ one per screening step (read, check, law, challenge, write, review), in a 3D sce
 says what it did with your idea and gives an opinion, and a tile turns over to show the tier. The
 people are a picture of the steps; the answers come from the same engine as the rest of the site,
 running in the browser.
+
+**Screen your file.** [screen.html](https://ma731.github.io/ai-act-readiness/screen.html) takes a CSV of
+proposals (one column called `proposal`; `title`, `id` and `company` are optional), screens each row with
+the same engine in the browser, and gives the results back as a CSV. The file never leaves the browser.
+The sample file plays from results made at build time.
+
+**The look.** The home page hero is one 3D tile in a blue studio (three.js): type an idea and the tile
+turns over to its verdict. The same tile, as a small picture, marks the four tiers across the app. The
+EU public sector page draws every case in use as one square; the supply-chain page is a board of tiles
+where the smallest change that lowers a tier can be applied; the stress test shows each practice said
+plainly and in disguise, side by side. Shared 3D helpers are in `site_src/kit3d.js`, the engine loader
+in `site_src/engine.js`.
 
 **Voice guide.** Every page has a guide (bottom right) that explains the page, the case study and
 the live data, and takes typed or spoken questions. Its lines are pre-recorded with a free neural

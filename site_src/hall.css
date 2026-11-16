@@ -110,3 +110,8 @@ body.has-3d #hall-canvas { opacity: 1; }
   .h-panel, .h-stamp { animation: none; }
   #hall-canvas { transition: none; }
 }
+
+/* playing by itself inside the home page: no header, no panels, nothing to click */
+.embed .h-bar, .embed #h-intro, .embed #h-verdict, .embed #h-skip { display: none !important; }
+.embed .h-walk { inset: 0; padding-top: 14px; }
+.embed .h-step { pointer-events: none; }

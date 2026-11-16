@@ -7,6 +7,7 @@ rules engine, and the long documents are the repo's own markdown, rendered.
 """
 from __future__ import annotations
 
+import functools
 import html
 import json
 import math
@@ -58,11 +59,13 @@ ICONS = {
     "calendar": '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
     "file": '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/>',
     "radio": '<circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49M7.76 16.24a6 6 0 0 1 0-8.49M19.07 4.93a10 10 0 0 1 0 14.14M4.93 19.07a10 10 0 0 1 0-14.14"/>',
+    "upload": '<path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>',
     "flask": '<path d="M9 3h6M10 3v6L4.5 18.5A2 2 0 0 0 6.2 21.5h11.6a2 2 0 0 0 1.7-3L14 9V3"/><path d="M7 15h10"/>',
     "back": '<path d="M19 12H5M12 19l-7-7 7-7"/>',
 }
 APP_NAV = [
-    ("Screening", [("proposals.html", "Proposal intake", "inbox"), ("cases.html", "EU public sector", "radio"),
+    ("Screening", [("proposals.html", "Proposal intake", "inbox"), ("screen.html", "Screen your file", "upload"),
+                   ("cases.html", "EU public sector", "radio"),
                    ("stress.html", "Stress test", "flask"),
                    ("supply.html", "Supply chain", "grid")]),
     ("Cierzo assessment", [("inventory.html", "AI inventory", "grid"),
@@ -109,6 +112,23 @@ def eu_flag(cls: str = "flag-eu") -> str:
 
 FAVICON = "data:image/svg+xml," + quote(LOGO_SVG.format(cls="f").replace('class="f" ', 'xmlns="http://www.w3.org/2000/svg" '))
 NOT_EU = "Independent project. Not affiliated with or endorsed by the European Union or any EU institution."
+
+
+TILE_GLYPH = {
+    "prohibited": '<path d="M13 13l14 14M27 13L13 27"/>',
+    "high_risk": '<path d="M20 11v11"/><path d="M20 28.5v.01"/>',
+    "transparency": '<path d="M20 11.5v.01"/><path d="M20 18v11"/>',
+    "minimal": '<path d="M12 21l5.5 5.5L28 15"/>',
+}
+TILE_FILL = {"prohibited": "#f0685a", "high_risk": "#f2a53a", "transparency": "#5d9cf0", "minimal": "#4fc57c"}
+
+
+def tile(tier: str) -> str:
+    """The verdict tile from the home page, as a small picture: a rounded square in the tier's colour with its sign."""
+    return (f'<svg class="tile" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.5" y="1.5" width="37" height="37" rx="12" fill="{TILE_FILL[tier]}"/>'
+            f'<rect x="1.5" y="1.5" width="37" height="18" rx="12" fill="#fff" opacity=".16"/>'
+            f'<rect x="1.5" y="1.5" width="37" height="37" rx="12" fill="none" stroke="#ffcc00" stroke-width="1.5"/>'
+            f'<g fill="none" stroke="#fff" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round">{TILE_GLYPH[tier]}</g></svg>')
 
 
 def icon(name: str) -> str:
@@ -347,8 +367,8 @@ article behind each call. Its health pricing model was tested for harm on offici
 <a class="btn" href="roadmap.html">View obligations</a></div></div>
 <div class="facts">
 <div class="fact"><b>{n}</b><span>AI systems</span></div>
-<div class="fact"><b>{high}</b><span>high-risk</span></div>
-<div class="fact alert"><b>{banned}</b><span>prohibited, block before purchase</span></div>
+<div class="fact tier high_risk">{tile('high_risk')}<b>{high}</b><span>high-risk</span></div>
+<div class="fact tier prohibited">{tile('prohibited')}<b>{banned}</b><span>prohibited, block before purchase</span></div>
 <div class="fact alert"><b>{overdue}</b><span>obligation overdue</span></div>
 <div class="fact"><b>{d['people']:,}</b><span>people behind the fairness tests</span></div>
 </div></section>
@@ -791,14 +811,14 @@ def proposals_page() -> str:
   <div class="page-head">
     <div><h1>Proposal intake</h1>
     <p class="lede">{n} proposals screened against the EU AI Act. Open one to see the sentences behind its verdict.</p></div>
-    <div class="actions"><a class="btn ghost" href="downloads/proposals_sample.csv">Sample input</a>
-    <a class="btn" href="downloads/screening.xlsx">Export to Excel</a></div>
+    <div class="actions"><a class="btn ghost" href="downloads/screening.xlsx">Export to Excel</a>
+    <a class="btn" href="screen.html">Screen your own file</a></div>
   </div>
   <div class="facts">
-    <div class="fact alert"><b>{count['prohibited']}</b><span>prohibited</span></div>
-    <div class="fact"><b>{count['high_risk']}</b><span>high-risk</span></div>
-    <div class="fact"><b>{count['transparency']}</b><span>transparency only</span></div>
-    <div class="fact"><b>{count['minimal']}</b><span>minimal</span></div>
+    <div class="fact tier prohibited">{tile('prohibited')}<b>{count['prohibited']}</b><span>prohibited</span></div>
+    <div class="fact tier high_risk">{tile('high_risk')}<b>{count['high_risk']}</b><span>high-risk</span></div>
+    <div class="fact tier transparency">{tile('transparency')}<b>{count['transparency']}</b><span>transparency only</span></div>
+    <div class="fact tier minimal">{tile('minimal')}<b>{count['minimal']}</b><span>minimal</span></div>
     <div class="fact"><b>{review}</b><span>waiting for a person</span></div>
   </div>
 </section>
@@ -852,6 +872,9 @@ def landing() -> str:
     n, review = len(res), sum(r["needs_review"] for r in res)
     people = json.loads((ROOT / "results" / "pricing_evidence.json").read_text("utf-8"))["data"]["people"]
     reg, st = live_data()
+    ideas = idea_examples()
+    first = ideas[0]["result"]
+    chips = "".join(f'<button type="button" aria-pressed="false">{e(x["label"])}</button>' for x in ideas)
     js = """<script>
 (() => {
   const tabs = [...document.querySelectorAll('[role=tab]')];
@@ -875,22 +898,43 @@ def landing() -> str:
 </script>"""
     body = f"""<div class="site">
 <header class="snav"><a class="sbrand" href="index.html">{logo()}{PRODUCT}</a><span class="eu-badge" title="Screens against the EU AI Act, Regulation (EU) 2024/1689">{eu_flag()}EU AI Act</span>
-<nav aria-label="Main"><a href="hall.html">The hall</a><a href="#how">How it works</a><a href="#examples">Examples</a><a href="inventory.html">Case study</a><a href="documents.html">Docs</a></nav>
+<nav aria-label="Main"><a href="hall.html">The hall</a><a href="#app">The app</a><a href="#how">How it works</a><a href="#examples">Examples</a><a href="inventory.html">Case study</a><a href="documents.html">Docs</a></nav>
 <span class="snav-cta"><a class="btn ghost sm" href="{REPO}">GitHub</a><a class="btn sm" href="proposals.html">Open the app</a></span></header>
 
-<section class="shero">
-  <p class="hero-tag">{eu_flag()}Built on Regulation (EU) 2024/1689, the AI Act, as amended by the Digital Omnibus</p>
-  <h1>Check an AI idea against the <span class="gold">EU&nbsp;AI&nbsp;Act</span> before anyone builds it.</h1>
-  <p class="slede">Send a spreadsheet of proposals. Each comes back with a verdict, the articles behind it,
-  its obligations and a short memo. A model reads; the law is applied in code, so the same proposal always
-  gets the same answer.</p>
-  <p class="actions center"><a class="btn gold lg" href="proposals.html">Open the app</a>
-  <a class="btn light lg" href="hall.html">Walk an idea through the hall</a></p>
-  {f'<a class="live" href="cases.html"><span class="pulse" aria-hidden="true"></span><b>Live</b> {reg["summary"]["in_use"]:,} AI systems in EU public bodies, screened daily · checked {_day(reg["synced"])}</a>' if reg else ""}
-  <p class="fine">Portfolio project. The companies are fictional; the law is current to {LEGAL_BASIS_DATE:%d %B %Y}. Not legal advice.</p>
+<section class="shero" data-tier="{first['tier']}">
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+  <div class="hero-copy">
+    <p class="hero-tag">{eu_flag()}Built on Regulation (EU) 2024/1689, the AI Act, as amended by the Digital Omnibus</p>
+    <h1>Check an AI idea against the <span class="gold">EU&nbsp;AI&nbsp;Act</span> before anyone builds it.</h1>
+    <p class="slede">A model reads it. The law is applied in code. A person checks the hard cases.</p>
+    <form id="hero-form"><label class="sr" for="hero-idea">Describe an AI idea</label>
+      <input id="hero-idea" type="text" autocomplete="off" maxlength="600" placeholder="Describe an AI idea in a sentence">
+      <button class="btn gold" id="hero-go">Check it</button></form>
+    <div class="hero-ex"><span>Or try</span>{chips}</div>
+    <div id="hero-out" role="status" aria-live="polite"><p class="ho-label">Example · {e(ideas[0]['label'])}</p>
+    <p class="ho-idea">“{e(ideas[0]['text'])}”</p>
+    <p class="ho-verdict"><span class="ho-stamp">{TIER[first['tier']]}</span><b>{e(first['verdict'])}.</b></p>
+    <p class="ho-why">{e(first['steps'][1])}</p>
+    <p class="ho-links"><a href="hall.html?idea={quote(ideas[0]['text'])}">Watch six people decide it</a><a href="proposals.html">Open the app</a></p></div>
+  </div>
+  <p class="hero-foot">{f'<a class="live" href="cases.html"><span class="pulse" aria-hidden="true"></span><b>Live</b> {reg["summary"]["in_use"]:,} AI systems in EU public bodies, screened daily · checked {_day(reg["synced"])}</a>' if reg else ""}
+  <span class="fine">Portfolio project. The companies are fictional; the law is current to {LEGAL_BASIS_DATE:%d %B %Y}. Not legal advice.</span></p>
 </section>
 
-<a class="window" href="proposals.html" aria-label="Open the proposal intake">
+<section class="sblock band blue" id="story">
+  <div class="story-head"><div><h2>Six people stand between an idea and its verdict.</h2>
+  <p class="ssub">Each one gives an opinion on the idea in front of them. Only the last can stop it for a closer look. This is the hall, playing an example right now.</p></div>
+  <a class="btn gold lg" href="hall.html">Walk your own idea through</a></div>
+  <a class="hall-frame" href="hall.html" aria-label="Open the hall and walk your own idea through">
+    <iframe src="hall.html?embed" title="The hall, playing an example" loading="lazy" tabindex="-1"></iframe><span>Open the hall</span></a>
+  <ul class="six"><li style="--c:#3b5bdb"><i></i><span><b>Reader</b> reads your words</span></li><li style="--c:#0f766e"><i></i><span><b>Checker</b> checks every quote</span></li><li style="--c:#8fa2e8"><i></i><span><b>Law clerk</b> applies the Act</span></li><li style="--c:#7c3aed"><i></i><span><b>Challenger</b> looks for what was missed</span></li><li style="--c:#c2410c"><i></i><span><b>Writer</b> writes the memo</span></li><li style="--c:#e0a80b"><i></i><span><b>Reviewer</b> a person, for the hard calls</span></li></ul>
+</section>
+
+<section class="sblock" id="app">
+  <h2>A whole pipeline of ideas, screened in one pass.</h2>
+  <p class="ssub">Send a spreadsheet of proposals. Each comes back with a verdict, the articles behind it, its obligations and
+  a short memo. The same proposal always gets the same answer.</p>
+  <a class="window" href="proposals.html" aria-label="Open the proposal intake">
   <div class="win-bar"><i></i><i></i><i></i><span>veredicto / cierzo-seguros / intake</span></div>
   <div class="win-body">
     <div class="win-side">{logo()}<b>Cierzo Seguros</b>
@@ -899,7 +943,9 @@ def landing() -> str:
     <div class="win-main"><div class="win-title"><b>Proposal intake</b><span>{n} screened · {review} waiting for a person</span></div>
       <ol class="pvs">{mini}</ol></div>
   </div>
-</a>
+  </a>
+  <p class="actions center try"><a class="btn lg" href="screen.html">Screen your own file</a><a class="btn ghost lg" href="proposals.html">Open the app</a></p>
+</section>
 
 <section class="sblock" id="examples">
   <h2>Three proposals, three answers.</h2>
@@ -923,11 +969,12 @@ def landing() -> str:
 
 {measured_html(reg, st, n)}
 
-<section class="sblock case">
+<section class="sblock band gold case">
   <div><p class="eyebrow">Case study</p><h2>Cierzo Seguros, a Spanish health and life insurer</h2>
   <p>Six AI systems classified, the health pricing model tested for harm on {people:,} adults from Spain's official
   health survey, and a dated plan for every gap. One prohibited use blocked before purchase, one obligation already overdue.</p>
-  <p class="actions"><a class="btn" href="inventory.html">Read the case study</a><a class="btn ghost" href="evidence.html">See the fairness evidence</a></p></div>
+  <p class="actions"><a class="btn" href="inventory.html">Read the case study</a><a class="btn ghost" href="evidence.html">See the fairness evidence</a></p>
+  <ul class="case-nums"><li><b>6</b>AI systems classified</li><li><b>{people:,}</b>adults in the fairness test</li><li><b>1</b>prohibited use blocked before purchase</li></ul></div>
 </section>
 
 <footer class="sfoot"><span><b>{PRODUCT}</b> · EU AI Act screening</span>
@@ -938,7 +985,11 @@ def landing() -> str:
 {DEMO_JS}"""
     return f"""{head(f"{PRODUCT}: check AI ideas against the EU AI Act", "Screen AI use-case proposals against the EU AI Act: a model reads, code applies the law, people review the hard cases.", "")}
 <body class="landing" data-page="index.html">
+<link rel="stylesheet" href="home.css">
 {body}
+<script type="application/json" id="hero-data">{blob({"examples": ideas})}</script>
+<script type="importmap">{{ "imports": {{ "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" }} }}</script>
+<script type="module" src="hero.js"></script>
 <script src="site.js" data-up=""></script>
 </body>
 </html>
@@ -1045,6 +1096,7 @@ CASES_JS = """<script>
   function close() {
     drawer.removeAttribute('data-open'); scrim.removeAttribute('data-open'); drawer.setAttribute('aria-hidden', 'true');
     document.documentElement.style.overflow = ''; cur = -1; if (opener) opener.focus({ preventScroll: true });
+    if (solo) { solo = false; render(); }
   }
   list.addEventListener('click', e => { const b = e.target.closest('.pv-row'); if (!b) return; opener = b; open(+b.parentElement.dataset.k); });
   scrim.addEventListener('click', close);
@@ -1057,6 +1109,55 @@ CASES_JS = """<script>
     if (e.key === 'ArrowDown' || e.key === 'j') { e.preventDefault(); open(Math.min(cur + 1, view.length - 1)); }
     if (e.key === 'ArrowUp' || e.key === 'k') { e.preventDefault(); open(Math.max(cur - 1, 0)); }
   });
+  // the wall: every case in use as one square, worst first. Hover to read it, click to open it.
+  let solo = false;
+  const wall = document.getElementById('wall'), tip = document.getElementById('wall-tip'), legend = document.getElementById('wall-legend');
+  if (wall) {
+    const ORDER = ['prohibited', 'high_risk', 'transparency', 'minimal'], FILL = { prohibited: '#f0685a', high_risk: '#f2a53a', transparency: '#5d9cf0', minimal: '#4fc57c' };
+    const cases = rows.filter(inUse).sort((a, b) => ORDER.indexOf(a.s) - ORDER.indexOf(b.s));
+    const ctx = wall.getContext('2d'), calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let cols = 1, size = 12, gap = 3, hot = -1, only = '', t0 = 0, raf = 0;
+    legend.innerHTML = ORDER.filter(s => cases.some(r => r.s === s)).map(s => `<button type="button" data-s="${s}" aria-pressed="false"><i style="background:${FILL[s]}"></i>${TIER[s]} <b>${cases.filter(r => r.s === s).length.toLocaleString()}</b></button>`).join('');
+    const layout = () => {
+      const w = wall.parentElement.clientWidth, dpr = Math.min(devicePixelRatio || 1, 2);
+      size = w < 600 ? 8 : 13; gap = w < 600 ? 2 : 3; cols = Math.max(1, Math.floor((w + gap) / (size + gap)));
+      const h = Math.ceil(cases.length / cols) * (size + gap) - gap;
+      wall.width = w * dpr; wall.height = h * dpr; wall.style.height = h + 'px'; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    const draw = now => {
+      const el = t0 ? (now - t0) / 1000 : 99; let moving = false;
+      ctx.clearRect(0, 0, wall.width, wall.height);
+      cases.forEach((r, i) => {
+        const cx = (i % cols) * (size + gap) + size / 2, cy = Math.floor(i / cols) * (size + gap) + size / 2;
+        const u = Math.min(1, Math.max(0, (el - (i % cols) * 0.012 - Math.floor(i / cols) * 0.02) / 0.35));
+        if (u < 1) moving = true;
+        const side = size * u * (2 - u) * (i === hot ? 1.7 : 1);
+        ctx.globalAlpha = only && r.s !== only ? 0.16 : u;
+        ctx.fillStyle = FILL[r.s] || '#888';
+        ctx.beginPath(); ctx.roundRect(cx - side / 2, cy - side / 2, side, side, side * 0.3); ctx.fill();
+        if (i === hot) { ctx.globalAlpha = 1; ctx.lineWidth = 2; ctx.strokeStyle = '#fff'; ctx.stroke(); }
+      });
+      ctx.globalAlpha = 1;
+      if (moving) raf = requestAnimationFrame(draw);
+    };
+    const paint = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(draw); };
+    const at = e => { const b = wall.getBoundingClientRect(), x = Math.floor((e.clientX - b.left) / (size + gap)), y = Math.floor((e.clientY - b.top) / (size + gap)), i = y * cols + x; return x >= 0 && x < cols && i >= 0 && i < cases.length ? i : -1; };
+    wall.addEventListener('pointermove', e => {
+      const i = at(e); if (i === hot) return; hot = i; paint();
+      if (i < 0) { tip.hidden = true; return; }
+      const r = cases[i], b = wall.getBoundingClientRect();
+      tip.innerHTML = `<b>${esc(r.t)}</b><span>${esc(r.o)} · ${esc(r.c)}</span><span class="stamp ${esc(r.s)}">${TIER[r.s] || esc(r.s)}</span>`;
+      tip.hidden = false;
+      tip.style.left = Math.min(Math.max(0, b.width - 300), Math.max(0, e.clientX - b.left + 14)) + 'px'; tip.style.top = (e.clientY - b.top + 18) + 'px';
+    });
+    wall.addEventListener('pointerleave', () => { hot = -1; tip.hidden = true; paint(); });
+    wall.addEventListener('click', e => { const i = at(e); if (i < 0) return; solo = true; view = [cases[i]]; opener = null; open(0); });
+    legend.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; only = only === b.dataset.s ? '' : b.dataset.s;
+      legend.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.s === only))); paint(); });
+    addEventListener('resize', () => { layout(); paint(); });
+    layout();
+    if (calm) paint(); else new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); t0 = performance.now(); paint(); } }, { threshold: 0.15 }).observe(wall);
+  }
   render();
 })();
 </script>"""
@@ -1120,10 +1221,16 @@ a notice to users, and which it leaves alone.</p></div>
 <div class="actions"><a class="btn ghost" href="{e(cs.get('page', ''))}" target="_blank" rel="noopener">Open the dataset</a></div></div>
 <div class="facts">
 <div class="fact"><b>{count(s['in_use'])}</b><span>cases in use or piloted, in {s['countries'] - 1} member states and EU bodies</span></div>
-<div class="fact alert"><b>{count(hr)}</b><span>look high-risk or worse on a first pass ({share:.0%})</span></div>
-<div class="fact"><b>{count(tiers.get('transparency', 0))}</b><span>only need to tell people they are talking to AI</span></div>
-<div class="fact"><b>{count(tiers.get('minimal', 0))}</b><span>fall outside the AI Act's duties</span></div>
+<div class="fact tier high_risk">{tile('high_risk')}<b>{count(hr)}</b><span>look high-risk or worse on a first pass ({share:.0%})</span></div>
+<div class="fact tier transparency">{tile('transparency')}<b>{count(tiers.get('transparency', 0))}</b><span>only need to tell people they are talking to AI</span></div>
+<div class="fact tier minimal">{tile('minimal')}<b>{count(tiers.get('minimal', 0))}</b><span>fall outside the AI Act's duties</span></div>
 </div></section>
+<section class="wall-sec">
+  <div class="wall-head"><div><h2>Every square is one real AI system</h2>
+  <p>All {count(s['in_use'])} in use or piloted, worst first. Point at a square to see what it is, click to open it.</p></div>
+  <div class="wall-legend" id="wall-legend" role="group" aria-label="Show one tier"></div></div>
+  <div class="wall-wrap"><canvas id="wall" aria-hidden="true"></canvas><div class="wall-tip" id="wall-tip" hidden></div></div>
+</section>
 <div class="two">
 {sec("", "Where the high-risk uses sit", "By government function. The bright part of each bar is the share that looks high-risk.",
      f"<ol class='funcs'>{areas}</ol>")}
@@ -1179,26 +1286,42 @@ def supply_page() -> str:
         items.append((order.index(want), r, got, fixes, stake))
     items.sort(key=lambda x: (x[0], x[1]["id"]))
     counts = {t: sum(1 for x in items if x[1]["expected_tier"] == t) for t in order}
-    cards = []
+    cards, tiles = [], []
     for _, r, got, fixes, stake in items:
         want = r["expected_tier"]
         miss = "" if got == want else (
             f"<p class='sc-miss'><b>The keyword reader says {TIER[got]}.</b> It cannot tell a company from a person, "
             f"which is exactly what decides this one. A person or a model reader catches it.</p>")
-        fix = "".join(f"<li><span class='stamp {e(f['to'])}'>{TIER[f['to']]}</span> <b>{e(f['change'])}</b> "
-                      f"<span>{e(f['why'])}</span></li>" for f in fixes)
+        f0 = fixes[0] if fixes else None
         fine = f"<p class='sc-stake'>{e(stake['fine']['text'])}</p>" if stake["fine"] else ""
-        cards.append(f"""<li class="sc">
-<div class="sc-head"><span class="sid">{e(r['id'])}</span><h3>{e(r['title'])}</h3><span class="stamp {e(want)}">{TIER[want]}</span></div>
+        change = (f"""<div class="sc-change"><button type="button" class="sc-apply" aria-pressed="false"><span class="sw" aria-hidden="true"></span>Apply the smallest change</button>
+<p><b>{e(f0['change'])}</b> {e(f0['why'])}</p></div>""" if f0 else "")
+        tiles.append(f"""<button type="button" class="bt" data-id="{e(r['id'])}" aria-pressed="false">
+<span class="bt-flip">{tile(want)}{tile(f0['to']) if f0 else ''}</span><span>{e(r['title'])}</span></button>""")
+        cards.append(f"""<article class="sc sc-pane" id="d-{e(r['id'])}" hidden>
+<div class="sc-head"><span class="sid">{e(r['id'])}</span><h3>{e(r['title'])}</h3><span class="stamp {e(want)} was">{TIER[want]}</span>{
+    f"<span class='stamp {e(f0['to'])} now'>{TIER[f0['to']]} after the change</span>" if f0 else ''}</div>
 <p class="sc-text">{e(r['proposal'])}</p>
 <p class="sc-why">{e(r['why'])}</p>{miss}
-{f'<p class="label">What would make it lighter</p><ul class="sc-fix">{fix}</ul>' if fix else ''}{fine}
-</li>""")
+{change}{fine}
+</article>""")
     facts = "".join(
-        f'<div class="fact{" alert" if t in ("prohibited", "high_risk") else ""}"><b>{count(counts[t])}</b>'
-        f'<span>{label}</span></div>'
+        f'<div class="fact tier {t}">{tile(t)}<b>{count(counts[t])}</b><span>{label}</span></div>'
         for t, label in [("prohibited", "banned outright"), ("high_risk", "high-risk, all about people at work"),
                          ("transparency", "only need an AI notice"), ("minimal", "no AI Act duties")])
+    board_js = """<script>
+(() => {
+  const tiles = [...document.querySelectorAll('.bt')], panes = [...document.querySelectorAll('.sc-pane')];
+  const pick = id => { tiles.forEach(t => t.setAttribute('aria-pressed', String(t.dataset.id === id))); panes.forEach(p => { p.hidden = p.id !== 'd-' + id; }); };
+  tiles.forEach(t => t.addEventListener('click', () => pick(t.dataset.id)));
+  document.querySelectorAll('.sc-apply').forEach(b => b.addEventListener('click', () => {
+    const on = b.getAttribute('aria-pressed') !== 'true', pane = b.closest('.sc-pane');
+    b.setAttribute('aria-pressed', String(on)); pane.classList.toggle('fixed', on);
+    document.querySelector('.bt[data-id="' + pane.id.slice(2) + '"]').classList.toggle('flipped', on);
+  }));
+  pick(tiles[0].dataset.id);
+})();
+</script>"""
     body = f"""
 <section class="hero"><div class="page-head"><div>
 <p class="kicker">{len(rows)} ideas · answers written by hand from the law · screened by the same engine</p>
@@ -1210,7 +1333,13 @@ below shows the answer, the reason, the smallest change that lowers the tier, an
 <button type="button" class="btn" data-guide="idea">Check your own idea</button></div></div>
 <div class="facts">{facts}</div>
 <p class="small muted" style="margin-top:12px">The free keyword reader agrees with {agree} of {len(rows)} hand-written answers.</p></section>
-{sec("", "The ideas, worst first", "", f"<ol class='sc-list'>{''.join(cards)}</ol>")}
+<div class="board-wrap">
+<section class="board-sec"><h2>Twelve ideas. Pick one.</h2>
+<p>Worst first. Where a small change lowers the tier, apply it and watch the tile turn over.</p>
+<div class="board">{''.join(tiles)}</div></section>
+<div class="board-pane">{''.join(cards)}</div>
+</div>
+{board_js}
 {sec("", "Where the numbers come from", "", f'''<div class="prose"><ul>
 <li><b>Answers.</b> Written by hand from the AI Act (Art 5, Annex III, Art 50 and Recital 18 on fatigue), never by the classifier.</li>
 <li><b>Fines.</b> Art 99(3) for prohibited practices, Art 99(4) for other breaches; for SMEs the lower of the two amounts applies (Art 99(6)).</li>
@@ -1243,6 +1372,37 @@ def stress_page(st: dict) -> str:
         f"<span class='stamp {m['got']}'>{TIER[m['got']]}</span><span class='ms'>{e(m['style'])} · {e(m['role'])}</span>"
         f"<p>{e(m['proposal'].split('. ', 1)[1] if '. ' in m['proposal'] else m['proposal'])}</p></li>"
         for m in st["misses"][:24])
+    import csv as _csv
+
+    from src.screener.pipeline import screen_one
+    gen = [r for r in _csv.DictReader((ROOT / "data" / "generated_proposals.csv").open(encoding="utf-8")) if r["role"] == "provider"]
+    tail = lambda t: t.split(". ", 1)[1] if ". " in t else t   # noqa: E731  (drop the shared opening sentence)
+    chips, panes = [], []
+    for sc in dict.fromkeys(r["scenario"] for r in gen):
+        pair = {r["style"]: r for r in gen if r["scenario"] == sc}
+        if not {"plain", "disguised"} <= set(pair):
+            continue
+        want = pair["plain"]["expected_tier"]
+        sides = ""
+        for style, label in (("plain", "Said plainly"), ("disguised", "In disguise")):
+            got = screen_one({"id": sc, "title": sc, "proposal": pair[style]["proposal"]}).assessment.tier
+            ok = got == want
+            sides += (f'<div class="duel-card {"ok" if ok else "bad"}"><p class="label">{label}</p><p class="duel-text">{e(tail(pair[style]["proposal"]))}</p>'
+                      f'<div class="duel-out">{tile(got)}<span><b>{"Caught" if ok else "Missed"}</b>The keyword reader said {TIER[got]}</span></div></div>')
+        chips.append(f'<button type="button" data-sc="{e(sc)}" aria-pressed="false">{e(pair["plain"]["title"])}</button>')
+        panes.append(f'<div class="duel-pane" id="du-{e(sc)}" hidden><p class="duel-right">The right answer: <span class="stamp {want}">{TIER[want]}</span></p>'
+                     f'<div class="duel-two">{sides}</div></div>')
+    duel = f"""<section class="duel"><h2>Same practice, two wordings</h2>
+<p>Pick a practice. On the left it is named plainly. On the right it is dressed in product language. The tile is what the free keyword reader said.</p>
+<div class="duel-chips" role="group" aria-label="Practice">{"".join(chips)}</div>{"".join(panes)}</section>
+<script>
+(() => {{
+  const chips = [...document.querySelectorAll('.duel-chips button')], panes = [...document.querySelectorAll('.duel-pane')];
+  const pick = id => {{ chips.forEach(c => c.setAttribute('aria-pressed', String(c.dataset.sc === id))); panes.forEach(p => {{ p.hidden = p.id !== 'du-' + id; }}); }};
+  chips.forEach(c => c.addEventListener('click', () => pick(c.dataset.sc)));
+  if (chips[0]) pick(chips[0].dataset.sc);
+}})();
+</script>""" if panes else ""
     body = f"""
 <section class="hero"><div class="page-head"><div>
 <p class="kicker">Measured {_when(st['run'])} · {e(st['reader'])}</p>
@@ -1256,6 +1416,7 @@ phrased plainly and in disguise, so the score shows how much the reader leans on
 <div class="fact alert"><b>{st['by_style'].get('disguised', {}).get('accuracy', 0):.0%}</b><span>disguised wording</span></div>
 <div class="fact alert"><b>{st['under_called_severe']}</b><span>prohibited or high-risk called milder</span></div>
 </div></section>
+{duel}
 {sec("", "Accuracy by wording", "Same scenarios, same answers; only the words change.", f"<ol class='styles'>{bars}</ol>")}
 <div class="two">
 {sec("", "What it said, against the right answer", "Rows: the correct tier. Columns: the screener. Red cells are the costly mistake: calling something milder than it is.",
@@ -1266,7 +1427,8 @@ and every miss on a prohibited or high-risk system is the dangerous kind.</p><p>
 check is what makes one safe to use: whatever it reads, it has to point at the sentence.</p><p class="small muted">Labels are written
 per scenario by hand, never computed by the classifier, so the test does not grade the code against itself.</p></div>''')}
 </div>
-{sec("", "Misses", "The first two dozen, with the sentence that should have been caught.", f"<ul class='misses'>{misses}</ul>")}
+{sec("", "Misses", "The first two dozen, with the sentence that should have been caught.",
+     f"<details class='fold'><summary>Show the misses</summary><ul class='misses'>{misses}</ul></details>")}
 """
     return page("stress.html", f"Stress test · {PRODUCT}", body,
                 "Generated proposals with hand-written answers, phrased plainly and in disguise, to measure the screener's reader.")
@@ -1355,6 +1517,61 @@ def measured_html(reg: dict | None, st: dict | None, n_samples: int) -> str:
 tripled between 2022 and 2025 (p. 35). Checking AI ideas early is becoming a routine business task, not a one-off legal review.</p></section>"""
 
 
+PEOPLE = [("Reader", "#3b5bdb"), ("Checker", "#0f766e"), ("Law clerk", "#8fa2e8"), ("Challenger", "#7c3aed"),
+          ("Writer", "#c2410c"), ("Reviewer", "#e0a80b")]
+
+
+def screen_page() -> str:
+    """Drop a CSV of proposals and watch each one pass the six people. The script is site_src/screen.js."""
+    import csv
+
+    from src.screener.ask import check
+    rows = [{"id": r["id"], "company": r["company"], "title": r["title"], "proposal": r["proposal"]}
+            for r in csv.DictReader((ROOT / "data" / "proposals_sample.csv").open(encoding="utf-8"))]
+    data = {"rows": rows, "results": {r["id"]: check(r["proposal"]) for r in rows}}
+    people = "".join(f'<div class="sc-person" style="--c:{c}"><i></i><span>{n}</span></div>' for n, c in PEOPLE)
+    up = ('<svg class="tile" viewBox="0 0 40 40" aria-hidden="true"><rect x="1.5" y="1.5" width="37" height="37" rx="12" fill="#3f7bff"/>'
+          '<rect x="1.5" y="1.5" width="37" height="18" rx="12" fill="#fff" opacity=".16"/>'
+          '<rect x="1.5" y="1.5" width="37" height="37" rx="12" fill="none" stroke="#ffcc00" stroke-width="1.5"/>'
+          '<g fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 28V13M13.5 19l6.5-6.5 6.5 6.5"/></g></svg>')
+    facts = "".join(f'<div class="fact tier {t}">{tile(t)}<b data-count="{t}">0</b><span>{lab}</span></div>'
+                    for t, lab in (("prohibited", "prohibited"), ("high_risk", "high-risk"), ("transparency", "transparency only"), ("minimal", "minimal")))
+    body = f"""
+<link rel="stylesheet" href="screen.css">
+<section class="hero">
+  <div class="page-head">
+    <div><h1>Screen your file</h1>
+    <p class="lede">Drop a spreadsheet of AI proposals. Each one passes the six people from the hall and comes back with its verdict,
+    its articles and whether a person should look. The file is read in your browser and goes nowhere else.</p></div>
+    <div class="actions"><a class="btn ghost" href="downloads/proposals_sample.csv">Download the sample</a></div>
+  </div>
+</section>
+<section class="sc-drop" id="sc-drop">{up}
+  <h2>Drop a CSV of proposals here</h2>
+  <p>It needs one column called <b>proposal</b>. Columns called title, id and company are used if they are there. From Excel: File, Save as, CSV.</p>
+  <p class="actions"><button type="button" class="btn" id="sc-pick">Choose a file</button>
+  <button type="button" class="btn ghost" id="sc-sample">Use the sample file · {len(rows)} proposals</button></p>
+  <p id="sc-note" role="status"></p>
+  <input type="file" id="sc-file" accept=".csv,text/csv" hidden>
+</section>
+<div id="sc-run" hidden>
+  <section class="sc-stage">
+    <p id="sc-name"></p>
+    <div class="sc-line">{people}<div class="sc-track"><div id="sc-folder"></div></div></div>
+    <div id="sc-now" role="status" aria-live="polite"></div>
+    <div class="sc-prog"><div id="sc-bar"></div></div>
+  </section>
+  <div class="facts">{facts}<div class="fact"><b data-count="review">0</b><span>waiting for a person</span></div></div>
+  <ol id="sc-list"></ol>
+  <p class="actions" id="sc-done" hidden><button type="button" class="btn" id="sc-save">Download the results (CSV)</button>
+  <button type="button" class="btn ghost" id="sc-again">Screen another file</button></p>
+</div>
+<script type="application/json" id="screen-data">{blob(data)}</script>
+<script type="module" src="screen.js"></script>"""
+    return page("screen.html", "Screen your file", body,
+                "Drop a CSV of AI proposals and watch each one screened against the EU AI Act, in your browser.")
+
+
 HALL_IDEAS = [
     ("Emotion reading at work", "A tool that reads the emotions of our call-centre staff from their voice to coach them."),
     ("CV ranking", "A model that scores job applicants from their CVs and ranks them for recruiters. We develop it ourselves."),
@@ -1363,18 +1580,27 @@ HALL_IDEAS = [
 ]
 
 
+@functools.lru_cache(maxsize=1)
+def idea_examples() -> list[dict]:
+    from src.screener.ask import check
+    return [{"label": lab, "text": text, "result": check(text)} for lab, text in HALL_IDEAS]
+
+
+def blob(data: dict) -> str:
+    """JSON for a <script type="application/json"> block."""
+    return json.dumps(data, ensure_ascii=False).replace("</", "<" + chr(92) + "/")
+
+
 def hall_page() -> str:
     """One idea walks past six desks and leaves with a verdict. The 3D scene is site_src/hall.js."""
-    from src.screener.ask import check
     st = live_data()[1]
-    data = {"examples": [{"label": lab, "text": text, "result": check(text)} for lab, text in HALL_IDEAS],
+    data = {"examples": idea_examples(),
             "stress": ({"plain": round(st["by_style"]["plain"]["accuracy"] * 100),
                         "disguised": round(st["by_style"]["disguised"]["accuracy"] * 100)}
                        if st and {"plain", "disguised"} <= set(st["by_style"]) else None)}
     names = ["Reader", "Checker", "Law clerk", "Challenger", "Writer", "Reviewer", "Verdict"]
     steps = "".join(f'<li><button type="button" class="h-step" disabled>{n}</button></li>' for n in names)
     chips = "".join(f'<button type="button">{e(lab)}</button>' for lab, _ in HALL_IDEAS)
-    blob = json.dumps(data, ensure_ascii=False).replace("</", "<" + chr(92) + "/")
     return f"""{head(f"The hall: walk an AI idea to its verdict | {PRODUCT}", "Type an AI idea and watch it pass six desks, each giving an opinion, before it is stamped with its EU AI Act risk tier.", "")}
 <body class="hall" data-page="hall.html">
 <link rel="stylesheet" href="hall.css">
@@ -1400,7 +1626,7 @@ def hall_page() -> str:
 </section>
 <section class="h-panel" id="h-verdict" aria-live="polite" hidden><div id="h-out"></div></section>
 </main>
-<script type="application/json" id="hall-data">{blob}</script>
+<script type="application/json" id="hall-data">{blob(data)}</script>
 <script type="importmap">{{ "imports": {{ "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" }} }}</script>
 <script type="module" src="hall.js"></script>
 </body>
@@ -1415,8 +1641,8 @@ def main() -> int:
     OUT.mkdir()
     shutil.copy(ROOT / "site_src" / "style.css", OUT / "style.css")
     shutil.copy(ROOT / "site_src" / "site.js", OUT / "site.js")
-    shutil.copy(ROOT / "site_src" / "hall.js", OUT / "hall.js")
-    shutil.copy(ROOT / "site_src" / "hall.css", OUT / "hall.css")
+    for f in ("hall.js", "hall.css", "hero.js", "home.css", "kit3d.js", "engine.js", "screen.js", "screen.css"):
+        shutil.copy(ROOT / "site_src" / f, OUT / f)
     shutil.copytree(ROOT / "site_src" / "guide", OUT / "guide")
     # the screener itself, so the guide can check a typed idea in the browser (Pyodide)
     for f in ("src/__init__.py", "src/rules.py", "src/screener/__init__.py", "src/screener/law.py",
@@ -1430,6 +1656,7 @@ def main() -> int:
         "evidence.html": evidence_page(ev, tariffs),
         "roadmap.html": roadmap_page(rows),
         "proposals.html": proposals_page(),
+        "screen.html": screen_page(),
         "documents.html": documents_page(),
         "supply.html": supply_page(),
         "hall.html": hall_page(),

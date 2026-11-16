@@ -969,3 +969,112 @@ body.landing .snav { background: color-mix(in srgb, var(--bg) 82%, transparent);
 .g-stake p { margin: 0; font-size: 13px; color: #cfd9d5; }
 .g-stake b { color: #f5c77e; }
 .g-src { font-size: 11.5px !important; color: #75837e !important; }
+
+/* ===================================================================================== */
+/* v3: one look with the home page. The sidebar is the studio (deep EU blue), the main    */
+/* action is gold, minimal risk is green like the tick on the verdict tile, and the tier  */
+/* counts wear a small tile.                                                              */
+/* ===================================================================================== */
+:root { --studio: #0b2a7a; --studio-deep: #071c55; --minimal: #1f7d48; --minimal-soft: #e4f4ea; }
+@media (prefers-color-scheme: dark) { :root { --minimal: #7ddf9a; --minimal-soft: rgba(125, 223, 154, 0.13); } }
+body.landing { --minimal: #7ddf9a; --minimal-soft: rgba(125, 223, 154, 0.13); }
+
+.side { background: linear-gradient(180deg, var(--studio), var(--studio-deep)); border-right: 0; color: #fff; }
+.side .org b { color: #fff; }
+.side .org span span, .side .navgroup > span { color: rgba(255, 255, 255, 0.66); }
+.side .navgroup a { color: rgba(255, 255, 255, 0.88); }
+.side .navgroup a .count { color: inherit; opacity: 0.8; }
+.side .navgroup a[aria-current="page"] { background: #fff; color: var(--studio); }
+.side .navgroup a[aria-current="page"] .count { color: var(--studio); opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .side .navgroup a:not([aria-current="page"]):hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+}
+.side .eu-badge { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.24); color: #fff; }
+.side .side-foot { border-top-color: rgba(255, 255, 255, 0.18); color: rgba(255, 255, 255, 0.7); }
+.side .side-foot a { color: #fff; }
+.side :focus-visible { outline-color: #ffcc00; }
+
+.btn:not(.ghost):not(.light) { background: #ffcc00; border-color: #ffcc00; color: #0a1a44; font-weight: 600; }
+.hero h1 { font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spacing: -0.03em; }
+
+/* a tier count: the number in the tier's colour, with the tile that stands for it */
+.fact.tier { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; align-items: center; }
+.fact.tier .tile { grid-row: span 2; width: 38px; height: 38px; }
+.fact.tier b, .fact.tier.alert b { color: var(--t); }
+.fact.tier .num { color: inherit; text-shadow: none; }
+.fact.tier.prohibited { --t: var(--prohibited); }
+.fact.tier.high_risk { --t: var(--high); }
+.fact.tier.transparency { --t: var(--transp); }
+.fact.tier.minimal { --t: var(--minimal); }
+.tile { display: block; flex: none; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.22)); }
+
+/* the wall on the EU public sector page: one square per real case, on the studio blue */
+.wall-sec { padding: 24px; border: 0; border-radius: 20px; color: #fff; background: linear-gradient(160deg, #0f37a0, #071c55 70%); box-shadow: var(--shadow-lg); }
+.wall-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 14px 30px; margin-bottom: 20px; }
+.wall-head h2 { margin: 0 0 4px; font: 600 clamp(20px, 2.4vw, 28px)/1.15 var(--display); letter-spacing: -0.02em; }
+.wall-head p { margin: 0; color: rgba(255, 255, 255, 0.82); font-size: 14.5px; }
+.wall-legend { display: flex; flex-wrap: wrap; gap: 6px; }
+.wall-legend button { display: inline-flex; align-items: center; gap: 7px; padding: 6px 11px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.2); color: #fff; font: 500 13px var(--sans); cursor: pointer; transition: background 160ms ease, color 160ms ease; }
+.wall-legend button i { width: 11px; height: 11px; border-radius: 3px; }
+.wall-legend button b { font-family: var(--mono); font-weight: 500; }
+.wall-legend button[aria-pressed="true"] { background: #fff; border-color: #fff; color: #0a1a44; }
+.wall-wrap { position: relative; }
+#wall { display: block; width: 100%; cursor: pointer; touch-action: pan-y; }
+.wall-tip { position: absolute; z-index: 3; width: 290px; display: grid; gap: 4px; justify-items: start; padding: 10px 12px; border-radius: 10px; pointer-events: none;
+  background: #050b24; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 16px 30px rgba(0, 0, 0, 0.5); font-size: 13px; }
+.wall-tip b { font-weight: 600; } .wall-tip span:not(.stamp) { color: rgba(255, 255, 255, 0.76); }
+.wall-tip .stamp.prohibited { color: #ff9c90; background: rgba(249, 122, 109, 0.16); } .wall-tip .stamp.high_risk { color: #ffc266; background: rgba(245, 177, 76, 0.16); }
+.wall-tip .stamp.transparency { color: #9cc4ff; background: rgba(141, 180, 247, 0.16); } .wall-tip .stamp.minimal { color: #8fe8ab; background: rgba(125, 223, 154, 0.16); }
+
+/* supply chain: a board of tiles on the studio blue; the picked idea opens beside it */
+.board-wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 16px; align-items: start; margin-top: 20px; }
+.board-sec, .duel { margin: 0; padding: 24px; border: 0; border-radius: 20px; color: #fff; background: linear-gradient(160deg, #0f37a0, #071c55 70%); box-shadow: var(--shadow-lg); }
+.board-sec h2, .duel h2 { margin: 0 0 4px; font: 600 clamp(20px, 2.4vw, 28px)/1.15 var(--display); letter-spacing: -0.02em; }
+.board-sec > p, .duel > p { margin: 0 0 18px; color: rgba(255, 255, 255, 0.82); font-size: 14.5px; max-width: 70ch; }
+.board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.bt { display: grid; justify-items: center; align-content: start; gap: 9px; padding: 14px 6px 12px; border: 0; border-radius: 14px; background: rgba(255, 255, 255, 0.07); color: #fff;
+  font: 500 12.5px/1.25 var(--sans); text-align: center; cursor: pointer; transition: background 160ms ease, color 160ms ease, transform 160ms var(--ease-out); }
+.bt[aria-pressed="true"] { background: #fff; color: #0a1a44; }
+.bt:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .bt:not([aria-pressed="true"]):hover { background: rgba(255, 255, 255, 0.16); } }
+.bt-flip { position: relative; width: 56px; height: 56px; transform-style: preserve-3d; transition: transform 620ms cubic-bezier(0.3, 1.35, 0.5, 1); }
+.bt.flipped .bt-flip { transform: rotateY(180deg); }
+.bt-flip .tile { position: absolute; inset: 0; width: 100%; height: 100%; backface-visibility: hidden; }
+.bt-flip .tile + .tile { transform: rotateY(180deg); }
+.board-pane { position: sticky; top: 72px; }
+.board-pane .sc-pane { margin: 0; padding: 22px 24px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); animation: exin 260ms var(--ease-out); }
+.sc-pane .now { display: none; }
+.sc-pane.fixed .was { opacity: 0.45; text-decoration: line-through; }
+.sc-pane.fixed .now { display: inline-flex; }
+.sc-change { margin-top: 14px; padding: 14px 16px; border-radius: 14px; background: var(--surface-2); }
+.sc-change p { margin: 10px 0 0; font-size: 14px; color: var(--ink-2); }
+.sc-change p b { color: var(--ink); }
+.sc-apply { display: inline-flex; align-items: center; gap: 10px; padding: 0; border: 0; background: none; color: var(--ink); font: 600 14.5px var(--sans); cursor: pointer; }
+.sc-apply .sw { position: relative; width: 42px; height: 24px; border-radius: 999px; background: var(--line-strong); transition: background 200ms ease; }
+.sc-apply .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); transition: transform 220ms var(--ease-out); }
+.sc-apply[aria-pressed="true"] .sw { background: #2f9e5b; }
+.sc-apply[aria-pressed="true"] .sw::after { transform: translateX(18px); }
+@media (max-width: 900px) { .board-wrap { grid-template-columns: minmax(0, 1fr); } .board-pane { position: static; } .board { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* stress test: the same practice in two wordings, side by side */
+.duel { margin-top: 20px; }
+.duel-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.duel-chips button { padding: 6px 11px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(0, 0, 0, 0.2); color: #fff; font: 500 13px var(--sans); cursor: pointer;
+  transition: background 160ms ease, color 160ms ease; }
+.duel-chips button[aria-pressed="true"] { background: #fff; border-color: #fff; color: #0a1a44; }
+.duel-right { margin: 0 0 12px; font-size: 14px; color: rgba(255, 255, 255, 0.82); }
+.duel-right .stamp, .duel .stamp { background: rgba(255, 255, 255, 0.92); }
+.duel-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.duel-card { display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: 16px; background: rgba(4, 10, 32, 0.55); }
+.duel-card .label { margin: 0; color: rgba(255, 255, 255, 0.7); }
+.duel-text { margin: 0; flex: 1; font-size: 15.5px; line-height: 1.5; text-wrap: pretty; }
+.duel-out { display: flex; align-items: center; gap: 12px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.16); font-size: 13.5px; color: rgba(255, 255, 255, 0.8); }
+.duel-out .tile { width: 48px; height: 48px; animation: tile-turn 520ms cubic-bezier(0.3, 1.35, 0.5, 1) both; }
+.duel-card + .duel-card .tile { animation-delay: 160ms; }
+@keyframes tile-turn { from { transform: rotateY(90deg) scale(0.8); opacity: 0; } }
+.duel-out b { display: block; font: 600 17px var(--display); }
+.duel-card.ok .duel-out b { color: #8fe8ab; } .duel-card.bad .duel-out b { color: #ff9c90; }
+.fold > summary { cursor: pointer; font-weight: 600; padding: 4px 0 12px; }
+@media (max-width: 700px) { .duel-two { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .bt-flip { transition: none; } .duel-out .tile { animation: none; } }

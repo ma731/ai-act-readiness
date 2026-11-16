@@ -1,0 +1,129 @@
+/* Home page. The hero is a studio with one tile; the studio is whatever colour the verdict is.
+   Below it, sections are set left and large instead of centred. Loaded after style.css. */
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* ---------- hero ---------- */
+body.landing .shero { --studio: #0b2a7a; position: relative; isolation: isolate; display: flex; flex-direction: column; justify-content: center;
+  min-height: clamp(620px, calc(100dvh - 64px), 800px); padding: 0; margin: 0; text-align: left; color: #fff; }
+body.landing .shero::before { background: var(--studio); }   /* what shows without 3D */
+#hero-canvas { position: absolute; z-index: -1; inset: 0 auto 0 50%; width: 100vw; height: 100%; transform: translateX(-50%); display: block;
+  opacity: 0; transition: opacity 700ms ease; }
+.has-3d #hero-canvas { opacity: 1; }
+
+.hero-copy { max-width: 640px; padding: 36px 0 22px; text-shadow: 0 1px 22px rgba(0, 0, 0, 0.22); }
+body.landing .shero::after { display: none; }
+body.landing .hero-tag { margin: 0 0 16px; background: rgba(0, 0, 0, 0.22); border-color: rgba(255, 255, 255, 0.22); }
+body.landing .shero h1 { margin: 0 0 12px; max-width: none; font-size: clamp(36px, 3.6vw, 52px); line-height: 1.04; letter-spacing: -0.035em; text-wrap: balance; }
+body.landing .shero .gold { color: #ffd43b; }
+body.landing .slede { margin: 0 0 20px; max-width: 60ch; color: rgba(255, 255, 255, 0.9); font-size: clamp(16px, 1.5vw, 18px); }
+
+#hero-form { display: flex; gap: 8px; text-shadow: none; }
+#hero-idea { flex: 1; min-width: 0; height: 54px; padding: 0 18px; border: 0; border-radius: 13px; background: #fff; color: #10131a;
+  font: 16px var(--sans); box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.5); }
+#hero-idea::placeholder { color: #5d6675; }
+#hero-idea:focus-visible { outline: 3px solid #ffd43b; outline-offset: 2px; }
+#hero-go { color: #0a1a44; height: 54px; padding: 0 22px; border-radius: 13px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 160ms var(--ease-out), background 160ms ease; }
+#hero-go:active { transform: scale(0.97); }
+#hero-go:disabled { opacity: 0.7; cursor: progress; }
+
+.hero-ex { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 14px 0 0; text-shadow: none; }
+.hero-ex span { font-size: 13.5px; color: rgba(255, 255, 255, 0.8); margin-right: 2px; }
+.hero-ex button { padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.34); background: rgba(0, 0, 0, 0.18); color: #fff;
+  font: 500 13.5px var(--sans); cursor: pointer; transition: background 160ms ease, color 160ms ease, border-color 160ms ease; }
+.hero-ex button[aria-pressed="true"] { background: #fff; border-color: #fff; color: #10131a; }
+@media (hover: hover) and (pointer: fine) { .hero-ex button:not([aria-pressed="true"]):hover { background: rgba(255, 255, 255, 0.2); } }
+
+#hero-out { margin-top: 18px; min-height: 168px; padding: 16px 20px 18px; border-radius: 16px; background: rgba(6, 10, 26, 0.52); text-shadow: none; }
+#hero-out p { margin: 0; }
+.ho-label { font: 500 12.5px var(--mono); color: rgba(255, 255, 255, 0.74); }
+.ho-idea { margin-top: 6px !important; font-size: 15px; color: rgba(255, 255, 255, 0.92); text-wrap: pretty; }
+.ho-verdict { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 12px !important; font: 600 19px/1.2 var(--display); letter-spacing: -0.01em; }
+.ho-stamp { padding: 3px 10px; border: 2.5px solid currentColor; border-radius: 8px; font: 700 13px var(--display); letter-spacing: 0.09em; text-transform: uppercase;
+  transform: rotate(-2.5deg); animation: ho-thunk 420ms var(--ease-out) both; }
+@keyframes ho-thunk { from { opacity: 0; transform: rotate(-2.5deg) scale(1.7); } }
+.shero[data-tier="prohibited"] .ho-stamp { color: #ff9c90; }
+.shero[data-tier="high_risk"] .ho-stamp { color: #ffc266; }
+.shero[data-tier="transparency"] .ho-stamp { color: #9cc4ff; }
+.shero[data-tier="minimal"] .ho-stamp { color: #8fe8ab; }
+.ho-why { margin-top: 8px !important; font-size: 14.5px; color: rgba(255, 255, 255, 0.84); text-wrap: pretty; }
+.ho-why span { color: #fff; white-space: nowrap; }
+.ho-links { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 12px !important; }
+.ho-links a { color: #fff; font-weight: 600; font-size: 14.5px; text-underline-offset: 4px; text-decoration-thickness: 1.5px; }
+.ho-links a::after { content: " \2192"; }
+
+.hero-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin: 0; padding: 0 0 22px; }
+body.landing .hero-foot .live { margin: 0; background: rgba(0, 0, 0, 0.22); }
+body.landing .hero-foot .fine { margin: 0; color: rgba(255, 255, 255, 0.74); }
+
+@media (max-width: 759px) {
+  body.landing .shero { min-height: 0; justify-content: flex-start; }
+  .hero-copy { padding: 372px 0 22px; max-width: none; }
+  body.landing .shero h1 { font-size: clamp(32px, 9.4vw, 42px); max-width: none; }
+  #hero-form { flex-wrap: wrap; }
+  #hero-idea { flex-basis: 100%; }
+  #hero-go { flex: 1; }
+}
+
+/* ---------- sections: set left, larger, no ornament above the heading ---------- */
+body.landing .sblock { padding-top: 112px; }
+body.landing .sblock h2 { text-align: left; max-width: 20ch; margin: 0 0 14px; font-size: clamp(30px, 4.1vw, 50px); line-height: 1.04; letter-spacing: -0.032em; text-wrap: balance; }
+body.landing .sblock h2::before { display: none; }
+body.landing .ssub { text-align: left; margin: 0 0 30px; max-width: 58ch; font-size: 17px; }
+body.landing .seg { margin-left: 0; }
+body.landing .sblock .actions.center { justify-content: flex-start; }
+body.landing .runs { justify-content: flex-start; }
+body.landing .why-now { text-align: left; margin-left: 0; font-size: 15px; }
+body.landing .case > div { max-width: none; margin: 0; }
+body.landing .case h2 { font-size: clamp(24px, 3vw, 34px); max-width: 24ch; }
+body.landing .window { margin-top: 0; }
+
+/* the measured numbers stand on a rule, not in boxes */
+body.landing .meas { gap: 36px; }
+body.landing .m { padding: 20px 0 0; border: 0; border-top: 2px solid var(--line-strong); border-radius: 0; background: none; box-shadow: none; }
+body.landing .m > b { font-size: clamp(40px, 4.6vw, 58px); letter-spacing: -0.03em; }
+
+/* scroll: the app window tips up into place, headings rise as they enter */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    body.landing .window { transform-origin: 50% 100%; animation: win-rise linear both; animation-timeline: view(); animation-range: entry 0% cover 36%; }
+    @keyframes win-rise { from { transform: perspective(1600px) rotateX(16deg) scale(0.93); opacity: 0.5; } to { transform: none; opacity: 1; } }
+    body.landing .sblock h2 { animation: head-in linear both; animation-timeline: view(); animation-range: entry 0% entry 80%; }
+    @keyframes head-in { from { opacity: 0.2; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+  }
+}
+@media (prefers-reduced-motion: reduce) { .ho-stamp { animation: none; } #hero-canvas { transition: none; } }
+
+/* ---------- colour bands: a full-width block of colour behind a section ---------- */
+body.landing .band { position: relative; isolation: isolate; margin-top: 112px; padding: 96px 0; }
+body.landing .band::before { content: ""; position: absolute; z-index: -1; inset: 0 auto 0 50%; width: 100vw; transform: translateX(-50%); }
+body.landing .band.blue { color: #fff; }
+body.landing .band.blue::before { background: linear-gradient(180deg, #0b2a7a, #071c55); }
+body.landing .band.blue .ssub { color: rgba(255, 255, 255, 0.86); }
+body.landing .band.gold { color: #0a1a44; }
+body.landing .band.gold::before { background: #ffcc00; }
+body.landing .band + .sblock:not(.band) { padding-top: 112px; }
+
+/* the story: the hall, playing */
+.story-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 18px 40px; margin-bottom: 30px; }
+.story-head > div { flex: 1 1 520px; min-width: 0; }
+body.landing .story-head .ssub { margin-bottom: 0; }
+.hall-frame { position: relative; display: block; border-radius: 22px; overflow: hidden; aspect-ratio: 16 / 8.6; background: #050a1f;
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.14); transition: transform 300ms var(--ease-out); }
+.hall-frame iframe { display: block; width: 100%; height: 100%; border: 0; pointer-events: none; }
+.hall-frame span { position: absolute; right: 16px; top: 16px; padding: 8px 14px; border-radius: 999px; background: #ffcc00; color: #0a1a44; font: 600 13.5px var(--sans); }
+@media (hover: hover) and (pointer: fine) { .hall-frame:hover { transform: translateY(-4px); } }
+.six { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 26px 0 0; padding: 0; list-style: none; font-size: 14.5px; color: rgba(255, 255, 255, 0.86); }
+.six li { display: flex; align-items: center; gap: 8px; }
+.six i { width: 14px; height: 14px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85); }
+.six b { color: #fff; font-weight: 600; }
+@media (max-width: 759px) { .hall-frame { aspect-ratio: 3 / 4; } body.landing .band { padding: 64px 0; } }
+
+/* the case study, on EU gold */
+body.landing .band.gold.case > div { padding: 0; border: 0; background: none; }
+body.landing .band.gold .eyebrow { color: #0a1a44; font-weight: 600; }
+body.landing .band.gold p { color: #1c2a55; }
+body.landing .band.gold .btn:not(.ghost) { background: #0a1a44; border-color: #0a1a44; color: #fff; }
+body.landing .band.gold .btn.ghost { background: transparent; border-color: #0a1a44; color: #0a1a44; }
+.case-nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin: 44px 0 0; padding: 26px 0 0; list-style: none; border-top: 2px solid #0a1a44; font-size: 15px; color: #1c2a55; }
+.case-nums b { display: block; font: 600 clamp(40px, 5vw, 64px)/1 var(--display); letter-spacing: -0.035em; color: #0a1a44; margin-bottom: 6px; }
+@media (max-width: 759px) { .case-nums { grid-template-columns: minmax(0, 1fr); gap: 18px; } }
